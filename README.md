@@ -155,3 +155,34 @@ Para conectar os pedidos aos itens do menu e armazenar informações específica
 - **Indexação:** Considere adicionar índices para colunas frequentemente pesquisadas para melhorar a performance.
 
 Com este design, você terá um banco de dados robusto e bem estruturado, pronto para gerenciar os usuários, pedidos e itens do menu do seu aplicativo de bar.
+
+## Changelog
+
+### 2024/02/01 version 0.3.0:
+
+Nesta versão, fiz várias alterações e acabei não fazendo o commit no momento correto. No final, praticamente todo o código teve alguma modificação e adicionei apenas algumas partes das mudanças abaixo. No entanto, as partes principais foram a adição de um sistema de autenticação com cookies, a padronização das mensagens de erro e logs nas camadas mais internas do aplicativo.
+
+* bares_api/go.mod:
+  - github.com/DATA-DOG/go-sqlmock v1.5.2: Simular a interação do banco de dados para testes de integração e unitários.
+  - github.com/dgrijalva/jwt-go v3.2.0+incompatible: Para lidar com JSON Web Tokens (JWT) e gerenciamento de cookies na autenticação.
+  - github.com/go-sql-driver/mysql v1.7.1: Suporte ao MySQL.
+  - github.com/gorilla/mux v1.8.1: Gorilla Mux para roteamento HTTP.
+  - github.com/stretchr/testify v1.8.4: Biblioteca de suporte a testes.
+  - golang.org/x/crypto v0.18.0: Usado na criptografia de senhas na autenticação e armazenamento de senhas.
+  - golang.org/x/term v0.16.0:
+  - github.com/davecgh/go-spew v1.1.1:
+  - golang.org/x/sys:
+  - github.com/pmezard/go-difflib v1.0.0: Estes últimos são de suporte geral para o aplicativo.
+
+* bares_api/handlers/auth.go:
+  - Adição da struct AuthHandler para gerar o handler de autenticação.
+  - NewAuthHandler cria uma nova instância de AuthHandler.
+  - Método func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request) para autenticar um usuário no sistema.
+
+* bares_api/handlers/auth.go:
+  - Implementa o serviço de autenticação (AuthService).
+
+* bares_api/handlers/middleware.go:
+  - Implementa um middleware de autenticação (AuthMiddleware) para a API.
+
+

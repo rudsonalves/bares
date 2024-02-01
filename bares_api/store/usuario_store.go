@@ -4,25 +4,36 @@ import (
 	"bares_api/models"
 	"database/sql"
 	"fmt"
+	"log"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+  createUserSQL = "INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?)"
+  getUserByEmailSQL = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
+  updateUserSQL = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?"
+  getUserSQL = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
+  deleteUserSQL = "DELETE FROM %s WHERE %s = ?"
 )
 
 // UsuarioStore mantém a conexão com o banco de dados para operações relacionadas a usuários.
 type UsuarioStore struct {
-	DB *sql.DB
+  DB *sql.DB
 }
 
-// NewUsuarioStore cria uma nova instância de UsuarioStore.
-func NewUsuarioStore(db *sql.DB) *UsuarioStore {
-	return &UsuarioStore{DB: db}
+// NewUsuario cria uma nova instância de UsuarioStore.
+func NewUsuario(db *sql.DB) *UsuarioStore {
+  return &UsuarioStore{DB: db}
 }
 
 // UsuarioStorer define as operações que um UsuarioStore precisa implementar.
 type UsuarioStorer interface {
-	CreateUsuario(user *models.Usuario) error
-	GetUsuario(id int) (*models.Usuario, error)
-	GetUsuarioByEmail(email string) (*models.Usuario, error)
-	UpdateUsuario(user *models.Usuario) error
-	DeleteUsuario(id int) error
+  CreateUsuario(user *models.Usuario) error
+  GetUsuario(id int) (*models.Usuario, error)
+  GetUsuarioByEmail(email string) (*models.Usuario, error)
+  UpdateUsuario(user *models.Usuario) error
+  DeleteUsuario(id int) error
 }
 
 // Garanta que UsuarioStore implementa UsuarioStorer.
@@ -30,91 +41,133 @@ var _ UsuarioStorer = &UsuarioStore{}
 
 // CreateUsuario adiciona um novo usuário ao banco de dados.
 func (store *UsuarioStore) CreateUsuario(user *models.Usuario) error {
-	createString := fmt.Sprintf("INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?)",
-		TableUsuarios, Nome, Email, SenhaHash, Papel)
+  sqlString := fmt.Sprintf(createUserSQL, TableUsuarios, Nome, Email, SenhaHash, Papel)
 
-	stmt, err := store.DB.Prepare(createString)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
+  stmt, err := store.DB.Prepare(sqlString)
+  if err != nil {
+    log.Printf("erro CreateUsuario: %v", err)
+    return fmt.Errorf("erro CreateUsuario: %v", err)
+  }
+  defer stmt.Close()
 
-	result, err := stmt.Exec(user.Nome, user.Email, user.SenhaHash, user.Papel)
-	if err != nil {
-		return err
-	}
+  // hashed user password
+  hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.SenhaHash), bcrypt.DefaultCost)
+  if err != nil {
+    log.Printf("erro CreateUsuario: %v", err)
+    return fmt.Errorf("erro CreateUsuario: %v", err)
+  }
+  user.SenhaHash = string(hashedPassword)
 
-	usuarioID, err := result.LastInsertId()
-	if err != nil {
-		return err
-	}
-	user.UsuarioID = int(usuarioID)
+  result, err := stmt.Exec(user.Nome, user.Email, user.SenhaHash, user.Papel)
+  if err != nil {
+    log.Printf("erro CreateUsuario: %v", err)
+    return fmt.Errorf("erro CreateUsuario: %v", err)
+  }
 
-	return nil
+  usuarioID, err := result.LastInsertId()
+  if err != nil {
+    log.Printf("erro CreateUsuario: %v", err)
+    return fmt.Errorf("erro CreateUsuario: %v", err)
+  }
+  user.UsuarioID = int(usuarioID)
+
+  return nil
 }
 
 // GetUsuarioByEmail busca um usuário pelo Email.
 func (store *UsuarioStore) GetUsuarioByEmail(email string) (*models.Usuario, error) {
-	user := &models.Usuario{}
+  user := &models.Usuario{}
 
-	queryString := fmt.Sprintf("SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?",
-		UsuarioID, Nome, Email, SenhaHash, Papel, TableUsuarios, Email)
+  sqlString := fmt.Sprintf(getUserByEmailSQL, UsuarioID, Nome, Email, SenhaHash, Papel, TableUsuarios, Email)
 
-	err := store.DB.QueryRow(queryString, email).Scan(
-		&user.UsuarioID, &user.Nome, &user.Email, &user.SenhaHash, &user.Papel)
-	if err != nil {
-		return nil, err
-	}
+  err := store.DB.QueryRow(sqlString, email).Scan(
+    &user.UsuarioID, &user.Nome, &user.Email, &user.SenhaHash, &user.Papel)
+  if err != nil {
+    log.Printf("erro GetUsuarioByEmail: %v", err)
+    return nil, fmt.Errorf("erro GetUsuarioByEmail: %v", err)
+  }
 
-	return user, nil
+  return user, nil
 }
 
 // GetUsuario busca um usuário pelo ID.
 func (store *UsuarioStore) GetUsuario(id int) (*models.Usuario, error) {
-	u := &models.Usuario{}
+  user := &models.Usuario{}
 
-	queryString := fmt.Sprintf("SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?",
-		UsuarioID, Nome, Email, SenhaHash, Papel, TableUsuarios, UsuarioID)
+  sqlString := fmt.Sprintf(getUserSQL, UsuarioID, Nome, Email, SenhaHash, Papel, TableUsuarios, UsuarioID)
 
-	err := store.DB.QueryRow(queryString, id).Scan(&u.UsuarioID, &u.Nome, &u.Email, &u.SenhaHash, &u.Papel)
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
+  err := store.DB.QueryRow(sqlString, id).Scan(
+    &user.UsuarioID,
+    &user.Nome,
+    &user.Email,
+    &user.SenhaHash,
+    &user.Papel,
+  )
+
+  if err != nil {
+    log.Printf("erro GetUsuario: %v", err)
+    return nil, fmt.Errorf("erro GetUsuario: %v", err)
+  }
+  return user, nil
 }
 
 // UpdateUsuario atualiza os dados de um usuário.
 func (store *UsuarioStore) UpdateUsuario(user *models.Usuario) error {
-	updateString := fmt.Sprintf("UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
-		TableUsuarios, Nome, Email, SenhaHash, Papel, UsuarioID)
+  var hashedPassword string
 
-	stmt, err := store.DB.Prepare(updateString)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
+  if user.SenhaHash != "" {
+    // Hash da nova senha, se fornecida.
+    var err error
+    hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.SenhaHash), bcrypt.DefaultCost)
+    if err != nil {
+      log.Printf("erro UpdateUsuario: %v", err)
+      return fmt.Errorf("erro UpdateUsuario: %v", err)
+    }
+    hashedPassword = string(hashedBytes)
+  } else {
+    // Recupera a senha atual (hash) para não substituir por vazio.
+    currentUser, err := store.GetUsuario(user.UsuarioID)
+    if err != nil {
+      log.Printf("erro UpdateUsuario: %v", err)
+      return fmt.Errorf("erro UpdateUsuario: %v", err)
+    }
+    hashedPassword = currentUser.SenhaHash
+  }
 
-	_, err = stmt.Exec(user.Nome, user.Email, user.SenhaHash, user.Papel, user.UsuarioID)
-	if err != nil {
-		return err
-	}
+  sqlString := fmt.Sprintf(updateUserSQL, TableUsuarios, Nome, Email, SenhaHash, Papel, UsuarioID)
+  stmt, err := store.DB.Prepare(sqlString)
+  if err != nil {
+    log.Printf("erro UpdateUsuario: %v", err)
+    return fmt.Errorf("erro UpdateUsuario: %v", err)
+  }
+  defer stmt.Close()
 
-	return nil
+  _, err = stmt.Exec(user.Nome, user.Email, hashedPassword, user.Papel, user.UsuarioID)
+  if err != nil {
+    log.Printf("erro UpdateUsuario: %v", err)
+    return fmt.Errorf("erro UpdateUsuario: %v", err)
+  }
+
+  return nil
 }
 
 // DeleteUsuario remove um usuário do banco de dados.
+// FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
+// com cuidado, que não serão tomados aqui pelo carater de estudo este código.
 func (store *UsuarioStore) DeleteUsuario(id int) error {
-	deleteString := fmt.Sprintf("DELETE FROM %s WHERE %s = ?", TableUsuarios, UsuarioID)
-	stmt, err := store.DB.Prepare(deleteString)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
+  sqlString := fmt.Sprintf(deleteUserSQL, TableUsuarios, UsuarioID)
+  stmt, err := store.DB.Prepare(sqlString)
+  if err != nil {
+    log.Printf("erro DeleteUsuario: %v", err)
+    return fmt.Errorf("erro DeleteUsuario: %v", err)
+  }
+  defer stmt.Close()
 
-	_, err = stmt.Exec(id)
-	if err != nil {
-		return err
-	}
+  _, err = stmt.Exec(id)
+  if err != nil {
+    log.Printf("erro DeleteUsuario: %v", err)
+    return fmt.Errorf("erro DeleteUsuario: %v", err)
+  }
 
-	return nil
+  return nil
 }
