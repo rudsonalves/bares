@@ -12,67 +12,81 @@ import (
 )
 
 func main() {
-	// Start database
-	dbStore, err := store.DatabaseOpen()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer dbStore.DatabaseClose()
+  const dbName = "BarDB" // Nome do Banco de dados
 
-	err = dbStore.CreateDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}
+  // Start database
+  dbStore, err := store.DatabaseOpen(dbName)
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer dbStore.DatabaseClose()
 
-	// Inicializar stores
-	usuarioStore := store.NewUsuarioStore(dbStore.DB)
-	itemMenuStore := store.NewItensMenuStore(dbStore.DB)
-	pedidoStore := store.NewPedidoStore(dbStore.DB)
-	itemPedidoStore := store.NewItemPedidoStore(dbStore.DB)
+  err = dbStore.CreateDatabase()
+  if err != nil {
+    log.Fatal(err)
+  }
 
-	// Inicializar services
-	usuarioService := services.NewUsuarioService(usuarioStore)
-	itemMenuService := services.NewItemMenuService(itemMenuStore)
-	pedidoService := services.NewPedidoService(pedidoStore)
-	itemPedidoService := services.NewItemPedidoService(itemPedidoStore)
+  // Inicializar stores
+  usuarioStore := store.NewUsuario(dbStore.DB)
+  itemMenuStore := store.NewItensMenu(dbStore.DB)
+  pedidoStore := store.NewPedido(dbStore.DB)
+  itemPedidoStore := store.NewItemPedido(dbStore.DB)
 
-	// Inicializar handlers
-	usuarioHandle := handlers.NewUsuarioHandler(usuarioService)
-	itemMenuHandler := handlers.NewItemMenuHandler(itemMenuService)
-	pedidoHandler := handlers.NewPedidoHandler(pedidoService)
-	itemPedidoHandler := handlers.NewItemPedidoHandler(itemPedidoService)
+  // Inicializar services
+  usuarioService := services.NewUsuarioService(usuarioStore)
+  authService := services.NewAuthservice(usuarioStore)
+  itemMenuService := services.NewItemMenuService(itemMenuStore)
+  pedidoService := services.NewPedidoService(pedidoStore)
+  itemPedidoService := services.NewItemPedidoService(itemPedidoStore)
 
-	// Configurar rotas
-	route := mux.NewRouter()
-	route.HandleFunc("/usuarios", usuarioHandle.CreateUsuario).Methods("POST")
-	route.HandleFunc("/itemmenu", itemMenuHandler.CreateItemMenu).Methods("POST")
-	route.HandleFunc("/pedido", pedidoHandler.CreatePedido).Methods("POST")
-	route.HandleFunc("/itempedido", itemMenuHandler.CreateItemMenu).Methods("POST")
+  // Inicializar handlers
+  usuarioHandler := handlers.NewUsuarioHandler(usuarioService)
+  authHandler := handlers.NewAuthHandler(authService)
+  itemMenuHandler := handlers.NewItemMenuHandler(itemMenuService)
+  pedidoHandler := handlers.NewPedidoHandler(pedidoService)
+  itemPedidoHandler := handlers.NewItemPedidoHandler(itemPedidoService)
 
-	route.HandleFunc("/usuarios/{id}", usuarioHandle.GetUsuario).Methods("GET")
-	route.HandleFunc("/itemmenu/{id}", itemMenuHandler.GetItemMenu).Methods("GET")
-	route.HandleFunc("/itemmenu", itemMenuHandler.GetAllItemMenu).Methods("GET")
-	route.HandleFunc("/itemmenu/name/{name}", itemMenuHandler.GetItemMenuByNome).Methods("GET")
-	route.HandleFunc("/pedido/{id}", pedidoHandler.GetPedido).Methods("GET")
-	route.HandleFunc("/pedido/usuario/{id}", pedidoHandler.GetPedidosByUsuario).Methods("GET")
-	route.HandleFunc("/itempedido/{id}", itemPedidoHandler.GetItemPedido).Methods("GET")
+  // Configurar rotas
+  route := mux.NewRouter()
 
-	route.HandleFunc("/usuarios/{id}", usuarioHandle.UpdateUsuario).Methods("PUT")
-	route.HandleFunc("/itemmenu/{id}", itemMenuHandler.UpdateItemMenu).Methods("PUT")
-	route.HandleFunc("/pedido/{id}", pedidoHandler.UpdatePedido).Methods("PUT")
-	route.HandleFunc("/itempedido/{id}", itemPedidoHandler.UpdateItemPedido).Methods("PUT")
+  // Rotas públicas
+  route.HandleFunc("/login", authHandler.LoginHandlers).Methods("POST")
+  route.HandleFunc("/usuarios", usuarioHandler.CreateUsuario).Methods("POST")
 
-	route.HandleFunc("/usuarios/{id}", usuarioHandle.DeleteUsuario).Methods("DELETE")
-	route.HandleFunc("/itemmenu/{id}", itemMenuHandler.DeleteItemMenu).Methods("DELETE")
-	route.HandleFunc("/pedido/{id}", pedidoHandler.DeletePedido).Methods("DELETE")
-	route.HandleFunc("/itempedido/{id}", itemPedidoHandler.DeleteItemPedido).Methods("DELETE")
+  // Rotas privadas
+  api := route.PathPrefix("/api").Subrouter()
+  api.Use(handlers.AuthMiddleware) // Aplica o middleware de autenticação
 
-	// Iniciar servidor
-	log.Println("Server is running on port 8080")
-	if err := http.ListenAndServe(":8080", route); err != nil {
-		log.Fatal("Error starting server: ", err)
-	}
+  // As rotas abaixo requerem autenticação
+  api.HandleFunc("/itemmenu", itemMenuHandler.CreateItemMenu).Methods("POST")
+  api.HandleFunc("/pedido", pedidoHandler.CreatePedido).Methods("POST")
+  api.HandleFunc("/itempedido", itemMenuHandler.CreateItemMenu).Methods("POST")
 
-	// A linha abaixo só será alcançada se `http.ListenAndServe` retornar um erro.
-	log.Println("Server stopped")
+  api.HandleFunc("/usuarios/{id}", usuarioHandler.GetUsuario).Methods("GET")
+  api.HandleFunc("/itemmenu/{id}", itemMenuHandler.GetItemMenu).Methods("GET")
+  api.HandleFunc("/itemmenu", itemMenuHandler.GetAllItemMenu).Methods("GET")
+  api.HandleFunc("/itemmenu/name/{name}", itemMenuHandler.GetItemMenuByNome).Methods("GET")
+  api.HandleFunc("/pedido/{id}", pedidoHandler.GetPedido).Methods("GET")
+  api.HandleFunc("/pedido/usuario/{id}", pedidoHandler.GetPedidosByUsuario).Methods("GET")
+  api.HandleFunc("/pedido", pedidoHandler.GetPedidosPending).Methods("GET")
+  api.HandleFunc("/itempedido/{id}", itemPedidoHandler.GetItemPedido).Methods("GET")
+
+  api.HandleFunc("/usuarios/{id}", usuarioHandler.UpdateUsuario).Methods("PUT")
+  api.HandleFunc("/itemmenu/{id}", itemMenuHandler.UpdateItemMenu).Methods("PUT")
+  api.HandleFunc("/pedido/{id}", pedidoHandler.UpdatePedido).Methods("PUT")
+  api.HandleFunc("/itempedido/{id}", itemPedidoHandler.UpdateItemPedido).Methods("PUT")
+
+  api.HandleFunc("/usuarios/{id}", usuarioHandler.DeleteUsuario).Methods("DELETE")
+  api.HandleFunc("/itemmenu/{id}", itemMenuHandler.DeleteItemMenu).Methods("DELETE")
+  api.HandleFunc("/pedido/{id}", pedidoHandler.DeletePedido).Methods("DELETE")
+  api.HandleFunc("/itempedido/{id}", itemPedidoHandler.DeleteItemPedido).Methods("DELETE")
+
+  // Iniciar servidor
+  log.Println("Server is running on port 8080")
+  if err := http.ListenAndServe(":8080", route); err != nil {
+    log.Fatal("Error starting server: ", err)
+  }
+
+  // A linha abaixo só será alcançada se `http.ListenAndServe` retornar um erro.
+  log.Println("Server stopped")
 }

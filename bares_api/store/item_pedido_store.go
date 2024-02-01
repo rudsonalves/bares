@@ -4,103 +4,127 @@ import (
 	"bares_api/models"
 	"database/sql"
 	"fmt"
+	"log"
+)
+
+
+const (
+  createItemOrderSQL = "INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?)"
+  getItemOrderSQL = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
+  updateItemOrderSQL = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?"
+  deleteItemOrderSQL = "DELETE FROM %s WHERE %s = ?"
 )
 
 // ItemPedidoStore mantém a conexão com o banco de dados para operações
 // relacionadas a itens pedidos.
 type ItemPedidoStore struct {
-	DB *sql.DB
+  DB *sql.DB
 }
 
-// NewItemPedidoStore cria uma nova instância de ItemPedidoStore.
-func NewItemPedidoStore(db *sql.DB) *ItemPedidoStore {
-	return &ItemPedidoStore{DB: db}
+// NewItemPedido cria uma nova instância de ItemPedidoStore.
+func NewItemPedido(db *sql.DB) *ItemPedidoStore {
+  return &ItemPedidoStore{DB: db}
 }
 
 // ItemPedidoStoreStorer define as operações que um ItemPedidoStoreStore
 // precisa implementar.
 type ItemPedidoStorer interface {
-	CreateItemPedidoStore(item *models.ItemPedido) error
-	GetItemPedidoStore(id int) (*models.ItemPedido, error)
-	UpdateItemPedidoStore(item *models.ItemPedido) error
-	DeleteItemPedidoStore(id int) error
+  CreateItemPedido(item *models.ItemPedido) error
+  GetItemPedido(id int) (*models.ItemPedido, error)
+  UpdateItemPedido(item *models.ItemPedido) error
+  DeleteItemPedido(id int) error
 }
 
 // Garanta que ItemPedidoStoreStore implementa ItemPedidoStoreStorer.
 var _ ItemPedidoStorer = &ItemPedidoStore{}
 
-// CreateItemPedidoStore adiciona um novo ItemPedido ao banco de dados.
-func (store *ItemPedidoStore) CreateItemPedidoStore(item *models.ItemPedido) error {
-	createString := fmt.Sprintf("INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?)",
-		TableItensPedido, PedidoID, ItemID, Quantidade, Observacoes)
+// CreateItemPedido adiciona um novo ItemPedido ao banco de dados.
+func (store *ItemPedidoStore) CreateItemPedido(item *models.ItemPedido) error {
+  sqlString := fmt.Sprintf(createItemOrderSQL, TableItensPedido, PedidoID, ItemID, Quantidade, Observacoes)
 
-	stmt, err := store.DB.Prepare(createString)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
+  stmt, err := store.DB.Prepare(sqlString)
+  if err != nil {
+    log.Printf("erro CreateItemPedido: %v", err)
+		return fmt.Errorf("erro CreateItemPedido: %v", err)
+  }
+  defer stmt.Close()
 
-	result, err := stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes)
-	if err != nil {
-		return err
-	}
-	itemPedidoID, err := result.LastInsertId()
-	if err != nil {
-		return err
-	}
-	item.ItemPedidoID = int(itemPedidoID)
+  result, err := stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes)
+  if err != nil {
+    log.Printf("erro CreateItemPedido: %v", err)
+		return fmt.Errorf("erro CreateItemPedido: %v", err)
+  }
+  itemPedidoID, err := result.LastInsertId()
+  if err != nil {
+    log.Printf("erro CreateItemPedido: %v", err)
+		return fmt.Errorf("erro CreateItemPedido: %v", err)
+  }
+  item.ItemPedidoID = int(itemPedidoID)
 
-	return nil
+  return nil
 }
 
-// GetItemPedidoStore busca um itemPedido pelo ID.
-func (store *ItemPedidoStore) GetItemPedidoStore(id int) (*models.ItemPedido, error) {
-	i := &models.ItemPedido{}
+// GetItemPedido busca um itemPedido pelo ID.
+func (store *ItemPedidoStore) GetItemPedido(id int) (*models.ItemPedido, error) {
+  item := &models.ItemPedido{}
 
-	queryString := fmt.Sprintf("SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?",
-		ItemPedidoID, PedidoID, ItemID, Quantidade, Observacoes, TableItensPedido, ItemPedidoID)
+  sqlString := fmt.Sprintf(getItemOrderSQL, ItemPedidoID, PedidoID, ItemID, Quantidade,
+    Observacoes, TableItensPedido, ItemPedidoID)
 
-	err := store.DB.QueryRow(queryString, id).Scan(&i.ItemPedidoID, &i.PedidoID, &i.ItemID, &i.Quantidade, &i.Observacoes)
-	if err != nil {
-		return nil, err
-	}
+  err := store.DB.QueryRow(sqlString, id).Scan(
+    &item.ItemPedidoID,
+    &item.PedidoID,
+    &item.ItemID,
+    &item.Quantidade,
+    &item.Observacoes,
+  )
+  if err != nil {
+    log.Printf("erro GetItemPedido: %v", err)
+		return nil, fmt.Errorf("erro GetItemPedido: %v", err)
+  }
 
-	return i, nil
+  return item, nil
 }
 
-// UpdateItemPedidoStore atualiza os dados de um itemPedido.
-func (store *ItemPedidoStore) UpdateItemPedidoStore(item *models.ItemPedido) error {
-	updateString := fmt.Sprintf("UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
-		TableItensPedido, PedidoID, ItemID, Quantidade, Observacoes, ItemPedidoID)
+// UpdateItemPedido atualiza os dados de um itemPedido.
+func (store *ItemPedidoStore) UpdateItemPedido(item *models.ItemPedido) error {
+  sqlString := fmt.Sprintf(updateItemOrderSQL, TableItensPedido, PedidoID, ItemID,
+    Quantidade, Observacoes, ItemPedidoID)
 
-	stmt, err := store.DB.Prepare(updateString)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
+  stmt, err := store.DB.Prepare(sqlString)
+  if err != nil {
+    log.Printf("erro UpdateItemPedido: %v", err)
+		return fmt.Errorf("erro UpdateItemPedido: %v", err)
+  }
+  defer stmt.Close()
 
-	_, err = stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes, item.ItemPedidoID)
-	if err != nil {
-		return err
-	}
+  _, err = stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes, item.ItemPedidoID)
+  if err != nil {
+    log.Printf("erro UpdateItemPedido: %v", err)
+		return fmt.Errorf("erro UpdateItemPedido: %v", err)
+  }
 
-	return nil
+  return nil
 }
 
-// DeleteItemPedidoStore remove um itemPedido do banco de dados.
-func (store *ItemPedidoStore) DeleteItemPedidoStore(id int) error {
-	deleteString := fmt.Sprintf("DELETE FROM %s WHERE %s = ?", TableItensPedido, ItemPedidoID)
+// DeleteItemPedido remove um itemPedido do banco de dados.
+// FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
+// com cuidado, que não serão tomados aqui pelo carater de estudo este código.
+func (store *ItemPedidoStore) DeleteItemPedido(id int) error {
+  sqlString := fmt.Sprintf(deleteItemOrderSQL, TableItensPedido, ItemPedidoID)
 
-	stmt, err := store.DB.Prepare(deleteString)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
+  stmt, err := store.DB.Prepare(sqlString)
+  if err != nil {
+    log.Printf("erro DeleteItemPedido: %v", err)
+		return fmt.Errorf("erro DeleteItemPedido: %v", err)
+  }
+  defer stmt.Close()
 
-	_, err = stmt.Exec(id)
-	if err != nil {
-		return err
-	}
+  _, err = stmt.Exec(id)
+  if err != nil {
+    log.Printf("erro DeleteItemPedido: %v", err)
+		return fmt.Errorf("erro DeleteItemPedido: %v", err)
+  }
 
-	return nil
+  return nil
 }
