@@ -17,13 +17,13 @@ func TestPedidoIntegration(t *testing.T) {
 	defer dbStore.DatabaseClose() // Garante que a conexão será fechada no final
 
 	// storeUsers
-	storeUsers := store.NewUsuario(dbStore.DB)
+	storeUsers := store.NewUser(dbStore.DB)
 	// storeItensMenu
-	storeItensMenu := store.NewItensMenu(dbStore.DB)
+	storeItensMenu := store.NewMenuItem(dbStore.DB)
 	// stoteItemPedido
-	stoteItemPedido := store.NewItemPedido(dbStore.DB)
+	stoteItemPedido := store.NewItemOrder(dbStore.DB)
 	// storePedido
-	storePedido := store.NewPedido(dbStore.DB)
+	storePedido := store.NewOrder(dbStore.DB)
 
 	// Cria usuários
 	users, err := CreateUsers(storeUsers)
@@ -44,13 +44,13 @@ func TestPedidoIntegration(t *testing.T) {
 	}
 
 	// Adicionar 1o itens ao pedido
-	itemPedido := models.ItemPedido{
+	itemPedido := models.ItemOrder{
 		PedidoID:    pedidos[0].PedidoID,
 		ItemID:      itens[0].ItemID,
 		Quantidade:  5,
 		Observacoes: "Sem sal",
 	}
-	err = stoteItemPedido.CreateItemPedido(&itemPedido)
+	err = stoteItemPedido.CreateItemOrder(&itemPedido)
 	if err != nil {
 		t.Errorf("Falha ao adicionar item %s ao pedido %d: %s",
 			itens[0].Nome,
@@ -60,13 +60,13 @@ func TestPedidoIntegration(t *testing.T) {
 	}
 
 	// Adicionar 2o itens ao pedido
-	itemPedido = models.ItemPedido{
+	itemPedido = models.ItemOrder{
 		PedidoID:    pedidos[0].PedidoID,
 		ItemID:      itens[1].ItemID,
 		Quantidade:  2,
 		Observacoes: "Mal passado",
 	}
-	err = stoteItemPedido.CreateItemPedido(&itemPedido)
+	err = stoteItemPedido.CreateItemOrder(&itemPedido)
 	if err != nil {
 		t.Errorf("Falha ao adicionar item %s ao pedido %d: %s",
 			itens[0].Nome,
@@ -78,13 +78,13 @@ func TestPedidoIntegration(t *testing.T) {
 	// Updade ItemPedido
 	quantidade := itemPedido.Quantidade
 	itemPedido.Quantidade += 1
-	err = stoteItemPedido.UpdateItemPedido(&itemPedido)
+	err = stoteItemPedido.UpdateItemOrder(&itemPedido)
 	if err != nil {
 		t.Errorf("Falha ao atualizar quantidade no itemPedido: %s", err)
 	}
 
 	// Carrega o ItemPedido
-	itemPedidoLoad, err := stoteItemPedido.GetItemPedido(itemPedido.ItemID)
+	itemPedidoLoad, err := stoteItemPedido.GetItemOrder(itemPedido.ItemID)
 	if err != nil {
 		t.Errorf("Erro ao ler um itemPedido: %s", err)
 	}
@@ -99,7 +99,7 @@ func TestPedidoIntegration(t *testing.T) {
 	}
 
 	// Pegar os pedidos do users[0]:
-	allOrders0, err := storePedido.GetPedidosByUsuario(users[0].UsuarioID)
+	allOrders0, err := storePedido.GetOrderByUser(users[0].UsuarioID)
 	if err != nil {
 		t.Errorf("Erro ao pegar os pedidos do usuário 0 um Pedido: %s", err)
 	}
@@ -109,7 +109,7 @@ func TestPedidoIntegration(t *testing.T) {
 	}
 
 	// Pegar os pedidos do users[1]:
-	allOrders1, err := storePedido.GetPedidosByUsuario(users[1].UsuarioID)
+	allOrders1, err := storePedido.GetOrderByUser(users[1].UsuarioID)
 	if err != nil {
 		t.Errorf("Erro ao pegar os pedidos do usuário 0 um Pedido: %s", err)
 	}
@@ -119,7 +119,7 @@ func TestPedidoIntegration(t *testing.T) {
 	}
 
 	// Pegar lista de pedidos pendentes
-	pendingOrders, err := storePedido.GetPedidosPending()
+	pendingOrders, err := storePedido.GetPendingOrders()
 	if err != nil {
 		t.Errorf("Erro ao pegar os pedidos pendentes: %s", err)
 	}
@@ -129,12 +129,12 @@ func TestPedidoIntegration(t *testing.T) {
 
 	// Mudar status de pedidos[2]
 	pedidos[2].Status = models.Entregue
-	err = storePedido.UpdatePedido(&pedidos[2])
+	err = storePedido.UpdateOrder(&pedidos[2])
 	if err != nil {
 		t.Errorf("Erro ao atualizar um Pedido: %s", err)
 	}
 	// Pegar lista de pedidos pendentes
-	pendingOrders, err = storePedido.GetPedidosPending()
+	pendingOrders, err = storePedido.GetPendingOrders()
 	if err != nil {
 		t.Errorf("Erro ao pegar os pedidos pendentes: %s", err)
 	}

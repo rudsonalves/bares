@@ -14,32 +14,32 @@ const (
 	deleteItemOrderSQL = "DELETE FROM %s WHERE %s = ?"
 )
 
-// ItemPedidoStore mantém a conexão com o banco de dados para operações
+// ItemOrderStore mantém a conexão com o banco de dados para operações
 // relacionadas a itens pedidos.
-type ItemPedidoStore struct {
+type ItemOrderStore struct {
 	DB *sql.DB
 }
 
-// NewItemPedido cria uma nova instância de ItemPedidoStore.
-func NewItemPedido(db *sql.DB) *ItemPedidoStore {
-	return &ItemPedidoStore{DB: db}
+// NewItemOrder cria uma nova instância de ItemPedidoStore.
+func NewItemOrder(db *sql.DB) *ItemOrderStore {
+	return &ItemOrderStore{DB: db}
 }
 
 // ItemPedidoStoreStorer define as operações que um ItemPedidoStoreStore
 // precisa implementar.
-type ItemPedidoStorer interface {
-	CreateItemPedido(item *models.ItemPedido) error
-	GetItemPedido(id int) (*models.ItemPedido, error)
-	UpdateItemPedido(item *models.ItemPedido) error
-	DeleteItemPedido(id int) error
+type ItemOrderStorer interface {
+	CreateItemOrder(item *models.ItemOrder) error
+	GetItemOrder(id int) (*models.ItemOrder, error)
+	UpdateItemOrder(item *models.ItemOrder) error
+	DeleteItemOrder(id int) error
 }
 
 // Garanta que ItemPedidoStoreStore implementa ItemPedidoStoreStorer.
-var _ ItemPedidoStorer = &ItemPedidoStore{}
+var _ ItemOrderStorer = &ItemOrderStore{}
 
-// CreateItemPedido adiciona um novo ItemPedido ao banco de dados.
-func (store *ItemPedidoStore) CreateItemPedido(item *models.ItemPedido) error {
-	sqlString := fmt.Sprintf(createItemOrderSQL, TableItensPedido, PedidoID, ItemID, Quantidade, Observacoes)
+// CreateItemOrder adiciona um novo ItemPedido ao banco de dados.
+func (store *ItemOrderStore) CreateItemOrder(item *models.ItemOrder) error {
+	sqlString := fmt.Sprintf(createItemOrderSQL, TableItensOrders, OrderID, ItemID, Amount, Comments)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -63,12 +63,12 @@ func (store *ItemPedidoStore) CreateItemPedido(item *models.ItemPedido) error {
 	return nil
 }
 
-// GetItemPedido busca um itemPedido pelo ID.
-func (store *ItemPedidoStore) GetItemPedido(id int) (*models.ItemPedido, error) {
-	item := &models.ItemPedido{}
+// GetItemOrder busca um itemPedido pelo ID.
+func (store *ItemOrderStore) GetItemOrder(id int) (*models.ItemOrder, error) {
+	item := &models.ItemOrder{}
 
-	sqlString := fmt.Sprintf(getItemOrderSQL, ItemPedidoID, PedidoID, ItemID, Quantidade,
-		Observacoes, TableItensPedido, ItemPedidoID)
+	sqlString := fmt.Sprintf(getItemOrderSQL, ItemOrderID, OrderID, ItemID, Amount,
+		Comments, TableItensOrders, ItemOrderID)
 
 	err := store.DB.QueryRow(sqlString, id).Scan(
 		&item.ItemPedidoID,
@@ -85,10 +85,10 @@ func (store *ItemPedidoStore) GetItemPedido(id int) (*models.ItemPedido, error) 
 	return item, nil
 }
 
-// UpdateItemPedido atualiza os dados de um itemPedido.
-func (store *ItemPedidoStore) UpdateItemPedido(item *models.ItemPedido) error {
-	sqlString := fmt.Sprintf(updateItemOrderSQL, TableItensPedido, PedidoID, ItemID,
-		Quantidade, Observacoes, ItemPedidoID)
+// UpdateItemOrder atualiza os dados de um itemPedido.
+func (store *ItemOrderStore) UpdateItemOrder(item *models.ItemOrder) error {
+	sqlString := fmt.Sprintf(updateItemOrderSQL, TableItensOrders, OrderID, ItemID,
+		Amount, Comments, ItemOrderID)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -106,11 +106,11 @@ func (store *ItemPedidoStore) UpdateItemPedido(item *models.ItemPedido) error {
 	return nil
 }
 
-// DeleteItemPedido remove um itemPedido do banco de dados.
+// DeleteItemOrder remove um itemPedido do banco de dados.
 // FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
 // com cuidado, que não serão tomados aqui pelo carater de estudo este código.
-func (store *ItemPedidoStore) DeleteItemPedido(id int) error {
-	sqlString := fmt.Sprintf(deleteItemOrderSQL, TableItensPedido, ItemPedidoID)
+func (store *ItemOrderStore) DeleteItemOrder(id int) error {
+	sqlString := fmt.Sprintf(deleteItemOrderSQL, TableItensOrders, ItemOrderID)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {

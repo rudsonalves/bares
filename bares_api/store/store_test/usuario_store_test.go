@@ -32,10 +32,10 @@ func TestCreateUsuario(t *testing.T) {
 		WillReturnResult(mockResult)
 
 	// Cria uma instância de UsuarioStore com o mock do banco de dados
-	store := store.NewUsuario(db)
+	store := store.NewUser(db)
 
 	// Cria um usuário de teste
-	testUser := &models.Usuario{
+	testUser := &models.User{
 		Nome:      "John Doe",
 		Email:     "johndoe@example.com",
 		SenhaHash: "senha123",
@@ -43,7 +43,7 @@ func TestCreateUsuario(t *testing.T) {
 	}
 
 	// Chama a função CreateUsuario
-	err = store.CreateUsuario(testUser)
+	err = store.CreateUser(testUser)
 	assert.NoError(t, err)
 
 	// Verifica se todas as expectativas foram atendidas
@@ -80,10 +80,10 @@ func TestGetUsuarioByEmail(t *testing.T) {
 		WillReturnRows(expectedResult)
 
 	// Cria uma instância de UsuarioStore com o mock do banco de dados
-	store := store.NewUsuario(db)
+	store := store.NewUser(db)
 
 	// Chama a função GetUsuarioByEmail
-	user, err := store.GetUsuarioByEmail("johndoe@example.com")
+	user, err := store.GetUserByEmail("johndoe@example.com")
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, "John Doe", user.Nome)
@@ -125,10 +125,10 @@ func TestGetUsuario(t *testing.T) {
 		WillReturnRows(expectedResult)
 
 	// Cria uma instância de UsuarioStore com o mock do banco de dados
-	store := store.NewUsuario(db)
+	store := store.NewUser(db)
 
 	// Chama a função GetUsuario
-	user, err := store.GetUsuario(1)
+	user, err := store.GetUser(1)
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, 1, user.UsuarioID)
@@ -167,10 +167,10 @@ func TestUpdateUsuario(t *testing.T) {
 		WillReturnResult(mockResult)
 
 	// Cria uma instância de UsuarioStore com o mock do banco de dados
-	store := store.NewUsuario(db)
+	store := store.NewUser(db)
 
 	// Cria um usuário de teste
-	testUser := &models.Usuario{
+	testUser := &models.User{
 		UsuarioID: 1,
 		Nome:      "John Doe Updated",
 		Email:     "johndoeupdated@example.com",
@@ -179,7 +179,7 @@ func TestUpdateUsuario(t *testing.T) {
 	}
 
 	// Chama a função UpdateUsuario
-	err = store.UpdateUsuario(testUser)
+	err = store.UpdateUser(testUser)
 	assert.NoError(t, err)
 
 	// Verifica se todas as expectativas foram atendidas
@@ -206,10 +206,10 @@ func TestDeleteUsuario(t *testing.T) {
 		WillReturnResult(mockResult)
 
 	// Cria uma instância de UsuarioStore com o mock do banco de dados
-	store := store.NewUsuario(db)
+	store := store.NewUser(db)
 
 	// Chama a função DeleteUsuario
-	err = store.DeleteUsuario(1)
+	err = store.DeleteUser(1)
 	assert.NoError(t, err)
 
 	// Verifica se todas as expectativas foram atendidas

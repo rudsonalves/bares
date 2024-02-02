@@ -10,27 +10,27 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// PedidoHandler gerencia as requisições HTTP para Pedido.
-type PedidoHandler struct {
-	Service *services.PedidoService
+// OrderHandler gerencia as requisições HTTP para Pedido.
+type OrderHandler struct {
+	Service *services.OrderService
 }
 
-// NewPedidoHandler cria uma nova instância de PedidoHandler.
-func NewPedidoHandler(service *services.PedidoService) *PedidoHandler {
-	return &PedidoHandler{
+// NewOrderHandler cria uma nova instância de PedidoHandler.
+func NewOrderHandler(service *services.OrderService) *OrderHandler {
+	return &OrderHandler{
 		Service: service,
 	}
 }
 
-// CreatePedido lida com requisições POST para adicionar um novo Pedido.
-func (handler *PedidoHandler) CreatePedido(w http.ResponseWriter, r *http.Request) {
-	var pedido models.Pedido
+// CreateOrder lida com requisições POST para adicionar um novo Pedido.
+func (handler *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
+	var pedido models.Order
 	if err := json.NewDecoder(r.Body).Decode(&pedido); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.CreatePedido(&pedido); err != nil {
+	if err := handler.Service.CreateOrder(&pedido); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -40,8 +40,8 @@ func (handler *PedidoHandler) CreatePedido(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(pedido)
 }
 
-// GetPedido lida com requisições GET para buscar um Pedido pelo ID.
-func (handler *PedidoHandler) GetPedido(w http.ResponseWriter, r *http.Request) {
+// GetOrder lida com requisições GET para buscar um Pedido pelo ID.
+func (handler *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -49,7 +49,7 @@ func (handler *PedidoHandler) GetPedido(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	pedido, err := handler.Service.GetPedido(id)
+	pedido, err := handler.Service.GetOrder(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -59,26 +59,26 @@ func (handler *PedidoHandler) GetPedido(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(pedido)
 }
 
-// UpdatePedido lida com requisições PUT para atualizar um Pedido existente.
-func (handler *PedidoHandler) UpdatePedido(w http.ResponseWriter, r *http.Request) {
-	var pedido models.Pedido
-	if err := json.NewDecoder(r.Body).Decode(&pedido); err != nil {
+// UpdateOrder lida com requisições PUT para atualizar um Pedido existente.
+func (handler *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
+	var order models.Order
+	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.UpdatePedido(&pedido); err != nil {
+	if err := handler.Service.UpdateOrder(&order); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(pedido)
+	json.NewEncoder(w).Encode(order)
 }
 
-// DeletePedido lida com requisições DELETE para remover um Pedido.
-func (handler *PedidoHandler) DeletePedido(w http.ResponseWriter, r *http.Request) {
+// DeleteOrder lida com requisições DELETE para remover um Pedido.
+func (handler *OrderHandler) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -86,7 +86,7 @@ func (handler *PedidoHandler) DeletePedido(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := handler.Service.DeletePedido(id); err != nil {
+	if err := handler.Service.DeleteOrder(id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -94,8 +94,8 @@ func (handler *PedidoHandler) DeletePedido(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 }
 
-// GetPedidosByUsuario lida com requisições GET para buscar um Pedido pelo usuarioId.
-func (handler *PedidoHandler) GetPedidosByUsuario(w http.ResponseWriter, r *http.Request) {
+// GetOrderByUser lida com requisições GET para buscar um Pedido pelo usuarioId.
+func (handler *OrderHandler) GetOrderByUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	usuarioId, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -103,7 +103,7 @@ func (handler *PedidoHandler) GetPedidosByUsuario(w http.ResponseWriter, r *http
 		return
 	}
 
-	pedidos, err := handler.Service.GetPedidosByUsuario(usuarioId)
+	pedidos, err := handler.Service.GetOrderByUser(usuarioId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -113,9 +113,9 @@ func (handler *PedidoHandler) GetPedidosByUsuario(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(pedidos)
 }
 
-// GetPedidosPending busca todos os pedidos de um usuário específico pelo usuarioID.
-func (handler *PedidoHandler) GetPedidosPending(w http.ResponseWriter, r *http.Request) {
-	pedidos, err := handler.Service.GetPedidosPending()
+// GetPendingOrder busca todos os pedidos de um usuário específico pelo usuarioID.
+func (handler *OrderHandler) GetPendingOrder(w http.ResponseWriter, r *http.Request) {
+	pedidos, err := handler.Service.GetPendingOrder()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return

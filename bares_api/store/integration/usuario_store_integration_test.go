@@ -18,7 +18,7 @@ func TestUsuarioStoreIntegration(t *testing.T) {
 	defer dbStore.DatabaseClose() // Garante que a conexão será fechada no final
 
 	// storeUsers
-	storeUsers := store.NewUsuario(dbStore.DB)
+	storeUsers := store.NewUser(dbStore.DB)
 
 	// Cria usuários
 	users, err := CreateUsers(storeUsers)
@@ -29,7 +29,7 @@ func TestUsuarioStoreIntegration(t *testing.T) {
 	// Recuperar e verificar usuários
 	for _, user := range users {
 		// Testar GetUsuarioByEmail
-		retrievedUser, err := storeUsers.GetUsuarioByEmail(user.Email)
+		retrievedUser, err := storeUsers.GetUserByEmail(user.Email)
 		if err != nil {
 			t.Errorf("Erro ao recuperar usuário pelo email: %s", err)
 		}
@@ -38,7 +38,7 @@ func TestUsuarioStoreIntegration(t *testing.T) {
 		}
 
 		// Testar GetUsuario pela id
-		retrievedUser, err = storeUsers.GetUsuario(user.UsuarioID)
+		retrievedUser, err = storeUsers.GetUser(user.UsuarioID)
 		if err != nil {
 			t.Errorf("Erro ao recuperar usuário pelo ID: %s", err)
 		}
@@ -48,13 +48,13 @@ func TestUsuarioStoreIntegration(t *testing.T) {
 
 		// Testar UpdateUsuario
 		retrievedUser.Nome = "Novo Nome"
-		err = storeUsers.UpdateUsuario(retrievedUser)
+		err = storeUsers.UpdateUser(retrievedUser)
 		if err != nil {
 			t.Errorf("Erro ao atualizar usuário: %s", err)
 		}
 
 		// Verificar se o usuário foi atualizado
-		updatedUser, err := storeUsers.GetUsuario(user.UsuarioID)
+		updatedUser, err := storeUsers.GetUser(user.UsuarioID)
 		if err != nil {
 			t.Errorf("Erro ao recuperar usuário pelo ID após atualização: %s", err)
 		}
@@ -63,13 +63,13 @@ func TestUsuarioStoreIntegration(t *testing.T) {
 		}
 
 		// Testar DeleteUsuario
-		err = storeUsers.DeleteUsuario(user.UsuarioID)
+		err = storeUsers.DeleteUser(user.UsuarioID)
 		if err != nil {
 			t.Errorf("Erro ao deletar usuário: %s", err)
 		}
 
 		// Verificar se o usuário foi deletado
-		_, err = storeUsers.GetUsuario(user.UsuarioID)
+		_, err = storeUsers.GetUser(user.UsuarioID)
 		if err == nil {
 			t.Errorf("Usuário deveria ter sido deletado")
 		}

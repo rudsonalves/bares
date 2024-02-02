@@ -10,20 +10,20 @@ import (
 	"regexp"
 )
 
-// UsuarioService fornece métodos para operações relacionadas a usuários.
-type UsuarioService struct {
+// UserService fornece métodos para operações relacionadas a usuários.
+type UserService struct {
 	store store.UsuarioStorer
 }
 
 // NewUsuarioService cria uma nova instância de UsuarioService.
-func NewUsuarioService(store store.UsuarioStorer) *UsuarioService {
-	return &UsuarioService{
+func NewUsuarioService(store store.UsuarioStorer) *UserService {
+	return &UserService{
 		store: store,
 	}
 }
 
-// CreateUsuario trata da lógica de negócios para criar um novo usuário.
-func (service *UsuarioService) CreateUsuario(u *models.Usuario) error {
+// CreateUser trata da lógica de negócios para criar um novo usuário.
+func (service *UserService) CreateUser(u *models.User) error {
 	// Validar e-mail.
 	if err := validarEmail(u.Email); err != nil {
 		log.Print("erro CreateUsuario: ", err)
@@ -36,7 +36,7 @@ func (service *UsuarioService) CreateUsuario(u *models.Usuario) error {
 	}
 
 	// Verificar se o e-mail já está em uso:
-	existingUser, err := service.store.GetUsuarioByEmail(u.Email)
+	existingUser, err := service.store.GetUserByEmail(u.Email)
 	if err != nil {
 		// Verifica se o erro é um erro de "nenhum registro encontrado"
 		if err == sql.ErrNoRows {
@@ -52,22 +52,22 @@ func (service *UsuarioService) CreateUsuario(u *models.Usuario) error {
 	}
 
 	// Continuar com a criação do usuário
-	return service.store.CreateUsuario(u)
+	return service.store.CreateUser(u)
 }
 
-// GetUsuario trata da lógica para recuperar um usuário pelo ID.
-func (service *UsuarioService) GetUsuario(id int) (*models.Usuario, error) {
-	return service.store.GetUsuario(id)
+// GetUser trata da lógica para recuperar um usuário pelo ID.
+func (service *UserService) GetUser(id int) (*models.User, error) {
+	return service.store.GetUser(id)
 }
 
-// UpdateUsuario trata da lógica para atualizar um usuário existente.
-func (service *UsuarioService) UpdateUsuario(u *models.Usuario) error {
-	return service.store.UpdateUsuario(u)
+// UpdateUser trata da lógica para atualizar um usuário existente.
+func (service *UserService) UpdateUser(u *models.User) error {
+	return service.store.UpdateUser(u)
 }
 
-// DeleteUsuario trata da lógica para deletar um usuário.
-func (service *UsuarioService) DeleteUsuario(id int) error {
-	return service.store.DeleteUsuario(id)
+// DeleteUser trata da lógica para deletar um usuário.
+func (service *UserService) DeleteUser(id int) error {
+	return service.store.DeleteUser(id)
 }
 
 // validarEmail valida o email

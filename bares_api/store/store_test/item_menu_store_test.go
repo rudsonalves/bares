@@ -22,15 +22,15 @@ func TestCreateItemMenu(t *testing.T) {
 		WithArgs("Pizza", "Delicious pizza", 9.99, "imageurl").
 		WillReturnResult(mockResult)
 
-	store := store.NewItensMenu(db)
-	testItemMenu := &models.ItemMenu{
+	store := store.NewMenuItem(db)
+	testItemMenu := &models.MenuItem{
 		Nome:      "Pizza",
 		Descricao: "Delicious pizza",
 		Preco:     9.99,
 		ImagemURL: "imageurl",
 	}
 
-	err = store.CreateItemMenu(testItemMenu)
+	err = store.CreateMenuItem(testItemMenu)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, testItemMenu.ItemID)
 
@@ -61,9 +61,9 @@ func TestGetItemMenu(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(expectedResult)
 
-	store := store.NewItensMenu(db)
+	store := store.NewMenuItem(db)
 
-	result, err := store.GetItemMenu(1)
+	result, err := store.GetMenuItem(1)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, result.ItemID)
@@ -96,8 +96,8 @@ func TestUpdateItemMenu(t *testing.T) {
 		).
 		WillReturnResult(mockResult)
 
-	store := store.NewItensMenu(db)
-	testItemMenu := &models.ItemMenu{
+	store := store.NewMenuItem(db)
+	testItemMenu := &models.MenuItem{
 		ItemID:    1,
 		Nome:      "Pizza Updated",
 		Descricao: "Delicious pizza updated",
@@ -105,7 +105,7 @@ func TestUpdateItemMenu(t *testing.T) {
 		ImagemURL: "imageurlupdated",
 	}
 
-	err = store.UpdateItemMenu(testItemMenu)
+	err = store.UpdateMenuItem(testItemMenu)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -126,9 +126,9 @@ func TestDeleteItemMenu(t *testing.T) {
 		WithArgs(1).
 		WillReturnResult(mockResult)
 
-	store := store.NewItensMenu(db)
+	store := store.NewMenuItem(db)
 
-	err = store.DeleteItemMenu(1)
+	err = store.DeleteMenuItem(1)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -163,9 +163,9 @@ func TestGetAllItemMenu(t *testing.T) {
 		"SELECT itemID, nome, descricao, preco, imagemURL FROM ItensMenu ORDER BY nome").
 		WillReturnRows(expectedResult)
 
-	store := store.NewItensMenu(db)
+	store := store.NewMenuItem(db)
 
-	result, err := store.GetAllItemMenu()
+	result, err := store.GetAllMenuItem()
 	assert.NoError(t, err)
 	assert.Len(t, result, 2)
 
@@ -196,9 +196,9 @@ func TestGetItemMenuByNome(t *testing.T) {
 		WithArgs("Pizza").
 		WillReturnRows(expectedResult)
 
-	store := store.NewItensMenu(db)
+	store := store.NewMenuItem(db)
 
-	result, err := store.GetItemMenuByNome("Pizza")
+	result, err := store.GetMenuItemByName("Pizza")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, result.ItemID)

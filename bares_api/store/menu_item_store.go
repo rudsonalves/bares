@@ -16,33 +16,33 @@ const (
 	getItemMenuByNameSQL = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
 )
 
-// ItensMenuStore mantém a conexão com o banco de dados para operações relacionadas a itens do menu.
-type ItensMenuStore struct {
+// MenuItemStore mantém a conexão com o banco de dados para operações relacionadas a itens do menu.
+type MenuItemStore struct {
 	DB *sql.DB
 }
 
-// NewItensMenu cria uma nova instância de ItensMenuStorer.
-func NewItensMenu(db *sql.DB) *ItensMenuStore {
-	return &ItensMenuStore{DB: db}
+// NewMenuItem cria uma nova instância de MenuItemStorer.
+func NewMenuItem(db *sql.DB) *MenuItemStore {
+	return &MenuItemStore{DB: db}
 }
 
-// ItensMenuStorer define as operações que um ItensMenuStore precisa implementar.
-type ItensMenuStorer interface {
-	CreateItemMenu(item *models.ItemMenu) error
-	GetItemMenu(id int) (*models.ItemMenu, error)
-	UpdateItemMenu(item *models.ItemMenu) error
-	DeleteItemMenu(id int) error
-	GetAllItemMenu() ([]*models.ItemMenu, error)
-	GetItemMenuByNome(nome string) (*models.ItemMenu, error)
+// MenuItemStorer define as operações que um MenuItemStore precisa implementar.
+type MenuItemStorer interface {
+	CreateMenuItem(item *models.MenuItem) error
+	GetMenuItem(id int) (*models.MenuItem, error)
+	UpdateMenuItem(item *models.MenuItem) error
+	DeleteMenuItem(id int) error
+	GetAllMenuItem() ([]*models.MenuItem, error)
+	GetMenuItemByName(nome string) (*models.MenuItem, error)
 }
 
-// Garanta que ItensMenuStore implementa ItensMenuStorer.
-var _ ItensMenuStorer = &ItensMenuStore{}
+// Garanta que ItensMenuStore implementa MenuItemStorer.
+var _ MenuItemStorer = &MenuItemStore{}
 
-// CreateItemMenu adiciona um novo usuário ao banco de dados.
-func (store *ItensMenuStore) CreateItemMenu(item *models.ItemMenu) error {
+// CreateMenuItem adiciona um novo usuário ao banco de dados.
+func (store *MenuItemStore) CreateMenuItem(item *models.MenuItem) error {
 	sqlString := fmt.Sprintf(createItemMenuSQL,
-		TableItensMenu, Nome, Descricao, Preco, ImagemURL)
+		TableMenuItem, Name, Description, Price, ImagemURL)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -67,12 +67,12 @@ func (store *ItensMenuStore) CreateItemMenu(item *models.ItemMenu) error {
 	return nil
 }
 
-// GetItemMenu busca um ItemMenu pelo ID.
-func (store *ItensMenuStore) GetItemMenu(id int) (*models.ItemMenu, error) {
-	i := &models.ItemMenu{}
+// GetMenuItem busca um ItemMenu pelo ID.
+func (store *MenuItemStore) GetMenuItem(id int) (*models.MenuItem, error) {
+	i := &models.MenuItem{}
 
-	sqlString := fmt.Sprintf(getItemMenuSQL, ItemID, Nome, Descricao, Preco, ImagemURL,
-		TableItensMenu, ItemID)
+	sqlString := fmt.Sprintf(getItemMenuSQL, ItemID, Name, Description, Price, ImagemURL,
+		TableMenuItem, ItemID)
 
 	err := store.DB.QueryRow(sqlString, id).Scan(&i.ItemID, &i.Nome, &i.Descricao, &i.Preco, &i.ImagemURL)
 	if err != nil {
@@ -83,9 +83,9 @@ func (store *ItensMenuStore) GetItemMenu(id int) (*models.ItemMenu, error) {
 	return i, nil
 }
 
-// UpdateItemMenu atualiza os dados de um ItemMenu.
-func (store *ItensMenuStore) UpdateItemMenu(item *models.ItemMenu) error {
-	sqlString := fmt.Sprintf(updateItemMenuSQL, TableItensMenu, Nome, Descricao, Preco, ImagemURL, ItemID)
+// UpdateMenuItem atualiza os dados de um ItemMenu.
+func (store *MenuItemStore) UpdateMenuItem(item *models.MenuItem) error {
+	sqlString := fmt.Sprintf(updateItemMenuSQL, TableMenuItem, Name, Description, Price, ImagemURL, ItemID)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -103,11 +103,11 @@ func (store *ItensMenuStore) UpdateItemMenu(item *models.ItemMenu) error {
 	return nil
 }
 
-// DeleteItemMenu remove um ItemMenu do banco de dados.
+// DeleteMenuItem remove um ItemMenu do banco de dados.
 // FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
 // com cuidado, que não serão tomados aqui pelo carater de estudo este código.
-func (store *ItensMenuStore) DeleteItemMenu(id int) error {
-	sqlString := fmt.Sprintf(deleteItemMenuSQL, TableItensMenu, ItemID)
+func (store *MenuItemStore) DeleteMenuItem(id int) error {
+	sqlString := fmt.Sprintf(deleteItemMenuSQL, TableMenuItem, ItemID)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -125,10 +125,10 @@ func (store *ItensMenuStore) DeleteItemMenu(id int) error {
 	return nil
 }
 
-// GetAllItemMenu busca todos os itens do menu.
-func (store *ItensMenuStore) GetAllItemMenu() ([]*models.ItemMenu, error) {
-	sqlString := fmt.Sprintf(getALLItemMenuSQL, ItemID, Nome, Descricao, Preco, ImagemURL,
-		TableItensMenu, Nome)
+// GetAllMenuItem busca todos os itens do menu.
+func (store *MenuItemStore) GetAllMenuItem() ([]*models.MenuItem, error) {
+	sqlString := fmt.Sprintf(getALLItemMenuSQL, ItemID, Name, Description, Price, ImagemURL,
+		TableMenuItem, Name)
 
 	rows, err := store.DB.Query(sqlString)
 	if err != nil {
@@ -137,9 +137,9 @@ func (store *ItensMenuStore) GetAllItemMenu() ([]*models.ItemMenu, error) {
 	}
 	defer rows.Close()
 
-	var itensMenu []*models.ItemMenu
+	var itensMenu []*models.MenuItem
 	for rows.Next() {
-		var item models.ItemMenu
+		var item models.MenuItem
 		if err := rows.Scan(&item.ItemID, &item.Nome, &item.Descricao, &item.Preco, &item.ImagemURL); err != nil {
 			log.Printf("erro GetAllItemMenu: %v", err)
 			return nil, fmt.Errorf("erro GetAllItemMenu: %v", err)
@@ -155,12 +155,12 @@ func (store *ItensMenuStore) GetAllItemMenu() ([]*models.ItemMenu, error) {
 	return itensMenu, nil
 }
 
-// GetItemMenuByNome busca por um ItemMenu pelo Nome
-func (store *ItensMenuStore) GetItemMenuByNome(nome string) (*models.ItemMenu, error) {
-	item := &models.ItemMenu{}
+// GetMenuItemByName busca por um ItemMenu pelo Nome
+func (store *MenuItemStore) GetMenuItemByName(nome string) (*models.MenuItem, error) {
+	item := &models.MenuItem{}
 
-	sqlString := fmt.Sprintf(getItemMenuByNameSQL, ItemID, Nome, Descricao, Preco, ImagemURL,
-		TableItensMenu, Nome)
+	sqlString := fmt.Sprintf(getItemMenuByNameSQL, ItemID, Name, Description, Price, ImagemURL,
+		TableMenuItem, Name)
 
 	err := store.DB.QueryRow(sqlString, nome).Scan(
 		&item.ItemID, &item.Nome, &item.Descricao, &item.Preco, &item.ImagemURL)

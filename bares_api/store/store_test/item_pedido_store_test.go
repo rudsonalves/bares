@@ -22,15 +22,15 @@ func TestCreateItemPedidoStore(t *testing.T) {
 		WithArgs(1, 1, 10, "Sem cebola").
 		WillReturnResult(mockResult)
 
-	store := store.NewItemPedido(db)
-	testItemPedido := &models.ItemPedido{
+	store := store.NewItemOrder(db)
+	testItemPedido := &models.ItemOrder{
 		PedidoID:    1,
 		ItemID:      1,
 		Quantidade:  10,
 		Observacoes: "Sem cebola",
 	}
 
-	err = store.CreateItemPedido(testItemPedido)
+	err = store.CreateItemOrder(testItemPedido)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, testItemPedido.ItemPedidoID)
 
@@ -52,9 +52,9 @@ func TestGetItemPedidoStore(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(expectedResult)
 
-	store := store.NewItemPedido(db)
+	store := store.NewItemOrder(db)
 
-	result, err := store.GetItemPedido(1)
+	result, err := store.GetItemOrder(1)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, result.ItemPedidoID)
@@ -81,8 +81,8 @@ func TestUpdateItemPedidoStore(t *testing.T) {
 		WithArgs(1, 1, 15, "Adicionar molho extra", 1).
 		WillReturnResult(mockResult)
 
-	store := store.NewItemPedido(db)
-	testItemPedido := &models.ItemPedido{
+	store := store.NewItemOrder(db)
+	testItemPedido := &models.ItemOrder{
 		ItemPedidoID: 1,
 		PedidoID:     1,
 		ItemID:       1,
@@ -90,7 +90,7 @@ func TestUpdateItemPedidoStore(t *testing.T) {
 		Observacoes:  "Adicionar molho extra",
 	}
 
-	err = store.UpdateItemPedido(testItemPedido)
+	err = store.UpdateItemOrder(testItemPedido)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -111,9 +111,9 @@ func TestDeleteItemPedidoStore(t *testing.T) {
 		WithArgs(1).
 		WillReturnResult(mockResult)
 
-	store := store.NewItemPedido(db)
+	store := store.NewItemOrder(db)
 
-	err = store.DeleteItemPedido(1)
+	err = store.DeleteItemOrder(1)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {

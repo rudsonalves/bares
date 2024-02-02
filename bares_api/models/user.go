@@ -8,8 +8,8 @@ const (
 	Gerente Papel = "gerente"
 )
 
-// Usuario estrutura para os usuários do sistema
-type Usuario struct {
+// User estrutura para os usuários do sistema
+type User struct {
 	UsuarioID int    `json:"usuarioID"`
 	Nome      string `json:"nome"`
 	Email     string `json:"email"`

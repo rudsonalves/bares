@@ -19,10 +19,10 @@ func TestDatabaseIntegration(t *testing.T) {
 
 	// Verificar a existência das tabelas
 	tables := []string{
-		store.TableUsuarios,
-		store.TableItensMenu,
-		store.TableItensPedido,
-		store.TablePedidos,
+		store.TableUsers,
+		store.TableMenuItem,
+		store.TableItensOrders,
+		store.TableOrders,
 	}
 	for _, table := range tables {
 		var tableName string

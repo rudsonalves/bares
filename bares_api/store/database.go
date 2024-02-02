@@ -11,38 +11,38 @@ import (
 )
 
 const (
-	TableUsuarios = "Usuarios"
-	UsuarioID     = "usuarioID"
-	Nome          = "nome"
-	Email         = "email"
-	SenhaHash     = "senhaHash"
-	Papel         = "papel"
+	TableUsers   = "Usuarios"
+	UserID       = "usuarioID"
+	Name         = "nome"
+	Email        = "email"
+	PasswordHash = "senhaHash"
+	Role         = "papel"
 
-	TableItensMenu = "ItensMenu"
-	ItemID         = "itemID"
-	// Nome           = "nome"
-	Descricao = "descricao"
-	Preco     = "preco"
-	ImagemURL = "imagemURL"
+	TableMenuItem = "ItensMenu"
+	ItemID        = "itemID"
+	// Name           = "nome"
+	Description = "descricao"
+	Price       = "preco"
+	ImagemURL   = "imagemURL"
 
-	IndexItensMenu = "idx_itensMenu_name"
+	IndexMenuItem = "idx_itensMenu_name"
 
-	TablePedidos = "Pedidos"
-	PedidoID     = "pedidoID"
+	TableOrders = "Pedidos"
+	OrderID     = "pedidoID"
 	// UsuarioID    = "usuarioID"
-	DataHora = "dataHora"
+	DateTime = "dataHora"
 	Status   = "status"
 
-	IndexUsuarioId = "idx_usuario_id"
+	IndexUserId = "idx_usuario_id"
 
-	TableItensPedido = "ItensPedido"
-	ItemPedidoID     = "itemPedidoID"
-	// PedidoID         = "pedidoID"
+	TableItensOrders = "ItensPedido"
+	ItemOrderID      = "itemPedidoID"
+	// OrderID         = "pedidoID"
 	// ItemID           = "itemID"
-	Quantidade  = "quantidade"
-	Observacoes = "observacoes"
+	Amount   = "quantidade"
+	Comments = "observacoes"
 
-	IndexPedidoId = "idx_pedido_id"
+	IndexOrderId = "idx_pedido_id"
 )
 
 // DatabaseStore mantém a conexão com o banco de dados.
@@ -129,7 +129,7 @@ func (store *DatabaseStore) createTables() error {
         %s VARCHAR(255) UNIQUE NOT NULL,
         %s VARCHAR(255) NOT NULL,
         %s ENUM('cliente', 'garcom', 'gerente') NOT NULL
-      )`, TableUsuarios, UsuarioID, Nome, Email, SenhaHash, Papel,
+      )`, TableUsers, UserID, Name, Email, PasswordHash, Role,
 		),
 		fmt.Sprintf(`
       CREATE TABLE IF NOT EXISTS %s (
@@ -138,7 +138,7 @@ func (store *DatabaseStore) createTables() error {
         %s TEXT,
         %s DECIMAL(10,2) NOT NULL,
         %s VARCHAR(255)
-      )`, TableItensMenu, ItemID, Nome, Descricao, Preco, ImagemURL,
+      )`, TableMenuItem, ItemID, Name, Description, Price, ImagemURL,
 		),
 		fmt.Sprintf(`
       CREATE TABLE IF NOT EXISTS %s (
@@ -147,7 +147,7 @@ func (store *DatabaseStore) createTables() error {
         %s DATETIME NOT NULL,
         %s ENUM('recebido', 'preparando', 'pronto', 'entregue') NOT NULL,
         FOREIGN KEY (%s) REFERENCES %s(%s)
-      )`, TablePedidos, PedidoID, UsuarioID, DataHora, Status, UsuarioID, TableUsuarios, UsuarioID,
+      )`, TableOrders, OrderID, UserID, DateTime, Status, UserID, TableUsers, UserID,
 		),
 		fmt.Sprintf(`
       CREATE TABLE IF NOT EXISTS %s (
@@ -158,8 +158,8 @@ func (store *DatabaseStore) createTables() error {
         %s VARCHAR(255),
         FOREIGN KEY (%s) REFERENCES %s(%s),
         FOREIGN KEY (%s) REFERENCES %s(%s)
-      )`, TableItensPedido, ItemPedidoID, PedidoID, ItemID, Quantidade, Observacoes,
-			PedidoID, TablePedidos, PedidoID, ItemID, TableItensMenu, ItemID,
+      )`, TableItensOrders, ItemOrderID, OrderID, ItemID, Amount, Comments,
+			OrderID, TableOrders, OrderID, ItemID, TableMenuItem, ItemID,
 		),
 	}
 
@@ -184,9 +184,9 @@ func (store *DatabaseStore) createTables() error {
 // createIndexes cria os índices das tabelas
 func (store *DatabaseStore) createIndexes() error {
 	createIndexSQLs := []string{
-		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexItensMenu, TableItensMenu, Nome),
-		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexUsuarioId, TablePedidos, UsuarioID),
-		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexPedidoId, TableItensPedido, PedidoID),
+		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexMenuItem, TableMenuItem, Name),
+		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexUserId, TableOrders, UserID),
+		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexOrderId, TableItensOrders, OrderID),
 	}
 
 	for _, createIndexSQL := range createIndexSQLs {

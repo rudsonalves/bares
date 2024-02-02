@@ -10,38 +10,38 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ItemPedidoHandler gerencia as requisições HTTP para ItemPedido.
-type ItemPedidoHandler struct {
-	Service *services.ItemPedidoService
+// ItemOrderHandler gerencia as requisições HTTP para ItemPedido.
+type ItemOrderHandler struct {
+	Service *services.ItemOrderService
 }
 
-// NewItemPedidoHandler cria uma nova instância de ItemPedidoHandler.
-func NewItemPedidoHandler(service *services.ItemPedidoService) *ItemPedidoHandler {
-	return &ItemPedidoHandler{
+// NewItemOrderHandler cria uma nova instância de ItemPedidoHandler.
+func NewItemOrderHandler(service *services.ItemOrderService) *ItemOrderHandler {
+	return &ItemOrderHandler{
 		Service: service,
 	}
 }
 
-// CreateItemPedido lida com requisições POST para adicionar um novo ItemPedido.
-func (handler *ItemPedidoHandler) CreateItemPedido(w http.ResponseWriter, r *http.Request) {
-	var itemPedido models.ItemPedido
-	if err := json.NewDecoder(r.Body).Decode(&itemPedido); err != nil {
+// CreateItemOrder lida com requisições POST para adicionar um novo ItemPedido.
+func (handler *ItemOrderHandler) CreateItemOrder(w http.ResponseWriter, r *http.Request) {
+	var itemOrder models.ItemOrder
+	if err := json.NewDecoder(r.Body).Decode(&itemOrder); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.CreateItemPedido(&itemPedido); err != nil {
+	if err := handler.Service.CreateItemOrder(&itemOrder); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(itemPedido)
+	json.NewEncoder(w).Encode(itemOrder)
 }
 
-// GetItemPedido lida com requisições GET para buscar um ItemPedido pelo ID.
-func (handler *ItemPedidoHandler) GetItemPedido(w http.ResponseWriter, r *http.Request) {
+// GetIItemOrder lida com requisições GET para buscar um ItemPedido pelo ID.
+func (handler *ItemOrderHandler) GetIItemOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -49,7 +49,7 @@ func (handler *ItemPedidoHandler) GetItemPedido(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	itemPedido, err := handler.Service.GetItemPedido(id)
+	itemPedido, err := handler.Service.GetItemOrder(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -59,26 +59,26 @@ func (handler *ItemPedidoHandler) GetItemPedido(w http.ResponseWriter, r *http.R
 	json.NewEncoder(w).Encode(itemPedido)
 }
 
-// UpdateItemPedido lida com requisições PUT para atualizar um ItemPedido existente.
-func (handler *ItemPedidoHandler) UpdateItemPedido(w http.ResponseWriter, r *http.Request) {
-	var itemPedido models.ItemPedido
-	if err := json.NewDecoder(r.Body).Decode(&itemPedido); err != nil {
+// UpdateItemOrder lida com requisições PUT para atualizar um ItemPedido existente.
+func (handler *ItemOrderHandler) UpdateItemOrder(w http.ResponseWriter, r *http.Request) {
+	var itemOrder models.ItemOrder
+	if err := json.NewDecoder(r.Body).Decode(&itemOrder); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.UpdateItemPedido(&itemPedido); err != nil {
+	if err := handler.Service.UpdateItemOrder(&itemOrder); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(itemPedido)
+	json.NewEncoder(w).Encode(itemOrder)
 }
 
-// DeleteItemPedido lida com requisições DELETE para remover um ItemPedido.
-func (handler *ItemPedidoHandler) DeleteItemPedido(w http.ResponseWriter, r *http.Request) {
+// DeleteItemOrder lida com requisições DELETE para remover um ItemPedido.
+func (handler *ItemOrderHandler) DeleteItemOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -86,7 +86,7 @@ func (handler *ItemPedidoHandler) DeleteItemPedido(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if err := handler.Service.DeleteItemPedido(id); err != nil {
+	if err := handler.Service.DeleteItemOrder(id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

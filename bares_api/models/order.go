@@ -14,15 +14,15 @@ const (
 	Entregue   Status = "entregue"
 )
 
-// Pedido estrutura dos pedidos no sistema
-type Pedido struct {
+// Order estrutura dos pedidos no sistema
+type Order struct {
 	PedidoID  int       `json:"pedidoID"`
 	UsuarioID int       `json:"usuarioID"`
 	DataHora  time.Time `json:"dataHora"`
 	Status    Status    `json:"status"`
 }
 
-func (p *Pedido) String() string {
+func (p *Order) String() string {
 	return fmt.Sprintf("id: %d; userId: %d; Date: %s; Status: %s",
 		p.PedidoID,
 		p.UsuarioID,

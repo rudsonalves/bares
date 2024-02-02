@@ -10,27 +10,27 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// UsuarioHandler gerencia as requisições HTTP para usuários.
-type UsuarioHandler struct {
-	Service *services.UsuarioService
+// UserHandler gerencia as requisições HTTP para usuários.
+type UserHandler struct {
+	Service *services.UserService
 }
 
-// NewUsuarioHandler cria uma nova instância de UsuarioHandler.
-func NewUsuarioHandler(service *services.UsuarioService) *UsuarioHandler {
-	return &UsuarioHandler{
+// NewUserHandler cria uma nova instância de UsuarioHandler.
+func NewUserHandler(service *services.UserService) *UserHandler {
+	return &UserHandler{
 		Service: service,
 	}
 }
 
-// CreateUsuario lida com requisições POST para adicionar um novo usuário.
-func (handler *UsuarioHandler) CreateUsuario(w http.ResponseWriter, r *http.Request) {
-	var usuario models.Usuario
+// CreateUser lida com requisições POST para adicionar um novo usuário.
+func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var usuario models.User
 	if err := json.NewDecoder(r.Body).Decode(&usuario); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.CreateUsuario(&usuario); err != nil {
+	if err := handler.Service.CreateUser(&usuario); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -40,8 +40,8 @@ func (handler *UsuarioHandler) CreateUsuario(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(usuario)
 }
 
-// GetUsuario lida com requisições GET para buscar um usuário pelo ID.
-func (handler *UsuarioHandler) GetUsuario(w http.ResponseWriter, r *http.Request) {
+// GetUser lida com requisições GET para buscar um usuário pelo ID.
+func (handler *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -49,7 +49,7 @@ func (handler *UsuarioHandler) GetUsuario(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	user, err := handler.Service.GetUsuario(id)
+	user, err := handler.Service.GetUser(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -61,15 +61,15 @@ func (handler *UsuarioHandler) GetUsuario(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(user)
 }
 
-// UpdateUsuario lida com requisições PUT para atualizar um usuário existente.
-func (handler *UsuarioHandler) UpdateUsuario(w http.ResponseWriter, r *http.Request) {
-	var usuario models.Usuario
+// UpdateUser lida com requisições PUT para atualizar um usuário existente.
+func (handler *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var usuario models.User
 	if err := json.NewDecoder(r.Body).Decode(&usuario); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.UpdateUsuario(&usuario); err != nil {
+	if err := handler.Service.UpdateUser(&usuario); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -79,8 +79,8 @@ func (handler *UsuarioHandler) UpdateUsuario(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(usuario)
 }
 
-// DeleteUsuario lida com requisições DELETE para remover um usuário.
-func (handler *UsuarioHandler) DeleteUsuario(w http.ResponseWriter, r *http.Request) {
+// DeleteUser lida com requisições DELETE para remover um usuário.
+func (handler *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -88,7 +88,7 @@ func (handler *UsuarioHandler) DeleteUsuario(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err := handler.Service.DeleteUsuario(id); err != nil {
+	if err := handler.Service.DeleteUser(id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

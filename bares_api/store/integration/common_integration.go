@@ -13,9 +13,9 @@ const testDBName = "BarDB_test"
 
 // CreateUsers cria e insere uma lista de usuários de teste no banco de dados usando o UsuarioStore fornecido.
 // Retorna a lista de usuários criados e um erro, se ocorrer.
-func CreateUsers(s *store.UsuarioStore) ([]models.Usuario, error) {
+func CreateUsers(s *store.UserStore) ([]models.User, error) {
 	// Criar Usuários
-	users := []models.Usuario{
+	users := []models.User{
 		{
 			Nome:      "John Doe",
 			Email:     "mesa01@example.com",
@@ -50,7 +50,7 @@ func CreateUsers(s *store.UsuarioStore) ([]models.Usuario, error) {
 
 	// Inserir usuários no banco de dados
 	for i, user := range users {
-		err := s.CreateUsuario(&user)
+		err := s.CreateUser(&user)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao criar usuário: %s", err)
 		}
@@ -66,9 +66,9 @@ func CreateUsers(s *store.UsuarioStore) ([]models.Usuario, error) {
 
 // CreateItensMenu cria e insere uma lista de itemMenus de teste no banco de dados usando o ItemMenuStore fornecido.
 // Retorna a lista de itemMenus criados e um erro, se ocorrer.
-func CreateItensMenu(s *store.ItensMenuStore) ([]models.ItemMenu, error) {
+func CreateItensMenu(s *store.MenuItemStore) ([]models.MenuItem, error) {
 	// Criar itemMenus
-	itens := []models.ItemMenu{
+	itens := []models.MenuItem{
 		{
 			Nome:      "Salada de Frutas",
 			Descricao: "Uma bela salada de muitas frutas",
@@ -97,7 +97,7 @@ func CreateItensMenu(s *store.ItensMenuStore) ([]models.ItemMenu, error) {
 
 	// Inserir itemMenus no banco de dados
 	for i, item := range itens {
-		err := s.CreateItemMenu(&item)
+		err := s.CreateMenuItem(&item)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao criar itemMenu: %s", err)
 		}
@@ -113,9 +113,9 @@ func CreateItensMenu(s *store.ItensMenuStore) ([]models.ItemMenu, error) {
 
 // CreateItensMenu cria e insere uma lista de itemMenus de teste no banco de dados usando o ItemMenuStore fornecido.
 // Retorna a lista de itemMenus criados e um erro, se ocorrer.
-func CreatePedidos(s *store.PedidoStore) ([]models.Pedido, error) {
+func CreatePedidos(s *store.OrderStore) ([]models.Order, error) {
 	// Criar Pedidos
-	pedidos := []models.Pedido{
+	pedidos := []models.Order{
 		{
 			UsuarioID: 2,
 			DataHora:  time.Now(),
@@ -140,7 +140,7 @@ func CreatePedidos(s *store.PedidoStore) ([]models.Pedido, error) {
 
 	// Inserir itemMenus no banco de dados
 	for i, pedido := range pedidos {
-		err := s.CreatePedido(&pedido)
+		err := s.CreateOrder(&pedido)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao criar itemMenu: %s", err)
 		}

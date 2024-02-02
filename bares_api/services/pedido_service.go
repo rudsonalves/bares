@@ -5,44 +5,44 @@ import (
 	"bares_api/store"
 )
 
-// PedidoService fornece métodos para operações relacionadas a Pedido.
-type PedidoService struct {
-	store store.PedidoStorer
+// OrderService fornece métodos para operações relacionadas a Pedido.
+type OrderService struct {
+	store store.OrderStorer
 }
 
 // NewPedidoService cria uma nova instância de PedidoService.
-func NewPedidoService(store store.PedidoStorer) *PedidoService {
-	return &PedidoService{
+func NewPedidoService(store store.OrderStorer) *OrderService {
+	return &OrderService{
 		store: store,
 	}
 }
 
-// CreatePedido trata da lógica de negócios para criar um novo Pedido.
-func (service *PedidoService) CreatePedido(pedido *models.Pedido) error {
-	return service.store.CreatePedido(pedido)
+// CreateOrder trata da lógica de negócios para criar um novo Pedido.
+func (service *OrderService) CreateOrder(pedido *models.Order) error {
+	return service.store.CreateOrder(pedido)
 }
 
-// GetPedido trata da lógica para recuperar um Pedido pelo ID.
-func (service *PedidoService) GetPedido(id int) (*models.Pedido, error) {
-	return service.store.GetPedido(id)
+// GetOrder trata da lógica para recuperar um Pedido pelo ID.
+func (service *OrderService) GetOrder(id int) (*models.Order, error) {
+	return service.store.GetOrder(id)
 }
 
-// UpdatePedido atualiza os dados de um pedido.
-func (service *PedidoService) UpdatePedido(pedido *models.Pedido) error {
-	return service.store.UpdatePedido(pedido)
+// UpdateOrder atualiza os dados de um pedido.
+func (service *OrderService) UpdateOrder(pedido *models.Order) error {
+	return service.store.UpdateOrder(pedido)
 }
 
-// DeletePedido remove um pedido do banco de dados.
-func (service *PedidoService) DeletePedido(id int) error {
-	return service.store.DeletePedido(id)
+// DeleteOrder remove um pedido do banco de dados.
+func (service *OrderService) DeleteOrder(id int) error {
+	return service.store.DeleteOrder(id)
 }
 
-// GetPedidosByUsuario busca todos os pedidos de um usuário específico pelo usuarioID.
-func (service *PedidoService) GetPedidosByUsuario(usuarioId int) ([]*models.Pedido, error) {
-	return service.store.GetPedidosByUsuario(usuarioId)
+// GetOrderByUser busca todos os pedidos de um usuário específico pelo usuarioID.
+func (service *OrderService) GetOrderByUser(usuarioId int) ([]*models.Order, error) {
+	return service.store.GetOrderByUser(usuarioId)
 }
 
-// GetPedidosPending busca todos os pedidos de um usuário específico pelo usuarioID.
-func (service *PedidoService) GetPedidosPending() ([]*models.Pedido, error) {
-	return service.store.GetPedidosPending()
+// GetPendingOrder busca todos os pedidos de um usuário específico pelo usuarioID.
+func (service *OrderService) GetPendingOrder() ([]*models.Order, error) {
+	return service.store.GetPendingOrders()
 }

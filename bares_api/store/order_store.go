@@ -16,32 +16,32 @@ const (
 	deleteOrderSQL     = "DELETE FROM %s WHERE %s = ?"
 )
 
-// PedidoStore mantém a conexão com o banco de dados para operações relacionadas a pedidos.
-type PedidoStore struct {
+// OrderStore mantém a conexão com o banco de dados para operações relacionadas a pedidos.
+type OrderStore struct {
 	DB *sql.DB
 }
 
-// NewPedido cria uma nova instância de PedidoStore.
-func NewPedido(db *sql.DB) *PedidoStore {
-	return &PedidoStore{DB: db}
+// NewOrder cria uma nova instância de PedidoStore.
+func NewOrder(db *sql.DB) *OrderStore {
+	return &OrderStore{DB: db}
 }
 
-// PedidoStorer define as operações que um PedidoStore precisa implementar.
-type PedidoStorer interface {
-	CreatePedido(pedido *models.Pedido) error
-	GetPedido(id int) (*models.Pedido, error)
-	UpdatePedido(pedido *models.Pedido) error
-	DeletePedido(id int) error
-	GetPedidosByUsuario(usuarioID int) ([]*models.Pedido, error)
-	GetPedidosPending() ([]*models.Pedido, error)
+// OrderStorer define as operações que um PedidoStore precisa implementar.
+type OrderStorer interface {
+	CreateOrder(pedido *models.Order) error
+	GetOrder(id int) (*models.Order, error)
+	UpdateOrder(pedido *models.Order) error
+	DeleteOrder(id int) error
+	GetOrderByUser(usuarioID int) ([]*models.Order, error)
+	GetPendingOrders() ([]*models.Order, error)
 }
 
 // Garanta que PedidoStore implementa PedidoStorer.
-var _ PedidoStorer = &PedidoStore{}
+var _ OrderStorer = &OrderStore{}
 
-// CreatePedido adiciona um novo pedido ao banco de dados.
-func (store *PedidoStore) CreatePedido(pedido *models.Pedido) error {
-	sqlString := fmt.Sprintf(createOrderSQL, TablePedidos, UsuarioID, DataHora, Status)
+// CreateOrder adiciona um novo pedido ao banco de dados.
+func (store *OrderStore) CreateOrder(pedido *models.Order) error {
+	sqlString := fmt.Sprintf(createOrderSQL, TableOrders, UserID, DateTime, Status)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -66,11 +66,11 @@ func (store *PedidoStore) CreatePedido(pedido *models.Pedido) error {
 	return nil
 }
 
-// GetPedido busca um pedido pelo ID.
-func (store *PedidoStore) GetPedido(id int) (*models.Pedido, error) {
-	p := &models.Pedido{}
+// GetOrder busca um pedido pelo ID.
+func (store *OrderStore) GetOrder(id int) (*models.Order, error) {
+	p := &models.Order{}
 
-	sqlString := fmt.Sprintf(getOrderSQL, UsuarioID, DataHora, Status, TablePedidos, PedidoID)
+	sqlString := fmt.Sprintf(getOrderSQL, UserID, DateTime, Status, TableOrders, OrderID)
 
 	err := store.DB.QueryRow(sqlString, id).Scan(&p.UsuarioID, &p.DataHora, &p.Status)
 	if err != nil {
@@ -81,9 +81,9 @@ func (store *PedidoStore) GetPedido(id int) (*models.Pedido, error) {
 	return p, nil
 }
 
-// UpdatePedido atualiza os dados de um pedido.
-func (store *PedidoStore) UpdatePedido(pedido *models.Pedido) error {
-	sqlString := fmt.Sprintf(updateOrderSQL, TablePedidos, UsuarioID, DataHora, Status, PedidoID)
+// UpdateOrder atualiza os dados de um pedido.
+func (store *OrderStore) UpdateOrder(pedido *models.Order) error {
+	sqlString := fmt.Sprintf(updateOrderSQL, TableOrders, UserID, DateTime, Status, OrderID)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -100,11 +100,11 @@ func (store *PedidoStore) UpdatePedido(pedido *models.Pedido) error {
 	return nil
 }
 
-// DeletePedido remove um pedido do banco de dados.
+// DeleteOrder remove um pedido do banco de dados.
 // FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
 // com cuidado, que não serão tomados aqui pelo carater de estudo este código.
-func (store *PedidoStore) DeletePedido(id int) error {
-	sqlString := fmt.Sprintf(deleteOrderSQL, TablePedidos, PedidoID)
+func (store *OrderStore) DeleteOrder(id int) error {
+	sqlString := fmt.Sprintf(deleteOrderSQL, TableOrders, OrderID)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -122,12 +122,12 @@ func (store *PedidoStore) DeletePedido(id int) error {
 	return nil
 }
 
-// GetPedidosByUsuario busca todos os pedidos de um usuário específico pelo UsuarioID.
-func (store *PedidoStore) GetPedidosByUsuario(usuarioID int) ([]*models.Pedido, error) {
-	var pedidos []*models.Pedido
+// GetOrderByUser busca todos os pedidos de um usuário específico pelo UsuarioID.
+func (store *OrderStore) GetOrderByUser(usuarioID int) ([]*models.Order, error) {
+	var pedidos []*models.Order
 
 	queryString := fmt.Sprintf("SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",
-		PedidoID, UsuarioID, DataHora, Status, TablePedidos, UsuarioID)
+		OrderID, UserID, DateTime, Status, TableOrders, UserID)
 
 	rows, err := store.DB.Query(queryString, usuarioID)
 	if err != nil {
@@ -138,7 +138,7 @@ func (store *PedidoStore) GetPedidosByUsuario(usuarioID int) ([]*models.Pedido, 
 
 	for rows.Next() {
 		var dataHoraStr string
-		p := &models.Pedido{}
+		p := &models.Order{}
 		err := rows.Scan(&p.PedidoID, &p.UsuarioID, &dataHoraStr, &p.Status)
 		if err != nil {
 			log.Printf("erro GetPedidosByUsuario: %v", err)
@@ -161,11 +161,11 @@ func (store *PedidoStore) GetPedidosByUsuario(usuarioID int) ([]*models.Pedido, 
 	return pedidos, nil
 }
 
-// GetPedidosPending retorna os pedidos com status diferente de 'entregue'
-func (store *PedidoStore) GetPedidosPending() ([]*models.Pedido, error) {
-	var pedidos []*models.Pedido
+// GetPendingOrders retorna os pedidos com status diferente de 'entregue'
+func (store *OrderStore) GetPendingOrders() ([]*models.Order, error) {
+	var pedidos []*models.Order
 
-	sqlString := fmt.Sprintf(getOrderPendindSQL, PedidoID, UsuarioID, DataHora, Status, TablePedidos, Status)
+	sqlString := fmt.Sprintf(getOrderPendindSQL, OrderID, UserID, DateTime, Status, TableOrders, Status)
 
 	rows, err := store.DB.Query(sqlString, models.Entregue)
 	if err != nil {
@@ -176,7 +176,7 @@ func (store *PedidoStore) GetPedidosPending() ([]*models.Pedido, error) {
 
 	for rows.Next() {
 		var dataHoraStr string
-		p := &models.Pedido{}
+		p := &models.Order{}
 		err := rows.Scan(&p.PedidoID, &p.UsuarioID, &dataHoraStr, &p.Status)
 		if err != nil {
 			log.Printf("erro GetPedidosPending: %v", err)

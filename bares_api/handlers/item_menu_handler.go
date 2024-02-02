@@ -10,38 +10,38 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ItemMenuHandler gerencia as requisições HTTP para itemMenu.
-type ItemMenuHandler struct {
-	Service *services.ItemMenuService
+// MenuItemHandler gerencia as requisições HTTP para itemMenu.
+type MenuItemHandler struct {
+	Service *services.MenuItemService
 }
 
-// NewItemMenuHandler cria uma nova instância de ItemMenuHandler.
-func NewItemMenuHandler(service *services.ItemMenuService) *ItemMenuHandler {
-	return &ItemMenuHandler{
+// NewMenuItemHandler cria uma nova instância de MenuItemHandler.
+func NewMenuItemHandler(service *services.MenuItemService) *MenuItemHandler {
+	return &MenuItemHandler{
 		Service: service,
 	}
 }
 
-// CreateItemMenu lida com requisições POST para adicionar um novo ItemMenu.
-func (handler *ItemMenuHandler) CreateItemMenu(w http.ResponseWriter, r *http.Request) {
-	var itemMenu models.ItemMenu
-	if err := json.NewDecoder(r.Body).Decode(&itemMenu); err != nil {
+// CreateMenuItem lida com requisições POST para adicionar um novo ItemMenu.
+func (handler *MenuItemHandler) CreateMenuItem(w http.ResponseWriter, r *http.Request) {
+	var menuItem models.MenuItem
+	if err := json.NewDecoder(r.Body).Decode(&menuItem); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.CreateItemMenu(&itemMenu); err != nil {
+	if err := handler.Service.CreateMenuItem(&menuItem); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(itemMenu)
+	json.NewEncoder(w).Encode(menuItem)
 }
 
-// GetItemMenu lida com requisições GET para buscar um ItemMenu pelo ID.
-func (handler *ItemMenuHandler) GetItemMenu(w http.ResponseWriter, r *http.Request) {
+// GetMenuItem lida com requisições GET para buscar um ItemMenu pelo ID.
+func (handler *MenuItemHandler) GetMenuItem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -49,7 +49,7 @@ func (handler *ItemMenuHandler) GetItemMenu(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	itemMenu, err := handler.Service.GetItemMenu(id)
+	itemMenu, err := handler.Service.GetMenuItem(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -59,26 +59,26 @@ func (handler *ItemMenuHandler) GetItemMenu(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(itemMenu)
 }
 
-// UpdateItemMenu lida com requisições PUT para atualizar um ItemMenu existente.
-func (handler *ItemMenuHandler) UpdateItemMenu(w http.ResponseWriter, r *http.Request) {
-	var itemMenu models.ItemMenu
-	if err := json.NewDecoder(r.Body).Decode(&itemMenu); err != nil {
+// UpdateMenuItem lida com requisições PUT para atualizar um ItemMenu existente.
+func (handler *MenuItemHandler) UpdateMenuItem(w http.ResponseWriter, r *http.Request) {
+	var menuItem models.MenuItem
+	if err := json.NewDecoder(r.Body).Decode(&menuItem); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.UpdateItemMenu(&itemMenu); err != nil {
+	if err := handler.Service.UpdateMenuItem(&menuItem); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(itemMenu)
+	json.NewEncoder(w).Encode(menuItem)
 }
 
-// DeleteItemMenu lida com requisições DELETE para remover um ItemMenu.
-func (handler *ItemMenuHandler) DeleteItemMenu(w http.ResponseWriter, r *http.Request) {
+// DeleteMenuItem lida com requisições DELETE para remover um ItemMenu.
+func (handler *MenuItemHandler) DeleteMenuItem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -86,7 +86,7 @@ func (handler *ItemMenuHandler) DeleteItemMenu(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if err := handler.Service.DeleteItemMenu(id); err != nil {
+	if err := handler.Service.DeleteMenuItem(id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -95,9 +95,9 @@ func (handler *ItemMenuHandler) DeleteItemMenu(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusOK)
 }
 
-// GetAllItemMenu lida com requisições GET para busca todos os itens do menu.
-func (handler *ItemMenuHandler) GetAllItemMenu(w http.ResponseWriter, r *http.Request) {
-	itensMenu, err := handler.Service.GetAllItemMenu()
+// GetAllMenuItem lida com requisições GET para busca todos os itens do menu.
+func (handler *MenuItemHandler) GetAllMenuItem(w http.ResponseWriter, r *http.Request) {
+	itensMenu, err := handler.Service.GetAllMenuItem()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -107,8 +107,8 @@ func (handler *ItemMenuHandler) GetAllItemMenu(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(itensMenu)
 }
 
-// GetItemMenuByNome lida com requisições GET para retorna um item pelo nome
-func (handler *ItemMenuHandler) GetItemMenuByNome(w http.ResponseWriter, r *http.Request) {
+// GetMenuItemByNome lida com requisições GET para retorna um item pelo nome
+func (handler *MenuItemHandler) GetMenuItemByNome(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	nome, ok := vars["name"]
 	if !ok {
@@ -116,7 +116,7 @@ func (handler *ItemMenuHandler) GetItemMenuByNome(w http.ResponseWriter, r *http
 		return
 	}
 
-	itemMenu, err := handler.Service.GetItemMenuByNome(nome)
+	itemMenu, err := handler.Service.GetMenuItemByNome(nome)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return

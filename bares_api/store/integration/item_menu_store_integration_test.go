@@ -16,7 +16,7 @@ func TestItemMenuStoreIntegration(t *testing.T) {
 	defer dbStore.DB.Close()
 
 	// storeItensMenu
-	storeItensMenu := store.NewItensMenu(dbStore.DB)
+	storeItensMenu := store.NewMenuItem(dbStore.DB)
 
 	// Cria itens para o menu
 	itens, err := CreateItensMenu(storeItensMenu)
@@ -27,7 +27,7 @@ func TestItemMenuStoreIntegration(t *testing.T) {
 	// Recuperar e verificar itemMenus
 	for _, item := range itens {
 		// Testar GetItemMenuByNome
-		retrievedItem, err := storeItensMenu.GetItemMenuByNome(item.Nome)
+		retrievedItem, err := storeItensMenu.GetMenuItemByName(item.Nome)
 		if err != nil {
 			t.Errorf("Erro ao recuperar itemMenu pelo email: %s", err)
 		}
@@ -36,7 +36,7 @@ func TestItemMenuStoreIntegration(t *testing.T) {
 		}
 
 		// Testar GetItemMenu
-		retrievedItem, err = storeItensMenu.GetItemMenu(item.ItemID)
+		retrievedItem, err = storeItensMenu.GetMenuItem(item.ItemID)
 		if err != nil {
 			t.Errorf("Erro ao recuperar itemMenu pelo ID: %s", err)
 		}
@@ -46,13 +46,13 @@ func TestItemMenuStoreIntegration(t *testing.T) {
 
 		// Testar UpdateItemMenu
 		retrievedItem.Nome = "Novo Nome"
-		err = storeItensMenu.UpdateItemMenu(retrievedItem)
+		err = storeItensMenu.UpdateMenuItem(retrievedItem)
 		if err != nil {
 			t.Errorf("Erro ao atualizar itemMenu: %s", err)
 		}
 
 		// Verificar se o itemMenu foi atualizado
-		updatedUser, err := storeItensMenu.GetItemMenu(item.ItemID)
+		updatedUser, err := storeItensMenu.GetMenuItem(item.ItemID)
 		if err != nil {
 			t.Errorf("Erro ao recuperar itemMenu pelo ID após atualização: %s", err)
 		}
@@ -61,13 +61,13 @@ func TestItemMenuStoreIntegration(t *testing.T) {
 		}
 
 		// Testar DeleteItemMenu
-		err = storeItensMenu.DeleteItemMenu(item.ItemID)
+		err = storeItensMenu.DeleteMenuItem(item.ItemID)
 		if err != nil {
 			t.Errorf("Erro ao deletar itemMenu: %s", err)
 		}
 
 		// Verificar se o itemMenu foi deletado
-		_, err = storeItensMenu.GetItemMenu(item.ItemID)
+		_, err = storeItensMenu.GetMenuItem(item.ItemID)
 		if err == nil {
 			t.Errorf("itemMenu deveria ter sido deletado")
 		}

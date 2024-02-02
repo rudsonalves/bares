@@ -27,10 +27,10 @@ func main() {
 	}
 
 	// Inicializar stores
-	usuarioStore := store.NewUsuario(dbStore.DB)
-	itemMenuStore := store.NewItensMenu(dbStore.DB)
-	pedidoStore := store.NewPedido(dbStore.DB)
-	itemPedidoStore := store.NewItemPedido(dbStore.DB)
+	usuarioStore := store.NewUser(dbStore.DB)
+	itemMenuStore := store.NewMenuItem(dbStore.DB)
+	pedidoStore := store.NewOrder(dbStore.DB)
+	itemPedidoStore := store.NewItemOrder(dbStore.DB)
 
 	// Inicializar services
 	usuarioService := services.NewUsuarioService(usuarioStore)
@@ -40,46 +40,46 @@ func main() {
 	itemPedidoService := services.NewItemPedidoService(itemPedidoStore)
 
 	// Inicializar handlers
-	usuarioHandler := handlers.NewUsuarioHandler(usuarioService)
+	usuarioHandler := handlers.NewUserHandler(usuarioService)
 	authHandler := handlers.NewAuthHandler(authService)
-	itemMenuHandler := handlers.NewItemMenuHandler(itemMenuService)
-	pedidoHandler := handlers.NewPedidoHandler(pedidoService)
-	itemPedidoHandler := handlers.NewItemPedidoHandler(itemPedidoService)
+	itemMenuHandler := handlers.NewMenuItemHandler(itemMenuService)
+	pedidoHandler := handlers.NewOrderHandler(pedidoService)
+	itemPedidoHandler := handlers.NewItemOrderHandler(itemPedidoService)
 
 	// Configurar rotas
 	route := mux.NewRouter()
 
 	// Rotas públicas
 	route.HandleFunc("/login", authHandler.LoginHandlers).Methods("POST")
-	route.HandleFunc("/usuarios", usuarioHandler.CreateUsuario).Methods("POST")
+	route.HandleFunc("/usuarios", usuarioHandler.CreateUser).Methods("POST")
 
 	// Rotas privadas
 	api := route.PathPrefix("/api").Subrouter()
 	api.Use(handlers.AuthMiddleware) // Aplica o middleware de autenticação
 
 	// As rotas abaixo requerem autenticação
-	api.HandleFunc("/itemmenu", itemMenuHandler.CreateItemMenu).Methods("POST")
-	api.HandleFunc("/pedido", pedidoHandler.CreatePedido).Methods("POST")
-	api.HandleFunc("/itempedido", itemMenuHandler.CreateItemMenu).Methods("POST")
+	api.HandleFunc("/itemmenu", itemMenuHandler.CreateMenuItem).Methods("POST")
+	api.HandleFunc("/pedido", pedidoHandler.CreateOrder).Methods("POST")
+	api.HandleFunc("/itempedido", itemMenuHandler.CreateMenuItem).Methods("POST")
 
-	api.HandleFunc("/usuarios/{id}", usuarioHandler.GetUsuario).Methods("GET")
-	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.GetItemMenu).Methods("GET")
-	api.HandleFunc("/itemmenu", itemMenuHandler.GetAllItemMenu).Methods("GET")
-	api.HandleFunc("/itemmenu/name/{name}", itemMenuHandler.GetItemMenuByNome).Methods("GET")
-	api.HandleFunc("/pedido/{id}", pedidoHandler.GetPedido).Methods("GET")
-	api.HandleFunc("/pedido/usuario/{id}", pedidoHandler.GetPedidosByUsuario).Methods("GET")
-	api.HandleFunc("/pedido", pedidoHandler.GetPedidosPending).Methods("GET")
-	api.HandleFunc("/itempedido/{id}", itemPedidoHandler.GetItemPedido).Methods("GET")
+	api.HandleFunc("/usuarios/{id}", usuarioHandler.GetUser).Methods("GET")
+	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.GetMenuItem).Methods("GET")
+	api.HandleFunc("/itemmenu", itemMenuHandler.GetAllMenuItem).Methods("GET")
+	api.HandleFunc("/itemmenu/name/{name}", itemMenuHandler.GetMenuItemByNome).Methods("GET")
+	api.HandleFunc("/pedido/{id}", pedidoHandler.GetOrder).Methods("GET")
+	api.HandleFunc("/pedido/usuario/{id}", pedidoHandler.GetOrderByUser).Methods("GET")
+	api.HandleFunc("/pedido", pedidoHandler.GetPendingOrder).Methods("GET")
+	api.HandleFunc("/itempedido/{id}", itemPedidoHandler.GetIItemOrder).Methods("GET")
 
-	api.HandleFunc("/usuarios/{id}", usuarioHandler.UpdateUsuario).Methods("PUT")
-	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.UpdateItemMenu).Methods("PUT")
-	api.HandleFunc("/pedido/{id}", pedidoHandler.UpdatePedido).Methods("PUT")
-	api.HandleFunc("/itempedido/{id}", itemPedidoHandler.UpdateItemPedido).Methods("PUT")
+	api.HandleFunc("/usuarios/{id}", usuarioHandler.UpdateUser).Methods("PUT")
+	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.UpdateMenuItem).Methods("PUT")
+	api.HandleFunc("/pedido/{id}", pedidoHandler.UpdateOrder).Methods("PUT")
+	api.HandleFunc("/itempedido/{id}", itemPedidoHandler.UpdateItemOrder).Methods("PUT")
 
-	api.HandleFunc("/usuarios/{id}", usuarioHandler.DeleteUsuario).Methods("DELETE")
-	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.DeleteItemMenu).Methods("DELETE")
-	api.HandleFunc("/pedido/{id}", pedidoHandler.DeletePedido).Methods("DELETE")
-	api.HandleFunc("/itempedido/{id}", itemPedidoHandler.DeleteItemPedido).Methods("DELETE")
+	api.HandleFunc("/usuarios/{id}", usuarioHandler.DeleteUser).Methods("DELETE")
+	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.DeleteMenuItem).Methods("DELETE")
+	api.HandleFunc("/pedido/{id}", pedidoHandler.DeleteOrder).Methods("DELETE")
+	api.HandleFunc("/itempedido/{id}", itemPedidoHandler.DeleteItemOrder).Methods("DELETE")
 
 	// Iniciar servidor
 	log.Println("Server is running on port 8080")

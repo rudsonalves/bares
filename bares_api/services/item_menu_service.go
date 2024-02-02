@@ -6,22 +6,22 @@ import (
 	"fmt"
 )
 
-// ItemMenuService fornece métodos para operações relacionadas a ItemMenu.
-type ItemMenuService struct {
-	store store.ItensMenuStorer
+// MenuItemService fornece métodos para operações relacionadas a ItemMenu.
+type MenuItemService struct {
+	store store.MenuItemStorer
 }
 
 // NewItemMenuService cria uma nova instância de ItemMenuService.
-func NewItemMenuService(store store.ItensMenuStorer) *ItemMenuService {
-	return &ItemMenuService{
+func NewItemMenuService(store store.MenuItemStorer) *MenuItemService {
+	return &MenuItemService{
 		store: store,
 	}
 }
 
-// CreateItemMenu trata da lógica de negócios para criar um novo ItemMenu.
-func (service *ItemMenuService) CreateItemMenu(item *models.ItemMenu) error {
+// CreateMenuItem trata da lógica de negócios para criar um novo ItemMenu.
+func (service *MenuItemService) CreateMenuItem(item *models.MenuItem) error {
 	// Verificar se o Nome já está em uso:
-	existingItem, err := service.store.GetItemMenuByNome(item.Nome)
+	existingItem, err := service.store.GetMenuItemByName(item.Nome)
 	if err != nil {
 		return err
 	}
@@ -30,30 +30,30 @@ func (service *ItemMenuService) CreateItemMenu(item *models.ItemMenu) error {
 	}
 
 	// Continuar com a criação do ItemMenu
-	return service.store.CreateItemMenu(item)
+	return service.store.CreateMenuItem(item)
 }
 
-// GetItemMenu para buscar um ItemMenu pelo ID.
-func (service *ItemMenuService) GetItemMenu(id int) (*models.ItemMenu, error) {
-	return service.store.GetItemMenu(id)
+// GetMenuItem para buscar um ItemMenu pelo ID.
+func (service *MenuItemService) GetMenuItem(id int) (*models.MenuItem, error) {
+	return service.store.GetMenuItem(id)
 }
 
-// UpdateItemMenu trata da lógica para atualizar um ItemMenu existente.
-func (service *ItemMenuService) UpdateItemMenu(item *models.ItemMenu) error {
-	return service.store.UpdateItemMenu(item)
+// UpdateMenuItem trata da lógica para atualizar um ItemMenu existente.
+func (service *MenuItemService) UpdateMenuItem(item *models.MenuItem) error {
+	return service.store.UpdateMenuItem(item)
 }
 
-// DeleteItemMenu trata da lógica para deletar um ItemMenu.
-func (service *ItemMenuService) DeleteItemMenu(id int) error {
-	return service.store.DeleteItemMenu(id)
+// DeleteMenuItem trata da lógica para deletar um ItemMenu.
+func (service *MenuItemService) DeleteMenuItem(id int) error {
+	return service.store.DeleteMenuItem(id)
 }
 
-// GetAllItemMenu busca todos os itens do menu.
-func (service *ItemMenuService) GetAllItemMenu() ([]*models.ItemMenu, error) {
-	return service.store.GetAllItemMenu()
+// GetAllMenuItem busca todos os itens do menu.
+func (service *MenuItemService) GetAllMenuItem() ([]*models.MenuItem, error) {
+	return service.store.GetAllMenuItem()
 }
 
-// GetItemMenuByNome retorna um item pelo nome
-func (service *ItemMenuService) GetItemMenuByNome(nome string) (*models.ItemMenu, error) {
-	return service.store.GetItemMenuByNome(nome)
+// GetMenuItemByNome retorna um item pelo nome
+func (service *MenuItemService) GetMenuItemByNome(nome string) (*models.MenuItem, error) {
+	return service.store.GetMenuItemByName(nome)
 }

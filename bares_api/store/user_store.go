@@ -17,31 +17,31 @@ const (
 	deleteUserSQL     = "DELETE FROM %s WHERE %s = ?"
 )
 
-// UsuarioStore mantém a conexão com o banco de dados para operações relacionadas a usuários.
-type UsuarioStore struct {
+// UserStore mantém a conexão com o banco de dados para operações relacionadas a usuários.
+type UserStore struct {
 	DB *sql.DB
 }
 
-// NewUsuario cria uma nova instância de UsuarioStore.
-func NewUsuario(db *sql.DB) *UsuarioStore {
-	return &UsuarioStore{DB: db}
+// NewUser cria uma nova instância de UsuarioStore.
+func NewUser(db *sql.DB) *UserStore {
+	return &UserStore{DB: db}
 }
 
 // UsuarioStorer define as operações que um UsuarioStore precisa implementar.
 type UsuarioStorer interface {
-	CreateUsuario(user *models.Usuario) error
-	GetUsuario(id int) (*models.Usuario, error)
-	GetUsuarioByEmail(email string) (*models.Usuario, error)
-	UpdateUsuario(user *models.Usuario) error
-	DeleteUsuario(id int) error
+	CreateUser(user *models.User) error
+	GetUser(id int) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
+	UpdateUser(user *models.User) error
+	DeleteUser(id int) error
 }
 
 // Garanta que UsuarioStore implementa UsuarioStorer.
-var _ UsuarioStorer = &UsuarioStore{}
+var _ UsuarioStorer = &UserStore{}
 
-// CreateUsuario adiciona um novo usuário ao banco de dados.
-func (store *UsuarioStore) CreateUsuario(user *models.Usuario) error {
-	sqlString := fmt.Sprintf(createUserSQL, TableUsuarios, Nome, Email, SenhaHash, Papel)
+// CreateUser adiciona um novo usuário ao banco de dados.
+func (store *UserStore) CreateUser(user *models.User) error {
+	sqlString := fmt.Sprintf(createUserSQL, TableUsers, Name, Email, PasswordHash, Role)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -74,11 +74,11 @@ func (store *UsuarioStore) CreateUsuario(user *models.Usuario) error {
 	return nil
 }
 
-// GetUsuarioByEmail busca um usuário pelo Email.
-func (store *UsuarioStore) GetUsuarioByEmail(email string) (*models.Usuario, error) {
-	user := &models.Usuario{}
+// GetUserByEmail busca um usuário pelo Email.
+func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
+	user := &models.User{}
 
-	sqlString := fmt.Sprintf(getUserByEmailSQL, UsuarioID, Nome, Email, SenhaHash, Papel, TableUsuarios, Email)
+	sqlString := fmt.Sprintf(getUserByEmailSQL, UserID, Name, Email, PasswordHash, Role, TableUsers, Email)
 
 	err := store.DB.QueryRow(sqlString, email).Scan(
 		&user.UsuarioID, &user.Nome, &user.Email, &user.SenhaHash, &user.Papel)
@@ -90,11 +90,11 @@ func (store *UsuarioStore) GetUsuarioByEmail(email string) (*models.Usuario, err
 	return user, nil
 }
 
-// GetUsuario busca um usuário pelo ID.
-func (store *UsuarioStore) GetUsuario(id int) (*models.Usuario, error) {
-	user := &models.Usuario{}
+// GetUser busca um usuário pelo ID.
+func (store *UserStore) GetUser(id int) (*models.User, error) {
+	user := &models.User{}
 
-	sqlString := fmt.Sprintf(getUserSQL, UsuarioID, Nome, Email, SenhaHash, Papel, TableUsuarios, UsuarioID)
+	sqlString := fmt.Sprintf(getUserSQL, UserID, Name, Email, PasswordHash, Role, TableUsers, UserID)
 
 	err := store.DB.QueryRow(sqlString, id).Scan(
 		&user.UsuarioID,
@@ -111,8 +111,8 @@ func (store *UsuarioStore) GetUsuario(id int) (*models.Usuario, error) {
 	return user, nil
 }
 
-// UpdateUsuario atualiza os dados de um usuário.
-func (store *UsuarioStore) UpdateUsuario(user *models.Usuario) error {
+// UpdateUser atualiza os dados de um usuário.
+func (store *UserStore) UpdateUser(user *models.User) error {
 	var hashedPassword string
 
 	if user.SenhaHash != "" {
@@ -126,7 +126,7 @@ func (store *UsuarioStore) UpdateUsuario(user *models.Usuario) error {
 		hashedPassword = string(hashedBytes)
 	} else {
 		// Recupera a senha atual (hash) para não substituir por vazio.
-		currentUser, err := store.GetUsuario(user.UsuarioID)
+		currentUser, err := store.GetUser(user.UsuarioID)
 		if err != nil {
 			log.Printf("erro UpdateUsuario: %v", err)
 			return fmt.Errorf("erro UpdateUsuario: %v", err)
@@ -134,7 +134,7 @@ func (store *UsuarioStore) UpdateUsuario(user *models.Usuario) error {
 		hashedPassword = currentUser.SenhaHash
 	}
 
-	sqlString := fmt.Sprintf(updateUserSQL, TableUsuarios, Nome, Email, SenhaHash, Papel, UsuarioID)
+	sqlString := fmt.Sprintf(updateUserSQL, TableUsers, Name, Email, PasswordHash, Role, UserID)
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro UpdateUsuario: %v", err)
@@ -151,11 +151,11 @@ func (store *UsuarioStore) UpdateUsuario(user *models.Usuario) error {
 	return nil
 }
 
-// DeleteUsuario remove um usuário do banco de dados.
+// DeleteUser remove um usuário do banco de dados.
 // FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
 // com cuidado, que não serão tomados aqui pelo carater de estudo este código.
-func (store *UsuarioStore) DeleteUsuario(id int) error {
-	sqlString := fmt.Sprintf(deleteUserSQL, TableUsuarios, UsuarioID)
+func (store *UserStore) DeleteUser(id int) error {
+	sqlString := fmt.Sprintf(deleteUserSQL, TableUsers, UserID)
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro DeleteUsuario: %v", err)

@@ -5,35 +5,35 @@ import (
 	"bares_api/store"
 )
 
-// ItemPedidoService mantém a conexão com o banco de dados para operações
+// ItemOrderService mantém a conexão com o banco de dados para operações
 // relacionadas a itens pedidos.
-type ItemPedidoService struct {
-	store store.ItemPedidoStorer
+type ItemOrderService struct {
+	store store.ItemOrderStorer
 }
 
 // NewItemPedidoService cria uma nova instância de ItemPedidoService.
-func NewItemPedidoService(store store.ItemPedidoStorer) *ItemPedidoService {
-	return &ItemPedidoService{
+func NewItemPedidoService(store store.ItemOrderStorer) *ItemOrderService {
+	return &ItemOrderService{
 		store: store,
 	}
 }
 
-// CreateItemPedido adiciona um novo ItemPedido ao banco de dados.
-func (service *ItemPedidoService) CreateItemPedido(item *models.ItemPedido) error {
-	return service.store.CreateItemPedido(item)
+// CreateItemOrder adiciona um novo ItemPedido ao banco de dados.
+func (service *ItemOrderService) CreateItemOrder(item *models.ItemOrder) error {
+	return service.store.CreateItemOrder(item)
 }
 
-// GetItemPedido busca um itemPedido pelo ID.
-func (service *ItemPedidoService) GetItemPedido(id int) (*models.ItemPedido, error) {
-	return service.store.GetItemPedido(id)
+// GetItemOrder busca um itemPedido pelo ID.
+func (service *ItemOrderService) GetItemOrder(id int) (*models.ItemOrder, error) {
+	return service.store.GetItemOrder(id)
 }
 
-// UpdateItemPedido atualiza os dados de um itemPedido.
-func (service *ItemPedidoService) UpdateItemPedido(item *models.ItemPedido) error {
-	return service.store.UpdateItemPedido(item)
+// UpdateItemOrder atualiza os dados de um itemPedido.
+func (service *ItemOrderService) UpdateItemOrder(item *models.ItemOrder) error {
+	return service.store.UpdateItemOrder(item)
 }
 
-// DeleteItemPedido remove um itemPedido do banco de dados.
-func (service *ItemPedidoService) DeleteItemPedido(id int) error {
-	return service.store.DeleteItemPedido(id)
+// DeleteItemOrder remove um itemPedido do banco de dados.
+func (service *ItemOrderService) DeleteItemOrder(id int) error {
+	return service.store.DeleteItemOrder(id)
 }

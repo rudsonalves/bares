@@ -28,18 +28,18 @@ func TestCreateUsuarioIntegration(t *testing.T) {
 
 	// Configurar o service para usar o banco de dados de teste
 	log.Print("Configurar o service para usar o banco de dados de teste")
-	usuarioStore := store.NewUsuario(dbStore.DB)
+	usuarioStore := store.NewUser(dbStore.DB)
 	usuarioSrevice := services.NewUsuarioService(usuarioStore)
-	usuarioHandler := handlers.NewUsuarioHandler(usuarioSrevice)
+	usuarioHandler := handlers.NewUserHandler(usuarioSrevice)
 
 	// Cria um servidor HTTP de teste
 	log.Print("Cria um servidor HTTP de teste")
-	server := httptest.NewServer(http.HandlerFunc(usuarioHandler.CreateUsuario))
+	server := httptest.NewServer(http.HandlerFunc(usuarioHandler.CreateUser))
 	defer server.Close()
 
 	// Cria o payload da requisição
 	log.Print("Cria o payload da requisição")
-	usuario := models.Usuario{
+	usuario := models.User{
 		Nome:      "Joey Tribbiani",
 		Email:     "mesa01@email.com",
 		SenhaHash: "1234qwer",
@@ -81,7 +81,7 @@ func TestCreateUsuarioIntegration(t *testing.T) {
 
 	// Decodifica a resposta para verificar se o usuário foi criado corretamente
 	log.Print("Decodifica a resposta para verificar se o usuário foi criado corretamente")
-	var createdUser models.Usuario
+	var createdUser models.User
 	if err := json.NewDecoder(resp.Body).Decode(&createdUser); err != nil {
 		t.Fatalf("Erro ao decodificar a resposta: %v", err)
 	}
