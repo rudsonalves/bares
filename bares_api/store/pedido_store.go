@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	createOrderSQL = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)"
-	getOrderSQL = "SELECT %s, %s, %s FROM %s WHERE %s = ?"
+	createOrderSQL     = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)"
+	getOrderSQL        = "SELECT %s, %s, %s FROM %s WHERE %s = ?"
 	getOrderPendindSQL = "SELECT %s, %s, %s, %s FROM %s WHERE %s != ?"
-	updateOrderSQL = "UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?"
-	deleteOrderSQL = "DELETE FROM %s WHERE %s = ?"
+	updateOrderSQL     = "UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?"
+	deleteOrderSQL     = "DELETE FROM %s WHERE %s = ?"
 )
 
 // PedidoStore mantém a conexão com o banco de dados para operações relacionadas a pedidos.

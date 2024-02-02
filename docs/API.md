@@ -8,7 +8,6 @@ Este projeto é um exercício de criação de um sistema para gestão de atendim
 
 O projeto vai contar com uma API Go para fazer o controle do acesso ao banco de dados e, no momento, os aplicativos Android para clientes, gerente e garçons.
 
-
 ## 1. **API em Go**
 
 - **Objetivo:** Criar uma API robusta e eficiente para gerenciar os pedidos e a comunicação entre os aplicativos.
@@ -163,7 +162,7 @@ Para conectar os pedidos aos itens do menu e armazenar informações específica
 
 Com este design, você terá um banco de dados robusto e bem estruturado, pronto para gerenciar os usuários, pedidos e itens do menu do seu aplicativo de bar.
 
-### Resumo da árvore do projeto:
+### Resumo da árvore da API REST:
 
 Esta é a árvode de módulos da Bares API:
 
@@ -175,10 +174,6 @@ bares_api$ tree .
 ├── main.go
 ├── handlers
 │   ├── auth.go
-│   ├── integration
-│   │   ├── common_integration.go
-│   │   ├── test.log
-│   │   └── usuario_handler_integration_test.go
 │   ├── item_menu_handler.go
 │   ├── item_pedido_handler.go
 │   ├── middleware.go
@@ -198,20 +193,9 @@ bares_api$ tree .
 │   └── usuario_service.go
 ├── store
 │   ├── database.go
-│   ├── integration
-│   │   ├── common_integration.go
-│   │   ├── database_integration_test.go
-│   │   ├── item_menu_store_integration_test.go
-│   │   ├── pedito_integration_test.go
-│   │   └── usuario_store_integration_test.go
 │   ├── item_menu_store.go
 │   ├── item_pedido_store.go
 │   ├── pedido_store.go
-│   ├── store_test
-│   │   ├── database_test.go
-│   │   ├── item_menu_store_test.go
-│   │   ├── item_pedido_store_test.go
-│   │   └── usuario_store_test.go
 │   └── usuario_store.go
 └── utils
     └── utils.go
@@ -223,10 +207,10 @@ bares_api$ tree .
 
 3. **services**: O diretório de serviços contém lógica de negócios relacionada a cada entidade. Cada serviço corresponde a uma entidade específica, como autenticação, itens do menu, itens do pedido, pedidos e usuários. Essa camada é responsável por fornecer funcionalidades de alto nível para manipulação de dados.
 
-4. **store**: Aqui estão os pacotes relacionados ao armazenamento de dados, incluindo integração com o banco de dados. Existem diretórios de integração que contêm testes de integração e diretórios de teste que contêm testes unitários para garantir a qualidade do armazenamento de dados.
+4. **store**: Aqui estão os pacotes relacionados ao armazenamento de dados, incluindo integração com o banco de dados.
 
-5. **utils**: Este diretório contém utilitários gerais que podem ser compartilhados em todo o projeto. O arquivo `utils.go` contém funções auxiliares e utilitárias úteis.
+5. **utils**: Este diretório contém utilitários gerais que podem ser compartilhados em todo o projeto, como funções auxiliares, structs e constantes úteis.
 
-6. **main.go**: O arquivo `main.go` é o ponto de entrada da aplicação. Ele geralmente contém a configuração da API, o roteamento das rotas HTTP e inicia o servidor web.
+6. **main.go**: Ponto de entrada da aplicação. Ele contém a configuração da API, o roteamento das rotas HTTP e inicia o servidor web.
 
 7. **go.mod e go.sum**: Esses arquivos são usados para gerenciar as dependências do projeto e garantir que as versões corretas dos pacotes sejam usadas.

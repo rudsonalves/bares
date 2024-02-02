@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	createItemMenuSQL = "INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?)"
-	getItemMenuSQL = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
-	updateItemMenuSQL = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?"
-	deleteItemMenuSQL = "DELETE FROM %s WHERE %s = ?"
-	getALLItemMenuSQL = "SELECT %s, %s, %s, %s, %s FROM %s ORDER BY %s"
+	createItemMenuSQL    = "INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?)"
+	getItemMenuSQL       = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
+	updateItemMenuSQL    = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?"
+	deleteItemMenuSQL    = "DELETE FROM %s WHERE %s = ?"
+	getALLItemMenuSQL    = "SELECT %s, %s, %s, %s, %s FROM %s ORDER BY %s"
 	getItemMenuByNameSQL = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
 )
 
