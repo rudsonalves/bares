@@ -46,7 +46,7 @@ func (store *UserStore) CreateUser(user *models.User) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro CreateUsuario: %v", err)
-		return fmt.Errorf("erro CreateUsuario: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -54,20 +54,20 @@ func (store *UserStore) CreateUser(user *models.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.SenhaHash), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("erro CreateUsuario: %v", err)
-		return fmt.Errorf("erro CreateUsuario: %v", err)
+		return err
 	}
 	user.SenhaHash = string(hashedPassword)
 
 	result, err := stmt.Exec(user.Nome, user.Email, user.SenhaHash, user.Papel)
 	if err != nil {
 		log.Printf("erro CreateUsuario: %v", err)
-		return fmt.Errorf("erro CreateUsuario: %v", err)
+		return err
 	}
 
 	usuarioID, err := result.LastInsertId()
 	if err != nil {
 		log.Printf("erro CreateUsuario: %v", err)
-		return fmt.Errorf("erro CreateUsuario: %v", err)
+		return err
 	}
 	user.UsuarioID = int(usuarioID)
 
@@ -84,7 +84,7 @@ func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
 		&user.UsuarioID, &user.Nome, &user.Email, &user.SenhaHash, &user.Papel)
 	if err != nil {
 		log.Printf("erro GetUsuarioByEmail: %v", err)
-		return nil, fmt.Errorf("erro GetUsuarioByEmail: %v", err)
+		return nil, err
 	}
 
 	return user, nil
@@ -106,7 +106,7 @@ func (store *UserStore) GetUser(id int) (*models.User, error) {
 
 	if err != nil {
 		log.Printf("erro GetUsuario: %v", err)
-		return nil, fmt.Errorf("erro GetUsuario: %v", err)
+		return nil, err
 	}
 	return user, nil
 }
@@ -121,7 +121,7 @@ func (store *UserStore) UpdateUser(user *models.User) error {
 		hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.SenhaHash), bcrypt.DefaultCost)
 		if err != nil {
 			log.Printf("erro UpdateUsuario: %v", err)
-			return fmt.Errorf("erro UpdateUsuario: %v", err)
+			return err
 		}
 		hashedPassword = string(hashedBytes)
 	} else {
@@ -129,7 +129,7 @@ func (store *UserStore) UpdateUser(user *models.User) error {
 		currentUser, err := store.GetUser(user.UsuarioID)
 		if err != nil {
 			log.Printf("erro UpdateUsuario: %v", err)
-			return fmt.Errorf("erro UpdateUsuario: %v", err)
+			return err
 		}
 		hashedPassword = currentUser.SenhaHash
 	}
@@ -138,14 +138,14 @@ func (store *UserStore) UpdateUser(user *models.User) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro UpdateUsuario: %v", err)
-		return fmt.Errorf("erro UpdateUsuario: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(user.Nome, user.Email, hashedPassword, user.Papel, user.UsuarioID)
 	if err != nil {
 		log.Printf("erro UpdateUsuario: %v", err)
-		return fmt.Errorf("erro UpdateUsuario: %v", err)
+		return err
 	}
 
 	return nil
@@ -159,14 +159,14 @@ func (store *UserStore) DeleteUser(id int) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro DeleteUsuario: %v", err)
-		return fmt.Errorf("erro DeleteUsuario: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
 	if err != nil {
 		log.Printf("erro DeleteUsuario: %v", err)
-		return fmt.Errorf("erro DeleteUsuario: %v", err)
+		return err
 	}
 
 	return nil

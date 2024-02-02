@@ -47,20 +47,20 @@ func (store *MenuItemStore) CreateMenuItem(item *models.MenuItem) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro CreateItemMenu: %v", err)
-		return fmt.Errorf("erro CreateItemMenu: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(item.Nome, item.Descricao, item.Preco, item.ImagemURL)
 	if err != nil {
 		log.Printf("erro CreateItemMenu: %v", err)
-		return fmt.Errorf("erro CreateItemMenu: %v", err)
+		return err
 	}
 
 	itemID, err := result.LastInsertId()
 	if err != nil {
 		log.Printf("erro CreateItemMenu: %v", err)
-		return fmt.Errorf("erro CreateItemMenu: %v", err)
+		return err
 	}
 	item.ItemID = int(itemID)
 
@@ -77,7 +77,7 @@ func (store *MenuItemStore) GetMenuItem(id int) (*models.MenuItem, error) {
 	err := store.DB.QueryRow(sqlString, id).Scan(&i.ItemID, &i.Nome, &i.Descricao, &i.Preco, &i.ImagemURL)
 	if err != nil {
 		log.Printf("erro GetItemMenu: %v", err)
-		return nil, fmt.Errorf("erro GetItemMenu: %v", err)
+		return nil, err
 	}
 
 	return i, nil
@@ -90,14 +90,14 @@ func (store *MenuItemStore) UpdateMenuItem(item *models.MenuItem) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro UpdateItemMenu: %v", err)
-		return fmt.Errorf("erro UpdateItemMenu: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(item.Nome, item.Descricao, item.Preco, item.ImagemURL, item.ItemID)
 	if err != nil {
 		log.Printf("erro UpdateItemMenu: %v", err)
-		return fmt.Errorf("erro UpdateItemMenu: %v", err)
+		return err
 	}
 
 	return nil
@@ -112,14 +112,14 @@ func (store *MenuItemStore) DeleteMenuItem(id int) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro DeleteItemMenu: %v", err)
-		return fmt.Errorf("erro DeleteItemMenu: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
 	if err != nil {
 		log.Printf("erro DeleteItemMenu: %v", err)
-		return fmt.Errorf("erro DeleteItemMenu: %v", err)
+		return err
 	}
 
 	return nil
@@ -133,7 +133,7 @@ func (store *MenuItemStore) GetAllMenuItem() ([]*models.MenuItem, error) {
 	rows, err := store.DB.Query(sqlString)
 	if err != nil {
 		log.Printf("erro GetAllItemMenu: %v", err)
-		return nil, fmt.Errorf("erro GetAllItemMenu: %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -142,14 +142,14 @@ func (store *MenuItemStore) GetAllMenuItem() ([]*models.MenuItem, error) {
 		var item models.MenuItem
 		if err := rows.Scan(&item.ItemID, &item.Nome, &item.Descricao, &item.Preco, &item.ImagemURL); err != nil {
 			log.Printf("erro GetAllItemMenu: %v", err)
-			return nil, fmt.Errorf("erro GetAllItemMenu: %v", err)
+			return nil, err
 		}
 		itensMenu = append(itensMenu, &item)
 	}
 
 	if err = rows.Err(); err != nil {
 		log.Printf("erro GetAllItemMenu: %v", err)
-		return nil, fmt.Errorf("erro GetAllItemMenu: %v", err)
+		return nil, err
 	}
 
 	return itensMenu, nil
@@ -166,7 +166,7 @@ func (store *MenuItemStore) GetMenuItemByName(nome string) (*models.MenuItem, er
 		&item.ItemID, &item.Nome, &item.Descricao, &item.Preco, &item.ImagemURL)
 	if err != nil {
 		log.Printf("erro GetItemMenuByNome: %v", err)
-		return nil, fmt.Errorf("erro GetItemMenuByNome: %v", err)
+		return nil, err
 	}
 
 	return item, nil

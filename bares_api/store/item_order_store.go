@@ -44,19 +44,19 @@ func (store *ItemOrderStore) CreateItemOrder(item *models.ItemOrder) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro CreateItemPedido: %v", err)
-		return fmt.Errorf("erro CreateItemPedido: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes)
 	if err != nil {
 		log.Printf("erro CreateItemPedido: %v", err)
-		return fmt.Errorf("erro CreateItemPedido: %v", err)
+		return err
 	}
 	itemPedidoID, err := result.LastInsertId()
 	if err != nil {
 		log.Printf("erro CreateItemPedido: %v", err)
-		return fmt.Errorf("erro CreateItemPedido: %v", err)
+		return err
 	}
 	item.ItemPedidoID = int(itemPedidoID)
 
@@ -79,7 +79,7 @@ func (store *ItemOrderStore) GetItemOrder(id int) (*models.ItemOrder, error) {
 	)
 	if err != nil {
 		log.Printf("erro GetItemPedido: %v", err)
-		return nil, fmt.Errorf("erro GetItemPedido: %v", err)
+		return nil, err
 	}
 
 	return item, nil
@@ -93,14 +93,14 @@ func (store *ItemOrderStore) UpdateItemOrder(item *models.ItemOrder) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro UpdateItemPedido: %v", err)
-		return fmt.Errorf("erro UpdateItemPedido: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes, item.ItemPedidoID)
 	if err != nil {
 		log.Printf("erro UpdateItemPedido: %v", err)
-		return fmt.Errorf("erro UpdateItemPedido: %v", err)
+		return err
 	}
 
 	return nil

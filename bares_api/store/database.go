@@ -102,7 +102,7 @@ func (store *DatabaseStore) createDatabaseIfNotExists() error {
 	_, err := store.DB.Exec(createDBSQL)
 	if err != nil {
 		log.Printf("erro ao criar o banco de dados: %v", err)
-		return fmt.Errorf("erro ao criar o banco de dados: %v", err)
+		return err
 	}
 	return nil
 }
@@ -113,7 +113,7 @@ func (store *DatabaseStore) useDatabase() error {
 	_, err := store.DB.Exec(useDBSQL)
 	if err != nil {
 		log.Printf("erro ao selecionar o banco de dados: %v", err)
-		return fmt.Errorf("erro ao selecionar o banco de dados: %v", err)
+		return err
 	}
 	return nil
 }

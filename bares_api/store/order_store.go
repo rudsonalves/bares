@@ -46,20 +46,20 @@ func (store *OrderStore) CreateOrder(pedido *models.Order) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro CreatePedido: %v", err)
-		return fmt.Errorf("erro CreatePedido: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(pedido.UsuarioID, pedido.DataHora, pedido.Status)
 	if err != nil {
 		log.Printf("erro CreatePedido: %v", err)
-		return fmt.Errorf("erro CreatePedido: %v", err)
+		return err
 	}
 
 	pedidoID, err := result.LastInsertId()
 	if err != nil {
 		log.Printf("erro CreatePedido: %v", err)
-		return fmt.Errorf("erro CreatePedido: %v", err)
+		return err
 	}
 	pedido.PedidoID = int(pedidoID)
 
@@ -75,7 +75,7 @@ func (store *OrderStore) GetOrder(id int) (*models.Order, error) {
 	err := store.DB.QueryRow(sqlString, id).Scan(&p.UsuarioID, &p.DataHora, &p.Status)
 	if err != nil {
 		log.Printf("erro GetPedido: %v", err)
-		return nil, fmt.Errorf("erro GetPedido: %v", err)
+		return nil, err
 	}
 
 	return p, nil
@@ -88,14 +88,14 @@ func (store *OrderStore) UpdateOrder(pedido *models.Order) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro UpdatePedido: %v", err)
-		return fmt.Errorf("erro UpdatePedido: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(pedido.UsuarioID, pedido.DataHora, pedido.Status, pedido.PedidoID)
 	if err != nil {
 		log.Printf("erro UpdatePedido: %v", err)
-		return fmt.Errorf("erro UpdatePedido: %v", err)
+		return err
 	}
 	return nil
 }
@@ -109,14 +109,14 @@ func (store *OrderStore) DeleteOrder(id int) error {
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro DeletePedido: %v", err)
-		return fmt.Errorf("erro DeletePedido: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
 	if err != nil {
 		log.Printf("erro DeletePedido: %v", err)
-		return fmt.Errorf("erro DeletePedido: %v", err)
+		return err
 	}
 
 	return nil
@@ -132,7 +132,7 @@ func (store *OrderStore) GetOrderByUser(usuarioID int) ([]*models.Order, error) 
 	rows, err := store.DB.Query(queryString, usuarioID)
 	if err != nil {
 		log.Printf("erro GetPedidosByUsuario: %v", err)
-		return nil, fmt.Errorf("erro GetPedidosByUsuario: %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -142,12 +142,12 @@ func (store *OrderStore) GetOrderByUser(usuarioID int) ([]*models.Order, error) 
 		err := rows.Scan(&p.PedidoID, &p.UsuarioID, &dataHoraStr, &p.Status)
 		if err != nil {
 			log.Printf("erro GetPedidosByUsuario: %v", err)
-			return nil, fmt.Errorf("erro GetPedidosByUsuario: %v", err)
+			return nil, err
 		}
 		p.DataHora, err = dateHourParse(dataHoraStr)
 		if err != nil {
 			log.Printf("erro GetPedidosByUsuario: %v", err)
-			return nil, fmt.Errorf("erro GetPedidosByUsuario: %v", err)
+			return nil, err
 		}
 
 		pedidos = append(pedidos, p)
@@ -155,7 +155,7 @@ func (store *OrderStore) GetOrderByUser(usuarioID int) ([]*models.Order, error) 
 
 	if err = rows.Err(); err != nil {
 		log.Printf("erro GetPedidosByUsuario: %v", err)
-		return nil, fmt.Errorf("erro GetPedidosByUsuario: %v", err)
+		return nil, err
 	}
 
 	return pedidos, nil
@@ -170,7 +170,7 @@ func (store *OrderStore) GetPendingOrders() ([]*models.Order, error) {
 	rows, err := store.DB.Query(sqlString, models.Entregue)
 	if err != nil {
 		log.Printf("erro GetPedidosPending: %v", err)
-		return nil, fmt.Errorf("erro GetPedidosPending: %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -180,12 +180,12 @@ func (store *OrderStore) GetPendingOrders() ([]*models.Order, error) {
 		err := rows.Scan(&p.PedidoID, &p.UsuarioID, &dataHoraStr, &p.Status)
 		if err != nil {
 			log.Printf("erro GetPedidosPending: %v", err)
-			return nil, fmt.Errorf("erro GetPedidosPending: %v", err)
+			return nil, err
 		}
 		p.DataHora, err = dateHourParse(dataHoraStr)
 		if err != nil {
 			log.Printf("erro GetPedidosPending: %v", err)
-			return nil, fmt.Errorf("erro GetPedidosPending: %v", err)
+			return nil, err
 		}
 
 		pedidos = append(pedidos, p)
@@ -193,7 +193,7 @@ func (store *OrderStore) GetPendingOrders() ([]*models.Order, error) {
 
 	if err = rows.Err(); err != nil {
 		log.Printf("erro GetPedidosPending: %v", err)
-		return nil, fmt.Errorf("erro GetPedidosPending: %v", err)
+		return nil, err
 	}
 
 	return pedidos, nil

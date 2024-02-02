@@ -9,7 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func TestUsuarioStoreIntegration(t *testing.T) {
+func TestUserStoreIntegration(t *testing.T) {
 	// Inicia o banco de dados
 	dbStore, err := StartDatabase()
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestPedidoIntegration(t *testing.T) {
+func TestOrderIntegration(t *testing.T) {
 	// Inicia o banco de dados
 	dbStore, err := StartDatabase()
 	if err != nil {
