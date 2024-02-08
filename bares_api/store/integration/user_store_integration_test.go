@@ -38,38 +38,38 @@ func TestUserStoreIntegration(t *testing.T) {
 		}
 
 		// Testar GetUsuario pela id
-		retrievedUser, err = storeUsers.GetUser(user.UsuarioID)
+		retrievedUser, err = storeUsers.GetUser(user.Id)
 		if err != nil {
 			t.Errorf("Erro ao recuperar usuário pelo ID: %s", err)
 		}
-		if retrievedUser.UsuarioID != user.UsuarioID {
+		if retrievedUser.Id != user.Id {
 			t.Errorf("Usuário recuperado não corresponde ao usuário criado")
 		}
 
 		// Testar UpdateUsuario
-		retrievedUser.Nome = "Novo Nome"
+		retrievedUser.Name = "Novo Nome"
 		err = storeUsers.UpdateUser(retrievedUser)
 		if err != nil {
 			t.Errorf("Erro ao atualizar usuário: %s", err)
 		}
 
 		// Verificar se o usuário foi atualizado
-		updatedUser, err := storeUsers.GetUser(user.UsuarioID)
+		updatedUser, err := storeUsers.GetUser(user.Id)
 		if err != nil {
 			t.Errorf("Erro ao recuperar usuário pelo ID após atualização: %s", err)
 		}
-		if updatedUser.Nome != "Novo Nome" {
+		if updatedUser.Name != "Novo Nome" {
 			t.Errorf("Usuário não foi atualizado corretamente")
 		}
 
 		// Testar DeleteUsuario
-		err = storeUsers.DeleteUser(user.UsuarioID)
+		err = storeUsers.DeleteUser(user.Id)
 		if err != nil {
 			t.Errorf("Erro ao deletar usuário: %s", err)
 		}
 
 		// Verificar se o usuário foi deletado
-		_, err = storeUsers.GetUser(user.UsuarioID)
+		_, err = storeUsers.GetUser(user.Id)
 		if err == nil {
 			t.Errorf("Usuário deveria ter sido deletado")
 		}

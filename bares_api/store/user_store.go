@@ -12,6 +12,7 @@ import (
 const (
 	createUserSQL     = "INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?)"
 	getUserByEmailSQL = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
+	getUsersByRole    = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
 	updateUserSQL     = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?"
 	getUserSQL        = "SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = ?"
 	deleteUserSQL     = "DELETE FROM %s WHERE %s = ?"
@@ -34,6 +35,7 @@ type UsuarioStorer interface {
 	GetUserByEmail(email string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id int) error
+	GetUsersByRole(role models.Role) ([]*models.User, error)
 }
 
 // Garanta que UsuarioStore implementa UsuarioStorer.
@@ -51,14 +53,14 @@ func (store *UserStore) CreateUser(user *models.User) error {
 	defer stmt.Close()
 
 	// hashed user password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.SenhaHash), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("erro CreateUsuario: %v", err)
 		return err
 	}
-	user.SenhaHash = string(hashedPassword)
+	user.PasswordHash = string(hashedPassword)
 
-	result, err := stmt.Exec(user.Nome, user.Email, user.SenhaHash, user.Papel)
+	result, err := stmt.Exec(user.Name, user.Email, user.PasswordHash, user.Role)
 	if err != nil {
 		log.Printf("erro CreateUsuario: %v", err)
 		return err
@@ -69,7 +71,7 @@ func (store *UserStore) CreateUser(user *models.User) error {
 		log.Printf("erro CreateUsuario: %v", err)
 		return err
 	}
-	user.UsuarioID = int(usuarioID)
+	user.Id = int(usuarioID)
 
 	return nil
 }
@@ -78,10 +80,10 @@ func (store *UserStore) CreateUser(user *models.User) error {
 func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
 	user := &models.User{}
 
-	sqlString := fmt.Sprintf(getUserByEmailSQL, UserID, Name, Email, PasswordHash, Role, TableUsers, Email)
+	sqlString := fmt.Sprintf(getUserByEmailSQL, Id, Name, Email, PasswordHash, Role, TableUsers, Email)
 
 	err := store.DB.QueryRow(sqlString, email).Scan(
-		&user.UsuarioID, &user.Nome, &user.Email, &user.SenhaHash, &user.Papel)
+		&user.Id, &user.Name, &user.Email, &user.PasswordHash, &user.Role)
 	if err != nil {
 		log.Printf("erro GetUsuarioByEmail: %v", err)
 		return nil, err
@@ -94,14 +96,14 @@ func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
 func (store *UserStore) GetUser(id int) (*models.User, error) {
 	user := &models.User{}
 
-	sqlString := fmt.Sprintf(getUserSQL, UserID, Name, Email, PasswordHash, Role, TableUsers, UserID)
+	sqlString := fmt.Sprintf(getUserSQL, Id, Name, Email, PasswordHash, Role, TableUsers, Id)
 
 	err := store.DB.QueryRow(sqlString, id).Scan(
-		&user.UsuarioID,
-		&user.Nome,
+		&user.Id,
+		&user.Name,
 		&user.Email,
-		&user.SenhaHash,
-		&user.Papel,
+		&user.PasswordHash,
+		&user.Role,
 	)
 
 	if err != nil {
@@ -111,14 +113,44 @@ func (store *UserStore) GetUser(id int) (*models.User, error) {
 	return user, nil
 }
 
+// GetUserByRole busca um usuário pelo seu role (papel)
+func (store *UserStore) GetUsersByRole(role models.Role) ([]*models.User, error) {
+	sqlString := fmt.Sprintf(getUsersByRole, Id, Name, Email, PasswordHash, Role,
+		TableUsers, Role)
+
+	rows, err := store.DB.Query(sqlString, role)
+	if err != nil {
+		log.Printf("erro GetUsersByRole: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*models.User
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.PasswordHash, &user.Role); err != nil {
+			log.Printf("erro GetUsersByRole: %v", err)
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("erro GetUsersByRole: %v", err)
+		return nil, err
+	}
+
+	return users, nil
+}
+
 // UpdateUser atualiza os dados de um usuário.
 func (store *UserStore) UpdateUser(user *models.User) error {
 	var hashedPassword string
 
-	if user.SenhaHash != "" {
+	if user.PasswordHash != "" {
 		// Hash da nova senha, se fornecida.
 		var err error
-		hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.SenhaHash), bcrypt.DefaultCost)
+		hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
 		if err != nil {
 			log.Printf("erro UpdateUsuario: %v", err)
 			return err
@@ -126,15 +158,15 @@ func (store *UserStore) UpdateUser(user *models.User) error {
 		hashedPassword = string(hashedBytes)
 	} else {
 		// Recupera a senha atual (hash) para não substituir por vazio.
-		currentUser, err := store.GetUser(user.UsuarioID)
+		currentUser, err := store.GetUser(user.Id)
 		if err != nil {
 			log.Printf("erro UpdateUsuario: %v", err)
 			return err
 		}
-		hashedPassword = currentUser.SenhaHash
+		hashedPassword = currentUser.PasswordHash
 	}
 
-	sqlString := fmt.Sprintf(updateUserSQL, TableUsers, Name, Email, PasswordHash, Role, UserID)
+	sqlString := fmt.Sprintf(updateUserSQL, TableUsers, Name, Email, PasswordHash, Role, Id)
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro UpdateUsuario: %v", err)
@@ -142,7 +174,7 @@ func (store *UserStore) UpdateUser(user *models.User) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user.Nome, user.Email, hashedPassword, user.Papel, user.UsuarioID)
+	_, err = stmt.Exec(user.Name, user.Email, hashedPassword, user.Role, user.Id)
 	if err != nil {
 		log.Printf("erro UpdateUsuario: %v", err)
 		return err
@@ -155,7 +187,7 @@ func (store *UserStore) UpdateUser(user *models.User) error {
 // FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
 // com cuidado, que não serão tomados aqui pelo carater de estudo este código.
 func (store *UserStore) DeleteUser(id int) error {
-	sqlString := fmt.Sprintf(deleteUserSQL, TableUsers, UserID)
+	sqlString := fmt.Sprintf(deleteUserSQL, TableUsers, Id)
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
 		log.Printf("erro DeleteUsuario: %v", err)

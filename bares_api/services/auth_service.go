@@ -4,6 +4,7 @@ import (
 	"bares_api/models"
 	"bares_api/store"
 	"bares_api/utils"
+
 	"log"
 
 	"fmt"
@@ -27,7 +28,7 @@ func NewAuthservice(usuarioService *store.UserStore) *AuthService {
 // ValidateCredentials verifica as credenciais fornecidas e retorna o papel do usuário e um possível erro.
 // Se as credenciais pertencerem a um cliente e este não estiver registrado, um novo usuário cliente
 // será criado com uma senha aleatória, ou uma padrão em caso de erro no GenerateRandomPassword.
-func (service *AuthService) ValidateCredentials(credentials models.Credentials) (models.Papel, error) {
+func (service *AuthService) ValidateCredentials(credentials models.Credentials) (models.Role, error) {
 	erClient := `^mesa[0-9]{2}@.*$`
 	if ok, _ := regexp.MatchString(erClient, credentials.Email); ok {
 		// Verifica se a mesa está aberta (conta no banco de dados)
@@ -40,10 +41,10 @@ func (service *AuthService) ValidateCredentials(credentials models.Credentials) 
 				password = "u4087qw0y78y@#$"
 			}
 			newUser := models.User{
-				Nome:      credentials.Nome,
-				Email:     credentials.Email,
-				SenhaHash: password,
-				Papel:     models.Cliente,
+				Name:         credentials.Name,
+				Email:        credentials.Email,
+				PasswordHash: password,
+				Role:         models.Cliente,
 			}
 
 			err = service.UsuarioStore.CreateUser(&newUser)
@@ -52,7 +53,7 @@ func (service *AuthService) ValidateCredentials(credentials models.Credentials) 
 			}
 			return models.Cliente, nil
 		}
-		return user.Papel, nil
+		return user.Role, nil
 	}
 
 	// Outros usuários
@@ -61,10 +62,10 @@ func (service *AuthService) ValidateCredentials(credentials models.Credentials) 
 		return "", fmt.Errorf("usuário %s não encontrado", credentials.Email)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.SenhaHash), []byte(credentials.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(credentials.Password))
 	if err != nil {
 		return "", fmt.Errorf("senha do usuário %s incorreta", credentials.Email)
 	}
 
-	return user.Papel, nil
+	return user.Role, nil
 }

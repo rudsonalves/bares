@@ -41,7 +41,7 @@ var _ OrderStorer = &OrderStore{}
 
 // CreateOrder adiciona um novo pedido ao banco de dados.
 func (store *OrderStore) CreateOrder(pedido *models.Order) error {
-	sqlString := fmt.Sprintf(createOrderSQL, TableOrders, UserID, DateTime, Status)
+	sqlString := fmt.Sprintf(createOrderSQL, TableOrders, UserId, DateHour, Status)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -50,7 +50,7 @@ func (store *OrderStore) CreateOrder(pedido *models.Order) error {
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(pedido.UsuarioID, pedido.DataHora, pedido.Status)
+	result, err := stmt.Exec(pedido.UserId, pedido.DateHour, pedido.Status)
 	if err != nil {
 		log.Printf("erro CreatePedido: %v", err)
 		return err
@@ -61,7 +61,7 @@ func (store *OrderStore) CreateOrder(pedido *models.Order) error {
 		log.Printf("erro CreatePedido: %v", err)
 		return err
 	}
-	pedido.PedidoID = int(pedidoID)
+	pedido.Id = int(pedidoID)
 
 	return nil
 }
@@ -70,9 +70,9 @@ func (store *OrderStore) CreateOrder(pedido *models.Order) error {
 func (store *OrderStore) GetOrder(id int) (*models.Order, error) {
 	p := &models.Order{}
 
-	sqlString := fmt.Sprintf(getOrderSQL, UserID, DateTime, Status, TableOrders, OrderID)
+	sqlString := fmt.Sprintf(getOrderSQL, UserId, DateHour, Status, TableOrders, Id)
 
-	err := store.DB.QueryRow(sqlString, id).Scan(&p.UsuarioID, &p.DataHora, &p.Status)
+	err := store.DB.QueryRow(sqlString, id).Scan(&p.UserId, &p.DateHour, &p.Status)
 	if err != nil {
 		log.Printf("erro GetPedido: %v", err)
 		return nil, err
@@ -82,8 +82,8 @@ func (store *OrderStore) GetOrder(id int) (*models.Order, error) {
 }
 
 // UpdateOrder atualiza os dados de um pedido.
-func (store *OrderStore) UpdateOrder(pedido *models.Order) error {
-	sqlString := fmt.Sprintf(updateOrderSQL, TableOrders, UserID, DateTime, Status, OrderID)
+func (store *OrderStore) UpdateOrder(order *models.Order) error {
+	sqlString := fmt.Sprintf(updateOrderSQL, TableOrders, UserId, DateHour, Status, Id)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -92,7 +92,7 @@ func (store *OrderStore) UpdateOrder(pedido *models.Order) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(pedido.UsuarioID, pedido.DataHora, pedido.Status, pedido.PedidoID)
+	_, err = stmt.Exec(order.UserId, order.DateHour, order.Status, order.Id)
 	if err != nil {
 		log.Printf("erro UpdatePedido: %v", err)
 		return err
@@ -104,7 +104,7 @@ func (store *OrderStore) UpdateOrder(pedido *models.Order) error {
 // FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
 // com cuidado, que não serão tomados aqui pelo carater de estudo este código.
 func (store *OrderStore) DeleteOrder(id int) error {
-	sqlString := fmt.Sprintf(deleteOrderSQL, TableOrders, OrderID)
+	sqlString := fmt.Sprintf(deleteOrderSQL, TableOrders, Id)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -127,7 +127,7 @@ func (store *OrderStore) GetOrderByUser(usuarioID int) ([]*models.Order, error) 
 	var pedidos []*models.Order
 
 	queryString := fmt.Sprintf("SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",
-		OrderID, UserID, DateTime, Status, TableOrders, UserID)
+		Id, UserId, DateHour, Status, TableOrders, UserId)
 
 	rows, err := store.DB.Query(queryString, usuarioID)
 	if err != nil {
@@ -139,12 +139,12 @@ func (store *OrderStore) GetOrderByUser(usuarioID int) ([]*models.Order, error) 
 	for rows.Next() {
 		var dataHoraStr string
 		p := &models.Order{}
-		err := rows.Scan(&p.PedidoID, &p.UsuarioID, &dataHoraStr, &p.Status)
+		err := rows.Scan(&p.Id, &p.UserId, &dataHoraStr, &p.Status)
 		if err != nil {
 			log.Printf("erro GetPedidosByUsuario: %v", err)
 			return nil, err
 		}
-		p.DataHora, err = dateHourParse(dataHoraStr)
+		p.DateHour, err = dateHourParse(dataHoraStr)
 		if err != nil {
 			log.Printf("erro GetPedidosByUsuario: %v", err)
 			return nil, err
@@ -165,7 +165,7 @@ func (store *OrderStore) GetOrderByUser(usuarioID int) ([]*models.Order, error) 
 func (store *OrderStore) GetPendingOrders() ([]*models.Order, error) {
 	var pedidos []*models.Order
 
-	sqlString := fmt.Sprintf(getOrderPendindSQL, OrderID, UserID, DateTime, Status, TableOrders, Status)
+	sqlString := fmt.Sprintf(getOrderPendindSQL, Id, UserId, DateHour, Status, TableOrders, Status)
 
 	rows, err := store.DB.Query(sqlString, models.Entregue)
 	if err != nil {
@@ -177,12 +177,12 @@ func (store *OrderStore) GetPendingOrders() ([]*models.Order, error) {
 	for rows.Next() {
 		var dataHoraStr string
 		p := &models.Order{}
-		err := rows.Scan(&p.PedidoID, &p.UsuarioID, &dataHoraStr, &p.Status)
+		err := rows.Scan(&p.Id, &p.UserId, &dataHoraStr, &p.Status)
 		if err != nil {
 			log.Printf("erro GetPedidosPending: %v", err)
 			return nil, err
 		}
-		p.DataHora, err = dateHourParse(dataHoraStr)
+		p.DateHour, err = dateHourParse(dataHoraStr)
 		if err != nil {
 			log.Printf("erro GetPedidosPending: %v", err)
 			return nil, err

@@ -37,58 +37,55 @@ func TestCreateUsuarioIntegration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(usuarioHandler.CreateUser))
 	defer server.Close()
 
-	// Cria o payload da requisição
-	log.Print("Cria o payload da requisição")
-	usuario := models.User{
-		Nome:      "Joey Tribbiani",
-		Email:     "mesa01@email.com",
-		SenhaHash: "1234qwer",
-		Papel:     models.Cliente,
-	}
-	log.Print("usuario:", usuario)
+	// Criar Usuários
+	users := UsersGenerate()
 
-	payload, err := json.Marshal(usuario)
-	if err != nil {
-		t.Fatalf("Erro ao marshalizar o payload: %v", err)
-	}
-	log.Print("Payload criado:", string(payload))
+	for _, user := range users {
+		log.Print("usuario:", user)
 
-	// Cria a requisição de teste
-	log.Print("Cria a requisição de teste")
-	req, err := http.NewRequest("POST", server.URL, bytes.NewBuffer(payload))
-	if err != nil {
-		t.Fatalf("Erro ao criar a requisição: %v", err)
-	}
+		payload, err := json.Marshal(user)
+		if err != nil {
+			t.Fatalf("Erro ao marshalizar o payload: %v", err)
+		}
+		log.Print("Payload criado:", string(payload))
 
-	// Envia a requisição
-	log.Print("Envia a requisição")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		t.Fatalf("Erro ao enviar a requisição: %v", err)
-	}
-	defer resp.Body.Close()
+		// Cria a requisição de teste
+		log.Print("Cria a requisição de teste")
+		req, err := http.NewRequest("POST", server.URL, bytes.NewBuffer(payload))
+		if err != nil {
+			t.Fatalf("Erro ao criar a requisição: %v", err)
+		}
 
-	// Verifica a resposta
-	log.Print("Verifica a resposta")
-	if resp.StatusCode != http.StatusCreated {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		t.Errorf("Status esperado: %v, recebido: %v, corpo: %s",
-			http.StatusCreated,
-			resp.StatusCode,
-			string(bodyBytes),
-		)
-	}
+		// Envia a requisição
+		log.Print("Envia a requisição")
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatalf("Erro ao enviar a requisição: %v", err)
+		}
+		defer resp.Body.Close()
 
-	// Decodifica a resposta para verificar se o usuário foi criado corretamente
-	log.Print("Decodifica a resposta para verificar se o usuário foi criado corretamente")
-	var createdUser models.User
-	if err := json.NewDecoder(resp.Body).Decode(&createdUser); err != nil {
-		t.Fatalf("Erro ao decodificar a resposta: %v", err)
-	}
+		// Verifica a resposta
+		log.Print("Verifica a resposta")
+		if resp.StatusCode != http.StatusCreated {
+			bodyBytes, _ := io.ReadAll(resp.Body)
+			t.Errorf("Status esperado: %v, recebido: %v, corpo: %s",
+				http.StatusCreated,
+				resp.StatusCode,
+				string(bodyBytes),
+			)
+		}
 
-	// Verificar se o usuário criado corresponde ao enviado
-	if createdUser.Email != usuario.Email {
-		t.Errorf("Email esperado: %v, recebido: %v", usuario.Email, createdUser.Email)
+		// Decodifica a resposta para verificar se o usuário foi criado corretamente
+		log.Print("Decodifica a resposta para verificar se o usuário foi criado corretamente")
+		var createdUser models.User
+		if err := json.NewDecoder(resp.Body).Decode(&createdUser); err != nil {
+			t.Fatalf("Erro ao decodificar a resposta: %v", err)
+		}
+
+		// Verificar se o usuário criado corresponde ao enviado
+		if createdUser.Email != user.Email {
+			t.Errorf("Email esperado: %v, recebido: %v", user.Email, createdUser.Email)
+		}
 	}
 
 	// Limpeza final

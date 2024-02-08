@@ -39,7 +39,7 @@ var _ ItemOrderStorer = &ItemOrderStore{}
 
 // CreateItemOrder adiciona um novo ItemPedido ao banco de dados.
 func (store *ItemOrderStore) CreateItemOrder(item *models.ItemOrder) error {
-	sqlString := fmt.Sprintf(createItemOrderSQL, TableItensOrders, OrderID, ItemID, Amount, Comments)
+	sqlString := fmt.Sprintf(createItemOrderSQL, TableItensOrders, OrderId, ItemId, Amount, Comments)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -48,7 +48,7 @@ func (store *ItemOrderStore) CreateItemOrder(item *models.ItemOrder) error {
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes)
+	result, err := stmt.Exec(item.OrderId, item.ItemId, item.Amount, item.Comments)
 	if err != nil {
 		log.Printf("erro CreateItemPedido: %v", err)
 		return err
@@ -58,7 +58,7 @@ func (store *ItemOrderStore) CreateItemOrder(item *models.ItemOrder) error {
 		log.Printf("erro CreateItemPedido: %v", err)
 		return err
 	}
-	item.ItemPedidoID = int(itemPedidoID)
+	item.Id = int(itemPedidoID)
 
 	return nil
 }
@@ -67,15 +67,15 @@ func (store *ItemOrderStore) CreateItemOrder(item *models.ItemOrder) error {
 func (store *ItemOrderStore) GetItemOrder(id int) (*models.ItemOrder, error) {
 	item := &models.ItemOrder{}
 
-	sqlString := fmt.Sprintf(getItemOrderSQL, ItemOrderID, OrderID, ItemID, Amount,
-		Comments, TableItensOrders, ItemOrderID)
+	sqlString := fmt.Sprintf(getItemOrderSQL, Id, OrderId, ItemId, Amount,
+		Comments, TableItensOrders, Id)
 
 	err := store.DB.QueryRow(sqlString, id).Scan(
-		&item.ItemPedidoID,
-		&item.PedidoID,
-		&item.ItemID,
-		&item.Quantidade,
-		&item.Observacoes,
+		&item.Id,
+		&item.OrderId,
+		&item.ItemId,
+		&item.Amount,
+		&item.Comments,
 	)
 	if err != nil {
 		log.Printf("erro GetItemPedido: %v", err)
@@ -87,8 +87,8 @@ func (store *ItemOrderStore) GetItemOrder(id int) (*models.ItemOrder, error) {
 
 // UpdateItemOrder atualiza os dados de um itemPedido.
 func (store *ItemOrderStore) UpdateItemOrder(item *models.ItemOrder) error {
-	sqlString := fmt.Sprintf(updateItemOrderSQL, TableItensOrders, OrderID, ItemID,
-		Amount, Comments, ItemOrderID)
+	sqlString := fmt.Sprintf(updateItemOrderSQL, TableItensOrders, OrderId, ItemId,
+		Amount, Comments, Id)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {
@@ -97,7 +97,7 @@ func (store *ItemOrderStore) UpdateItemOrder(item *models.ItemOrder) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(item.PedidoID, item.ItemID, item.Quantidade, item.Observacoes, item.ItemPedidoID)
+	_, err = stmt.Exec(item.OrderId, item.ItemId, item.Amount, item.Comments, item.Id)
 	if err != nil {
 		log.Printf("erro UpdateItemPedido: %v", err)
 		return err
@@ -110,7 +110,7 @@ func (store *ItemOrderStore) UpdateItemOrder(item *models.ItemOrder) error {
 // FIXME: as remoções de registros das tabelas do banco de dados devem ser tratadas
 // com cuidado, que não serão tomados aqui pelo carater de estudo este código.
 func (store *ItemOrderStore) DeleteItemOrder(id int) error {
-	sqlString := fmt.Sprintf(deleteItemOrderSQL, TableItensOrders, ItemOrderID)
+	sqlString := fmt.Sprintf(deleteItemOrderSQL, TableItensOrders, Id)
 
 	stmt, err := store.DB.Prepare(sqlString)
 	if err != nil {

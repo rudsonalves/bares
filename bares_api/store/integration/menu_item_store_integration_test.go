@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"testing"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func TestItemMenuStoreIntegration(t *testing.T) {
@@ -27,47 +29,47 @@ func TestItemMenuStoreIntegration(t *testing.T) {
 	// Recuperar e verificar itemMenus
 	for _, item := range itens {
 		// Testar GetItemMenuByNome
-		retrievedItem, err := storeItensMenu.GetMenuItemByName(item.Nome)
+		retrievedItem, err := storeItensMenu.GetMenuItemByName(item.Name)
 		if err != nil {
 			t.Errorf("Erro ao recuperar itemMenu pelo email: %s", err)
 		}
-		if retrievedItem.Nome != item.Nome {
+		if retrievedItem.Name != item.Name {
 			t.Errorf("ItemMenu recuperado não corresponde ao itemMenu criado")
 		}
 
 		// Testar GetItemMenu
-		retrievedItem, err = storeItensMenu.GetMenuItem(item.ItemID)
+		retrievedItem, err = storeItensMenu.GetMenuItem(item.Id)
 		if err != nil {
 			t.Errorf("Erro ao recuperar itemMenu pelo ID: %s", err)
 		}
-		if retrievedItem.ItemID != item.ItemID {
+		if retrievedItem.Id != item.Id {
 			t.Errorf("ItemMenu recuperado não corresponde ao itemMenu criado")
 		}
 
 		// Testar UpdateItemMenu
-		retrievedItem.Nome = "Novo Nome"
+		retrievedItem.Name = "Novo Nome"
 		err = storeItensMenu.UpdateMenuItem(retrievedItem)
 		if err != nil {
 			t.Errorf("Erro ao atualizar itemMenu: %s", err)
 		}
 
 		// Verificar se o itemMenu foi atualizado
-		updatedUser, err := storeItensMenu.GetMenuItem(item.ItemID)
+		updatedUser, err := storeItensMenu.GetMenuItem(item.Id)
 		if err != nil {
 			t.Errorf("Erro ao recuperar itemMenu pelo ID após atualização: %s", err)
 		}
-		if updatedUser.Nome != "Novo Nome" {
+		if updatedUser.Name != "Novo Nome" {
 			t.Errorf("itemMenu não foi atualizado corretamente")
 		}
 
 		// Testar DeleteItemMenu
-		err = storeItensMenu.DeleteMenuItem(item.ItemID)
+		err = storeItensMenu.DeleteMenuItem(item.Id)
 		if err != nil {
 			t.Errorf("Erro ao deletar itemMenu: %s", err)
 		}
 
 		// Verificar se o itemMenu foi deletado
-		_, err = storeItensMenu.GetMenuItem(item.ItemID)
+		_, err = storeItensMenu.GetMenuItem(item.Id)
 		if err == nil {
 			t.Errorf("itemMenu deveria ter sido deletado")
 		}

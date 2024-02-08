@@ -17,22 +17,22 @@ func TestCreateItemPedidoStore(t *testing.T) {
 	defer db.Close()
 
 	mockResult := sqlmock.NewResult(1, 1)
-	mock.ExpectPrepare("INSERT INTO ItensPedido").
+	mock.ExpectPrepare("INSERT INTO ItemsOrderTable").
 		ExpectExec().
 		WithArgs(1, 1, 10, "Sem cebola").
 		WillReturnResult(mockResult)
 
 	store := store.NewItemOrder(db)
 	testItemPedido := &models.ItemOrder{
-		PedidoID:    1,
-		ItemID:      1,
-		Quantidade:  10,
-		Observacoes: "Sem cebola",
+		OrderId:  1,
+		ItemId:   1,
+		Amount:   10,
+		Comments: "Sem cebola",
 	}
 
 	err = store.CreateItemOrder(testItemPedido)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, testItemPedido.ItemPedidoID)
+	assert.Equal(t, 1, testItemPedido.Id)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
@@ -46,9 +46,9 @@ func TestGetItemPedidoStore(t *testing.T) {
 	}
 	defer db.Close()
 
-	columns := []string{"itemPedidoID", "pedidoID", "itemID", "quantidade", "observacoes"}
+	columns := []string{"id", "orderId", "itemId", "amount", "comments"}
 	expectedResult := sqlmock.NewRows(columns).AddRow(1, 1, 1, 10, "Sem cebola")
-	mock.ExpectQuery("SELECT itemPedidoID, pedidoID, itemID, quantidade, observacoes FROM ItensPedido WHERE itemPedidoID = ?").
+	mock.ExpectQuery("SELECT id, orderId, itemId, amount, comments FROM ItemsOrderTable WHERE id = ?").
 		WithArgs(1).
 		WillReturnRows(expectedResult)
 
@@ -57,11 +57,11 @@ func TestGetItemPedidoStore(t *testing.T) {
 	result, err := store.GetItemOrder(1)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, 1, result.ItemPedidoID)
-	assert.Equal(t, 1, result.PedidoID)
-	assert.Equal(t, 1, result.ItemID)
-	assert.Equal(t, 10, result.Quantidade)
-	assert.Equal(t, "Sem cebola", result.Observacoes)
+	assert.Equal(t, 1, result.Id)
+	assert.Equal(t, 1, result.OrderId)
+	assert.Equal(t, 1, result.ItemId)
+	assert.Equal(t, 10, result.Amount)
+	assert.Equal(t, "Sem cebola", result.Comments)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
@@ -76,18 +76,18 @@ func TestUpdateItemPedidoStore(t *testing.T) {
 	defer db.Close()
 
 	mockResult := sqlmock.NewResult(0, 1)
-	mock.ExpectPrepare("UPDATE ItensPedido SET").
+	mock.ExpectPrepare("UPDATE ItemsOrderTable SET").
 		ExpectExec().
 		WithArgs(1, 1, 15, "Adicionar molho extra", 1).
 		WillReturnResult(mockResult)
 
 	store := store.NewItemOrder(db)
 	testItemPedido := &models.ItemOrder{
-		ItemPedidoID: 1,
-		PedidoID:     1,
-		ItemID:       1,
-		Quantidade:   15,
-		Observacoes:  "Adicionar molho extra",
+		Id:       1,
+		OrderId:  1,
+		ItemId:   1,
+		Amount:   15,
+		Comments: "Adicionar molho extra",
 	}
 
 	err = store.UpdateItemOrder(testItemPedido)
@@ -106,7 +106,7 @@ func TestDeleteItemPedidoStore(t *testing.T) {
 	defer db.Close()
 
 	mockResult := sqlmock.NewResult(0, 1)
-	mock.ExpectPrepare("DELETE FROM ItensPedido").
+	mock.ExpectPrepare("DELETE FROM ItemsOrderTable").
 		ExpectExec().
 		WithArgs(1).
 		WillReturnResult(mockResult)

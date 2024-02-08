@@ -15,6 +15,17 @@ type UserService struct {
 	store store.UsuarioStorer
 }
 
+type UserServiceInterface interface {
+	CreateUser(u *models.User) error
+	GetUser(id int) (*models.User, error)
+	UpdateUser(u *models.User) error
+	DeleteUser(id int) error
+	CheckIfAdminExists() (bool, error)
+}
+
+// Garanta que UserService implementa UserServiceInterface.
+var _ UserServiceInterface = &UserService{}
+
 // NewUsuarioService cria uma nova instância de UsuarioService.
 func NewUsuarioService(store store.UsuarioStorer) *UserService {
 	return &UserService{
@@ -30,7 +41,7 @@ func (service *UserService) CreateUser(u *models.User) error {
 		return fmt.Errorf("erro CreateUsuario: %v", err)
 	}
 	// Validar papel
-	if err := validarPapel(u.Email, string(u.Papel)); err != nil {
+	if err := validarPapel(u.Email, string(u.Role)); err != nil {
 		log.Print("Validar Papel: ", err)
 		return err
 	}
@@ -68,6 +79,17 @@ func (service *UserService) UpdateUser(u *models.User) error {
 // DeleteUser trata da lógica para deletar um usuário.
 func (service *UserService) DeleteUser(id int) error {
 	return service.store.DeleteUser(id)
+}
+
+func (service *UserService) CheckIfAdminExists() (bool, error) {
+	users, err := service.store.GetUsersByRole(models.Admin)
+	if err != nil {
+		return false, err
+	}
+	if len(users) > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // validarEmail valida o email

@@ -55,7 +55,7 @@ func (handler *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.SenhaHash = "" // mantém informações confidenciais no servidor
+	user.PasswordHash = "" // mantém informações confidenciais no servidor
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)

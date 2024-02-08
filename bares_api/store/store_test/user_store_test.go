@@ -21,7 +21,7 @@ func TestCreateUsuario(t *testing.T) {
 	mockResult := sqlmock.NewResult(1, 1)
 
 	// Prepara o mock para esperar a chamada que será feita pela função CreateUsuario
-	mock.ExpectPrepare("INSERT INTO Usuarios").
+	mock.ExpectPrepare("INSERT INTO UsersTable").
 		ExpectExec().
 		WithArgs(
 			"John Doe",
@@ -36,10 +36,10 @@ func TestCreateUsuario(t *testing.T) {
 
 	// Cria um usuário de teste
 	testUser := &models.User{
-		Nome:      "John Doe",
-		Email:     "johndoe@example.com",
-		SenhaHash: "senha123",
-		Papel:     "cliente",
+		Name:         "John Doe",
+		Email:        "johndoe@example.com",
+		PasswordHash: "senha123",
+		Role:         "cliente",
 	}
 
 	// Chama a função CreateUsuario
@@ -75,7 +75,7 @@ func TestGetUsuarioByEmail(t *testing.T) {
 
 	// Prepara o mock para esperar a chamada que será feita pela função GetUsuarioByEmail
 	mock.ExpectQuery(
-		"SELECT usuarioID, nome, email, senhaHash, papel FROM Usuarios WHERE email = ?").
+		"SELECT id, name, email, passwordHash, role FROM UsersTable WHERE email = ?").
 		WithArgs("johndoe@example.com").
 		WillReturnRows(expectedResult)
 
@@ -86,10 +86,10 @@ func TestGetUsuarioByEmail(t *testing.T) {
 	user, err := store.GetUserByEmail("johndoe@example.com")
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
-	assert.Equal(t, "John Doe", user.Nome)
+	assert.Equal(t, "John Doe", user.Name)
 	assert.Equal(t, "johndoe@example.com", user.Email)
-	assert.Equal(t, "hashedpassword", user.SenhaHash)
-	assert.Equal(t, "cliente", string(user.Papel))
+	assert.Equal(t, "hashedpassword", user.PasswordHash)
+	assert.Equal(t, "cliente", string(user.Role))
 
 	// Verifica se todas as expectativas foram atendidas
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -106,7 +106,7 @@ func TestGetUsuario(t *testing.T) {
 	defer db.Close()
 
 	// Define as colunas que serão retornadas pelo mock do banco de dados
-	columns := []string{"usuarioID", "nome", "email", "senhaHash", "papel"}
+	columns := []string{"id", "name", "email", "passwordHash", "role"}
 	// Define o resultado esperado do mock
 	expectedResult := sqlmock.
 		NewRows(columns).
@@ -120,7 +120,7 @@ func TestGetUsuario(t *testing.T) {
 
 	// Prepara o mock para esperar a chamada que será feita pela função GetUsuario
 	mock.ExpectQuery(
-		"SELECT usuarioID, nome, email, senhaHash, papel FROM Usuarios WHERE usuarioID = ?").
+		"SELECT id, name, email, passwordHash, role FROM UsersTable WHERE id = ?").
 		WithArgs(1).
 		WillReturnRows(expectedResult)
 
@@ -131,11 +131,11 @@ func TestGetUsuario(t *testing.T) {
 	user, err := store.GetUser(1)
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
-	assert.Equal(t, 1, user.UsuarioID)
-	assert.Equal(t, "John Doe", user.Nome)
+	assert.Equal(t, 1, user.Id)
+	assert.Equal(t, "John Doe", user.Name)
 	assert.Equal(t, "johndoe@example.com", user.Email)
-	assert.Equal(t, "hashedpassword", user.SenhaHash)
-	assert.Equal(t, "cliente", string(user.Papel))
+	assert.Equal(t, "hashedpassword", user.PasswordHash)
+	assert.Equal(t, "cliente", string(user.Role))
 
 	// Verifica se todas as expectativas foram atendidas
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -155,7 +155,7 @@ func TestUpdateUsuario(t *testing.T) {
 	mockResult := sqlmock.NewResult(0, 1) // 0 LastInsertId, 1 RowsAffected
 
 	// Prepara o mock para esperar a chamada que será feita pela função UpdateUsuario
-	mock.ExpectPrepare("UPDATE Usuarios SET").
+	mock.ExpectPrepare("UPDATE UsersTable SET").
 		ExpectExec().
 		WithArgs(
 			"John Doe Updated",
@@ -171,11 +171,11 @@ func TestUpdateUsuario(t *testing.T) {
 
 	// Cria um usuário de teste
 	testUser := &models.User{
-		UsuarioID: 1,
-		Nome:      "John Doe Updated",
-		Email:     "johndoeupdated@example.com",
-		SenhaHash: "newhashedpassword",
-		Papel:     "cliente",
+		Id:           1,
+		Name:         "John Doe Updated",
+		Email:        "johndoeupdated@example.com",
+		PasswordHash: "newhashedpassword",
+		Role:         "cliente",
 	}
 
 	// Chama a função UpdateUsuario
@@ -200,7 +200,7 @@ func TestDeleteUsuario(t *testing.T) {
 	mockResult := sqlmock.NewResult(0, 1) // 0 LastInsertId, 1 RowsAffected
 
 	// Prepara o mock para esperar a chamada que será feita pela função DeleteUsuario
-	mock.ExpectPrepare("DELETE FROM Usuarios").
+	mock.ExpectPrepare("DELETE FROM UsersTable").
 		ExpectExec().
 		WithArgs(1).
 		WillReturnResult(mockResult)

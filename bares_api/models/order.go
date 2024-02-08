@@ -16,16 +16,16 @@ const (
 
 // Order estrutura dos pedidos no sistema
 type Order struct {
-	PedidoID  int       `json:"pedidoID"`
-	UsuarioID int       `json:"usuarioID"`
-	DataHora  time.Time `json:"dataHora"`
-	Status    Status    `json:"status"`
+	Id       int       `json:"id"`
+	UserId   int       `json:"userId"`
+	DateHour time.Time `json:"dateHour"`
+	Status   Status    `json:"status"`
 }
 
 func (p *Order) String() string {
 	return fmt.Sprintf("id: %d; userId: %d; Date: %s; Status: %s",
-		p.PedidoID,
-		p.UsuarioID,
-		p.DataHora.Format("02/01/06"),
+		p.Id,
+		p.UserId,
+		p.DateHour.Format("02/01/06"),
 		p.Status)
 }

@@ -17,22 +17,22 @@ func TestCreateItemMenu(t *testing.T) {
 	defer db.Close()
 
 	mockResult := sqlmock.NewResult(1, 1)
-	mock.ExpectPrepare("INSERT INTO ItensMenu").
+	mock.ExpectPrepare("INSERT INTO MenuItemsTable").
 		ExpectExec().
 		WithArgs("Pizza", "Delicious pizza", 9.99, "imageurl").
 		WillReturnResult(mockResult)
 
 	store := store.NewMenuItem(db)
 	testItemMenu := &models.MenuItem{
-		Nome:      "Pizza",
-		Descricao: "Delicious pizza",
-		Preco:     9.99,
-		ImagemURL: "imageurl",
+		Name:        "Pizza",
+		Description: "Delicious pizza",
+		Price:       9.99,
+		ImageURL:    "imageurl",
 	}
 
 	err = store.CreateMenuItem(testItemMenu)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, testItemMenu.ItemID)
+	assert.Equal(t, 1, testItemMenu.Id)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
@@ -46,7 +46,7 @@ func TestGetItemMenu(t *testing.T) {
 	}
 	defer db.Close()
 
-	columns := []string{"itemID", "nome", "descricao", "preco", "imagemURL"}
+	columns := []string{"id", "name", "description", "price", "imageURL"}
 	expectedResult := sqlmock.
 		NewRows(columns).
 		AddRow(
@@ -57,7 +57,7 @@ func TestGetItemMenu(t *testing.T) {
 			"imageurl",
 		)
 	mock.ExpectQuery(
-		"SELECT itemID, nome, descricao, preco, imagemURL FROM ItensMenu WHERE itemID = ?").
+		"SELECT id, name, description, price, imageURL FROM MenuItemsTable WHERE id = ?").
 		WithArgs(1).
 		WillReturnRows(expectedResult)
 
@@ -66,11 +66,11 @@ func TestGetItemMenu(t *testing.T) {
 	result, err := store.GetMenuItem(1)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, 1, result.ItemID)
-	assert.Equal(t, "Pizza", result.Nome)
-	assert.Equal(t, "Delicious pizza", result.Descricao)
-	assert.Equal(t, 9.99, result.Preco)
-	assert.Equal(t, "imageurl", result.ImagemURL)
+	assert.Equal(t, 1, result.Id)
+	assert.Equal(t, "Pizza", result.Name)
+	assert.Equal(t, "Delicious pizza", result.Description)
+	assert.Equal(t, 9.99, result.Price)
+	assert.Equal(t, "imageurl", result.ImageURL)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
@@ -85,7 +85,7 @@ func TestUpdateItemMenu(t *testing.T) {
 	defer db.Close()
 
 	mockResult := sqlmock.NewResult(0, 1)
-	mock.ExpectPrepare("UPDATE ItensMenu SET").
+	mock.ExpectPrepare("UPDATE MenuItemsTable SET").
 		ExpectExec().
 		WithArgs(
 			"Pizza Updated",
@@ -98,11 +98,11 @@ func TestUpdateItemMenu(t *testing.T) {
 
 	store := store.NewMenuItem(db)
 	testItemMenu := &models.MenuItem{
-		ItemID:    1,
-		Nome:      "Pizza Updated",
-		Descricao: "Delicious pizza updated",
-		Preco:     10.99,
-		ImagemURL: "imageurlupdated",
+		Id:          1,
+		Name:        "Pizza Updated",
+		Description: "Delicious pizza updated",
+		Price:       10.99,
+		ImageURL:    "imageurlupdated",
 	}
 
 	err = store.UpdateMenuItem(testItemMenu)
@@ -121,7 +121,7 @@ func TestDeleteItemMenu(t *testing.T) {
 	defer db.Close()
 
 	mockResult := sqlmock.NewResult(0, 1)
-	mock.ExpectPrepare("DELETE FROM ItensMenu").
+	mock.ExpectPrepare("DELETE FROM MenuItemsTable").
 		ExpectExec().
 		WithArgs(1).
 		WillReturnResult(mockResult)
@@ -143,7 +143,7 @@ func TestGetAllItemMenu(t *testing.T) {
 	}
 	defer db.Close()
 
-	columns := []string{"itemID", "nome", "descricao", "preco", "imagemURL"}
+	columns := []string{"id", "name", "description", "price", "imageURL"}
 	expectedResult := sqlmock.NewRows(columns).
 		AddRow(
 			1,
@@ -160,7 +160,7 @@ func TestGetAllItemMenu(t *testing.T) {
 			"imageurl2",
 		)
 	mock.ExpectQuery(
-		"SELECT itemID, nome, descricao, preco, imagemURL FROM ItensMenu ORDER BY nome").
+		"SELECT id, name, description, price, imageURL FROM MenuItemsTable ORDER BY name").
 		WillReturnRows(expectedResult)
 
 	store := store.NewMenuItem(db)
@@ -181,7 +181,7 @@ func TestGetItemMenuByNome(t *testing.T) {
 	}
 	defer db.Close()
 
-	columns := []string{"itemID", "nome", "descricao", "preco", "imagemURL"}
+	columns := []string{"id", "name", "description", "price", "imageURL"}
 	expectedResult := sqlmock.
 		NewRows(columns).
 		AddRow(
@@ -192,7 +192,7 @@ func TestGetItemMenuByNome(t *testing.T) {
 			"imageurl",
 		)
 	mock.ExpectQuery(
-		"SELECT itemID, nome, descricao, preco, imagemURL FROM ItensMenu WHERE nome = ?").
+		"SELECT id, name, description, price, imageURL FROM MenuItemsTable WHERE name = ?").
 		WithArgs("Pizza").
 		WillReturnRows(expectedResult)
 
@@ -201,11 +201,11 @@ func TestGetItemMenuByNome(t *testing.T) {
 	result, err := store.GetMenuItemByName("Pizza")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, 1, result.ItemID)
-	assert.Equal(t, "Pizza", result.Nome)
-	assert.Equal(t, "Delicious pizza", result.Descricao)
-	assert.Equal(t, 9.99, result.Preco)
-	assert.Equal(t, "imageurl", result.ImagemURL)
+	assert.Equal(t, 1, result.Id)
+	assert.Equal(t, "Pizza", result.Name)
+	assert.Equal(t, "Delicious pizza", result.Description)
+	assert.Equal(t, 9.99, result.Price)
+	assert.Equal(t, "imageurl", result.ImageURL)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)

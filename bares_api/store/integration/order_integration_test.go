@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"testing"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func TestOrderIntegration(t *testing.T) {
@@ -38,84 +40,84 @@ func TestOrderIntegration(t *testing.T) {
 	}
 
 	// Criar pedidos
-	pedidos, err := CreatePedidos(storePedido)
+	pedidos, err := CreateOrders(storePedido)
 	if err != nil {
 		t.Errorf("Falha ao criar pedidos: %s", err)
 	}
 
 	// Adicionar 1o itens ao pedido
 	itemPedido := models.ItemOrder{
-		PedidoID:    pedidos[0].PedidoID,
-		ItemID:      itens[0].ItemID,
-		Quantidade:  5,
-		Observacoes: "Sem sal",
+		OrderId:  pedidos[0].Id,
+		ItemId:   itens[0].Id,
+		Amount:   5,
+		Comments: "Sem sal",
 	}
 	err = stoteItemPedido.CreateItemOrder(&itemPedido)
 	if err != nil {
 		t.Errorf("Falha ao adicionar item %s ao pedido %d: %s",
-			itens[0].Nome,
-			pedidos[0].PedidoID,
+			itens[0].Name,
+			pedidos[0].Id,
 			err,
 		)
 	}
 
 	// Adicionar 2o itens ao pedido
 	itemPedido = models.ItemOrder{
-		PedidoID:    pedidos[0].PedidoID,
-		ItemID:      itens[1].ItemID,
-		Quantidade:  2,
-		Observacoes: "Mal passado",
+		OrderId:  pedidos[0].Id,
+		ItemId:   itens[1].Id,
+		Amount:   2,
+		Comments: "Mal passado",
 	}
 	err = stoteItemPedido.CreateItemOrder(&itemPedido)
 	if err != nil {
 		t.Errorf("Falha ao adicionar item %s ao pedido %d: %s",
-			itens[0].Nome,
-			pedidos[0].PedidoID,
+			itens[0].Name,
+			pedidos[0].Id,
 			err,
 		)
 	}
 
 	// Updade ItemPedido
-	quantidade := itemPedido.Quantidade
-	itemPedido.Quantidade += 1
+	quantidade := itemPedido.Amount
+	itemPedido.Amount += 1
 	err = stoteItemPedido.UpdateItemOrder(&itemPedido)
 	if err != nil {
 		t.Errorf("Falha ao atualizar quantidade no itemPedido: %s", err)
 	}
 
 	// Carrega o ItemPedido
-	itemPedidoLoad, err := stoteItemPedido.GetItemOrder(itemPedido.ItemID)
+	itemPedidoLoad, err := stoteItemPedido.GetItemOrder(itemPedido.ItemId)
 	if err != nil {
 		t.Errorf("Erro ao ler um itemPedido: %s", err)
 	}
 
 	// Testa se quantidade é maior de 1
-	if (quantidade + 1) != itemPedidoLoad.Quantidade {
+	if (quantidade + 1) != itemPedidoLoad.Amount {
 		t.Errorf("Erro ao atualizar um itemPedido. Esperado %d, encontrado %d: %s",
 			quantidade,
-			itemPedidoLoad.Quantidade,
+			itemPedidoLoad.Amount,
 			err,
 		)
 	}
 
 	// Pegar os pedidos do users[0]:
-	allOrders0, err := storePedido.GetOrderByUser(users[0].UsuarioID)
+	allOrders0, err := storePedido.GetOrderByUser(users[0].Id)
 	if err != nil {
 		t.Errorf("Erro ao pegar os pedidos do usuário 0 um Pedido: %s", err)
 	}
 	if len(allOrders0) != 2 {
 		t.Errorf("número de ordens experadas para o usuário %d eram 2, retornou %d",
-			users[0].UsuarioID, len(allOrders0))
+			users[0].Id, len(allOrders0))
 	}
 
 	// Pegar os pedidos do users[1]:
-	allOrders1, err := storePedido.GetOrderByUser(users[1].UsuarioID)
+	allOrders1, err := storePedido.GetOrderByUser(users[1].Id)
 	if err != nil {
 		t.Errorf("Erro ao pegar os pedidos do usuário 0 um Pedido: %s", err)
 	}
 	if len(allOrders1) != 1 {
 		t.Errorf("número de ordens experadas para o usuário %d eram 1, retornou %d",
-			users[1].UsuarioID, len(allOrders1))
+			users[1].Id, len(allOrders1))
 	}
 
 	// Pegar lista de pedidos pendentes

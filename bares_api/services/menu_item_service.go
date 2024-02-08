@@ -21,12 +21,12 @@ func NewItemMenuService(store store.MenuItemStorer) *MenuItemService {
 // CreateMenuItem trata da lógica de negócios para criar um novo ItemMenu.
 func (service *MenuItemService) CreateMenuItem(item *models.MenuItem) error {
 	// Verificar se o Nome já está em uso:
-	existingItem, err := service.store.GetMenuItemByName(item.Nome)
+	existingItem, err := service.store.GetMenuItemByName(item.Name)
 	if err != nil {
 		return err
 	}
 	if existingItem != nil {
-		return fmt.Errorf("item '%s' já existe em ItensMenu", item.Nome)
+		return fmt.Errorf("item '%s' já existe em ItensMenu", item.Name)
 	}
 
 	// Continuar com a criação do ItemMenu

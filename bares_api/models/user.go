@@ -1,18 +1,29 @@
 package models
 
-type Papel string
+import "fmt"
+
+type Role string
 
 const (
-	Cliente Papel = "cliente"
-	Garcom  Papel = "garcom"
-	Gerente Papel = "gerente"
+	Cliente Role = "cliente"
+	Garcom  Role = "garcom"
+	Gerente Role = "gerente"
+	Admin   Role = "admin"
+	Cozinha Role = "cozinha"
+	Caixa   Role = "caixa"
 )
 
 // User estrutura para os usuários do sistema
 type User struct {
-	UsuarioID int    `json:"usuarioID"`
-	Nome      string `json:"nome"`
-	Email     string `json:"email"`
-	SenhaHash string `json:"senhaHash"`
-	Papel     Papel  `json:"papel"`
+	Id           int    `json:"id"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"passwordHash"`
+	Role         Role   `json:"role"`
+}
+
+func (u User) String() string {
+	return fmt.Sprintf(
+		"User {\n  Id:    %d,\n  Name:  %s,\n  Email: %s,\n  Senha: %s,\n  Role:  %v\n}",
+		u.Id, u.Name, u.Email, u.PasswordHash, u.Role)
 }
