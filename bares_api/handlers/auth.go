@@ -32,7 +32,7 @@ func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request
 	}
 
 	// Lógica de validação das credenciais
-	papel, err := handler.Service.ValidarCredenciais(credentials)
+	papel, err := handler.Service.ValidateCredentials(credentials)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return

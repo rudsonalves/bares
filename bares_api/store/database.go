@@ -4,45 +4,41 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-	"strings"
-
-	"golang.org/x/term"
 )
 
 const (
-	TableUsuarios = "Usuarios"
-	UsuarioID     = "usuarioID"
-	Nome          = "nome"
-	Email         = "email"
-	SenhaHash     = "senhaHash"
-	Papel         = "papel"
+	TableUsers   = "UsersTable"
+	Id           = "id"
+	Name         = "name"
+	Email        = "email"
+	PasswordHash = "passwordHash"
+	Role         = "role"
 
-	TableItensMenu = "ItensMenu"
-	ItemID         = "itemID"
-	// Nome           = "nome"
-	Descricao = "descricao"
-	Preco     = "preco"
-	ImagemURL = "imagemURL"
+	TableMenuItem = "MenuItemsTable"
+	// Id        = "id"
+	// Name           = "name"
+	Description = "description"
+	Price       = "price"
+	ImageURL    = "imageURL"
 
-	IndexItensMenu = "idx_itensMenu_name"
+	IndexMenuItem = "idx_menuItems_name"
 
-	TablePedidos = "Pedidos"
-	PedidoID     = "pedidoID"
-	// UsuarioID    = "usuarioID"
-	DataHora = "dataHora"
+	TableOrders = "OrdersTable"
+	// Id     = "id"
+	UserId   = "userId"
+	DateHour = "dateHour"
 	Status   = "status"
 
-	IndexUsuarioId = "idx_usuario_id"
+	IndexUserId = "idx_users_id"
 
-	TableItensPedido = "ItensPedido"
-	ItemPedidoID     = "itemPedidoID"
-	// PedidoID         = "pedidoID"
-	// ItemID           = "itemID"
-	Quantidade  = "quantidade"
-	Observacoes = "observacoes"
+	TableItensOrders = "ItemsOrderTable"
+	// Id      = "id"
+	OrderId  = "orderId"
+	ItemId   = "itemId"
+	Amount   = "amount"
+	Comments = "comments"
 
-	IndexPedidoId = "idx_pedido_id"
+	IndexOrderId = "idx_order_id"
 )
 
 // DatabaseStore mantém a conexão com o banco de dados.
@@ -60,12 +56,7 @@ func NewDatabaseStore(dbName string, db *sql.DB) *DatabaseStore {
 }
 
 // DatabaseOpen abre a conexão com o banco de dados.
-func DatabaseOpen(dbName string) (*DatabaseStore, error) {
-	connString := "alves_test:1234qwer@tcp(localhost:3306)/"
-	if !strings.HasSuffix(dbName, "_test") {
-		connString = createConnString()
-	}
-
+func DatabaseOpen(dbName string, connString string) (*DatabaseStore, error) {
 	db, err := sql.Open("mysql", connString)
 	if err != nil {
 		return nil, err
@@ -102,7 +93,7 @@ func (store *DatabaseStore) createDatabaseIfNotExists() error {
 	_, err := store.DB.Exec(createDBSQL)
 	if err != nil {
 		log.Printf("erro ao criar o banco de dados: %v", err)
-		return fmt.Errorf("erro ao criar o banco de dados: %v", err)
+		return err
 	}
 	return nil
 }
@@ -113,7 +104,7 @@ func (store *DatabaseStore) useDatabase() error {
 	_, err := store.DB.Exec(useDBSQL)
 	if err != nil {
 		log.Printf("erro ao selecionar o banco de dados: %v", err)
-		return fmt.Errorf("erro ao selecionar o banco de dados: %v", err)
+		return err
 	}
 	return nil
 }
@@ -128,8 +119,8 @@ func (store *DatabaseStore) createTables() error {
         %s VARCHAR(255) NOT NULL,
         %s VARCHAR(255) UNIQUE NOT NULL,
         %s VARCHAR(255) NOT NULL,
-        %s ENUM('cliente', 'garcom', 'gerente') NOT NULL
-      )`, TableUsuarios, UsuarioID, Nome, Email, SenhaHash, Papel,
+        %s ENUM('cliente', 'garcom', 'gerente', 'admin', 'cozinha', 'caixa') NOT NULL
+      )`, TableUsers, Id, Name, Email, PasswordHash, Role,
 		),
 		fmt.Sprintf(`
       CREATE TABLE IF NOT EXISTS %s (
@@ -138,7 +129,7 @@ func (store *DatabaseStore) createTables() error {
         %s TEXT,
         %s DECIMAL(10,2) NOT NULL,
         %s VARCHAR(255)
-      )`, TableItensMenu, ItemID, Nome, Descricao, Preco, ImagemURL,
+      )`, TableMenuItem, Id, Name, Description, Price, ImageURL,
 		),
 		fmt.Sprintf(`
       CREATE TABLE IF NOT EXISTS %s (
@@ -147,7 +138,7 @@ func (store *DatabaseStore) createTables() error {
         %s DATETIME NOT NULL,
         %s ENUM('recebido', 'preparando', 'pronto', 'entregue') NOT NULL,
         FOREIGN KEY (%s) REFERENCES %s(%s)
-      )`, TablePedidos, PedidoID, UsuarioID, DataHora, Status, UsuarioID, TableUsuarios, UsuarioID,
+      )`, TableOrders, Id, UserId, DateHour, Status, UserId, TableUsers, Id,
 		),
 		fmt.Sprintf(`
       CREATE TABLE IF NOT EXISTS %s (
@@ -158,8 +149,9 @@ func (store *DatabaseStore) createTables() error {
         %s VARCHAR(255),
         FOREIGN KEY (%s) REFERENCES %s(%s),
         FOREIGN KEY (%s) REFERENCES %s(%s)
-      )`, TableItensPedido, ItemPedidoID, PedidoID, ItemID, Quantidade, Observacoes,
-			PedidoID, TablePedidos, PedidoID, ItemID, TableItensMenu, ItemID,
+      )`, TableItensOrders, Id, OrderId, ItemId, Amount, Comments,
+			OrderId, TableOrders, Id,
+			ItemId, TableMenuItem, Id,
 		),
 	}
 
@@ -184,9 +176,9 @@ func (store *DatabaseStore) createTables() error {
 // createIndexes cria os índices das tabelas
 func (store *DatabaseStore) createIndexes() error {
 	createIndexSQLs := []string{
-		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexItensMenu, TableItensMenu, Nome),
-		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexUsuarioId, TablePedidos, UsuarioID),
-		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexPedidoId, TableItensPedido, PedidoID),
+		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexMenuItem, TableMenuItem, Name),
+		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexUserId, TableOrders, UserId),
+		fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(%s)", IndexOrderId, TableItensOrders, OrderId),
 	}
 
 	for _, createIndexSQL := range createIndexSQLs {
@@ -212,25 +204,4 @@ func (store *DatabaseStore) DatabaseClose() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-// createConnString cria a string de conexão para o banco de dados.
-func createConnString() string {
-	var name string
-
-	fmt.Printf("Entre com o nome do usuário: ")
-	_, err := fmt.Scanln(&name)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("\nEntre com a senha: ")
-	passwordBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		log.Fatalf("\n%s", err)
-	}
-
-	password := string(passwordBytes)
-	connectionString := fmt.Sprintf("%s:%s@tcp(localhost:3306)/", name, password)
-
-	return connectionString
 }

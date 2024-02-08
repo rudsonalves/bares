@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // Configurar conexão com o banco de dados de teste
@@ -13,52 +15,52 @@ const testDBName = "BarDB_test"
 
 // CreateUsers cria e insere uma lista de usuários de teste no banco de dados usando o UsuarioStore fornecido.
 // Retorna a lista de usuários criados e um erro, se ocorrer.
-func CreateUsers(s *store.UsuarioStore) ([]models.Usuario, error) {
+func CreateUsers(s *store.UserStore) ([]models.User, error) {
 	// Criar Usuários
-	users := []models.Usuario{
+	users := []models.User{
 		{
-			Nome:      "John Doe",
-			Email:     "mesa01@example.com",
-			SenhaHash: "hashedpassword",
-			Papel:     "cliente",
+			Name:         "John Doe",
+			Email:        "mesa01@example.com",
+			PasswordHash: "hashedpassword",
+			Role:         "cliente",
 		},
 		{
-			Nome:      "Sergio Sacani",
-			Email:     "masa02@example.com",
-			SenhaHash: "1111111",
-			Papel:     "cliente",
+			Name:         "Sergio Sacani",
+			Email:        "masa02@example.com",
+			PasswordHash: "1111111",
+			Role:         "cliente",
 		},
 		{
-			Nome:      "Solange Almeida",
-			Email:     "mesa03@email.com",
-			SenhaHash: "22222222",
-			Papel:     "cliente",
+			Name:         "Solange Almeida",
+			Email:        "mesa03@email.com",
+			PasswordHash: "22222222",
+			Role:         "cliente",
 		},
 		{
-			Nome:      "Eduarda Carneiro",
-			Email:     "eduarda@email.com",
-			SenhaHash: "12341234",
-			Papel:     "gerente",
+			Name:         "Eduarda Carneiro",
+			Email:        "eduarda@email.com",
+			PasswordHash: "12341234",
+			Role:         "gerente",
 		},
 		{
-			Nome:      "Gilberto Soares",
-			Email:     "soares@email.com",
-			SenhaHash: "qwerqwer",
-			Papel:     "garcom",
+			Name:         "Gilberto Soares",
+			Email:        "soares@email.com",
+			PasswordHash: "qwerqwer",
+			Role:         "garcom",
 		},
 	}
 
 	// Inserir usuários no banco de dados
 	for i, user := range users {
-		err := s.CreateUsuario(&user)
+		err := s.CreateUser(&user)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao criar usuário: %s", err)
 		}
-		if user.UsuarioID == 0 {
+		if user.Id == 0 {
 			return nil, fmt.Errorf("id do usuário não foi definido após a criação")
 		}
 		// Atualizar a lista de usuários com IDs atribuídos
-		users[i].UsuarioID = user.UsuarioID
+		users[i].Id = user.Id
 	}
 
 	return users, nil
@@ -66,46 +68,46 @@ func CreateUsers(s *store.UsuarioStore) ([]models.Usuario, error) {
 
 // CreateItensMenu cria e insere uma lista de itemMenus de teste no banco de dados usando o ItemMenuStore fornecido.
 // Retorna a lista de itemMenus criados e um erro, se ocorrer.
-func CreateItensMenu(s *store.ItensMenuStore) ([]models.ItemMenu, error) {
+func CreateItensMenu(s *store.MenuItemStore) ([]models.MenuItem, error) {
 	// Criar itemMenus
-	itens := []models.ItemMenu{
+	itens := []models.MenuItem{
 		{
-			Nome:      "Salada de Frutas",
-			Descricao: "Uma bela salada de muitas frutas",
-			Preco:     25.99,
-			ImagemURL: "image/fig01.jpg",
+			Name:        "Salada de Frutas",
+			Description: "Uma bela salada de muitas frutas",
+			Price:       25.99,
+			ImageURL:    "image/fig01.jpg",
 		},
 		{
-			Nome:      "Bife a Rolê",
-			Descricao: "Bife de boi enrolado com cenoura e bacon",
-			Preco:     48.99,
-			ImagemURL: "image/fig02.jpg",
+			Name:        "Bife a Rolê",
+			Description: "Bife de boi enrolado com cenoura e bacon",
+			Price:       48.99,
+			ImageURL:    "image/fig02.jpg",
 		},
 		{
-			Nome:      "Feijão Tropeiro",
-			Descricao: "Feijão, farinha, linguiça calabresa e muito bacon",
-			Preco:     34.99,
-			ImagemURL: "image/fig03.jpg",
+			Name:        "Feijão Tropeiro",
+			Description: "Feijão, farinha, linguiça calabresa e muito bacon",
+			Price:       34.99,
+			ImageURL:    "image/fig03.jpg",
 		},
 		{
-			Nome:      "Suco de Alho",
-			Descricao: "Alho batido com limão ciciliano",
-			Preco:     12.99,
-			ImagemURL: "image/fig05.jpg",
+			Name:        "Suco de Alho",
+			Description: "Alho batido com limão ciciliano",
+			Price:       12.99,
+			ImageURL:    "image/fig05.jpg",
 		},
 	}
 
 	// Inserir itemMenus no banco de dados
-	for i, item := range itens {
-		err := s.CreateItemMenu(&item)
+	for index, item := range itens {
+		err := s.CreateMenuItem(&item)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao criar itemMenu: %s", err)
 		}
-		if item.ItemID == 0 {
+		if item.Id == 0 {
 			return nil, fmt.Errorf("id do itemMenu não foi definido após a criação")
 		}
 		// Atualizar a lista de itemMenus com IDs atribuídos
-		itens[i].ItemID = item.ItemID
+		itens[index].Id = item.Id
 	}
 
 	return itens, nil
@@ -113,42 +115,42 @@ func CreateItensMenu(s *store.ItensMenuStore) ([]models.ItemMenu, error) {
 
 // CreateItensMenu cria e insere uma lista de itemMenus de teste no banco de dados usando o ItemMenuStore fornecido.
 // Retorna a lista de itemMenus criados e um erro, se ocorrer.
-func CreatePedidos(s *store.PedidoStore) ([]models.Pedido, error) {
+func CreateOrders(s *store.OrderStore) ([]models.Order, error) {
 	// Criar Pedidos
-	pedidos := []models.Pedido{
+	pedidos := []models.Order{
 		{
-			UsuarioID: 2,
-			DataHora:  time.Now(),
-			Status:    models.Preparando,
+			UserId:   2,
+			DateHour: time.Now(),
+			Status:   models.Preparando,
 		},
 		{
-			UsuarioID: 1,
-			DataHora:  time.Now(),
-			Status:    models.Recebido,
+			UserId:   1,
+			DateHour: time.Now(),
+			Status:   models.Recebido,
 		},
 		{
-			UsuarioID: 3,
-			DataHora:  time.Now(),
-			Status:    models.Pronto,
+			UserId:   3,
+			DateHour: time.Now(),
+			Status:   models.Pronto,
 		},
 		{
-			UsuarioID: 1,
-			DataHora:  time.Now(),
-			Status:    models.Recebido,
+			UserId:   1,
+			DateHour: time.Now(),
+			Status:   models.Recebido,
 		},
 	}
 
 	// Inserir itemMenus no banco de dados
 	for i, pedido := range pedidos {
-		err := s.CreatePedido(&pedido)
+		err := s.CreateOrder(&pedido)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao criar itemMenu: %s", err)
 		}
-		if pedido.PedidoID == 0 {
+		if pedido.Id == 0 {
 			return nil, fmt.Errorf("id do itemMenu não foi definido após a criação")
 		}
 		// Atualizar a lista de itemMenus com IDs atribuídos
-		pedidos[i].PedidoID = pedido.PedidoID
+		pedidos[i].Id = pedido.Id
 	}
 
 	return pedidos, nil
@@ -159,7 +161,8 @@ func StartDatabase() (*store.DatabaseStore, error) {
 	log.Printf("Banco de dados teste: %q", testDBName)
 
 	// Abre a conexão com o banco de dados
-	dbStore, err := store.DatabaseOpen(testDBName)
+	connString := "alves_test:1234qwer@tcp(localhost:3306)/"
+	dbStore, err := store.DatabaseOpen(testDBName, connString)
 	if err != nil {
 		return nil, fmt.Errorf("falha ao conectar ao banco de dados de teste: %s", err)
 	}

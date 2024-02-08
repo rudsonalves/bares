@@ -75,6 +75,22 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  http:
+    dependency: "direct main"
+    description:
+      name: http
+      sha256: a2bbf9d017fcced29139daa8ed2bba4ece450ab222871df93ca9eec6f80c34ba
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
+  http_parser:
+    dependency: transitive
+    description:
+      name: http_parser
+      sha256: "2aa08ce0341cc9b354a498388e30986515406668dbcc4f7c950c3e715496693b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.2"
   lints:
     dependency: transitive
     description:
@@ -123,6 +139,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  signals:
+    dependency: "direct main"
+    description:
+      name: signals
+      sha256: "1e6339dfe9de893d17940c5dec846fd40920ecc0cb118feb324777d578c7a57f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.3"
+  signals_core:
+    dependency: transitive
+    description:
+      name: signals_core
+      sha256: "74ad66c532292aff062ac706ef047112617f44858bc9680ae40e29f60f5b0b93"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.3"
+  signals_flutter:
+    dependency: transitive
+    description:
+      name: signals_flutter
+      sha256: c20ba16d8e1d7251bd2043897a599da6c41a8dfad5cd2d401f60d3c664285f58
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.3"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -176,6 +216,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.1"
+  typed_data:
+    dependency: transitive
+    description:
+      name: typed_data
+      sha256: facc8d6582f16042dd49f2463ff1bd6e2c9ef9f3d5da3d9b087e244a7b564b3c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.2"
   vector_math:
     dependency: transitive
     description:

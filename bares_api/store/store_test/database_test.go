@@ -19,39 +19,39 @@ func TestCreateDatabase(t *testing.T) {
 	sqlExpected := []string{
 		`CREATE DATABASE IF NOT EXISTS BarDB_test`,
 		`USE BarDB_test`,
-		`CREATE TABLE IF NOT EXISTS Usuarios \(
-      usuarioID INT AUTO_INCREMENT PRIMARY KEY,
-      nome VARCHAR\(255\) NOT NULL,
+		`CREATE TABLE IF NOT EXISTS UsersTable \(
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR\(255\) NOT NULL,
       email VARCHAR\(255\) UNIQUE NOT NULL,
-      senhaHash VARCHAR\(255\) NOT NULL,
-      papel ENUM\('cliente', 'garcom', 'gerente'\) NOT NULL
+      passwordHash VARCHAR\(255\) NOT NULL,
+      role ENUM\('cliente', 'garcom', 'gerente', 'admin', 'cozinha', 'caixa'\) NOT NULL
     \)`,
-		`CREATE TABLE IF NOT EXISTS ItensMenu \(
-      itemID INT AUTO_INCREMENT PRIMARY KEY,
-      nome VARCHAR\(255\) UNIQUE NOT NULL,
-      descricao TEXT,
-      preco DECIMAL\(10,2\) NOT NULL,
-      imagemURL VARCHAR\(255\)
+		`CREATE TABLE IF NOT EXISTS MenuItemsTable \(
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR\(255\) UNIQUE NOT NULL,
+      description TEXT,
+      price DECIMAL\(10,2\) NOT NULL,
+      imageURL VARCHAR\(255\)
     \)`,
-		`CREATE TABLE IF NOT EXISTS Pedidos \(
-      pedidoID INT AUTO_INCREMENT PRIMARY KEY,
-      usuarioID INT NOT NULL,
-      dataHora DATETIME NOT NULL,
+		`CREATE TABLE IF NOT EXISTS OrdersTable \(
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      dateHour DATETIME NOT NULL,
       status ENUM\('recebido', 'preparando', 'pronto', 'entregue'\) NOT NULL,
-      FOREIGN KEY \(usuarioID\) REFERENCES Usuarios\(usuarioID\)
+      FOREIGN KEY \(userId\) REFERENCES UsersTable\(id\)
     \)`,
-		`CREATE TABLE IF NOT EXISTS ItensPedido \(
-      itemPedidoID INT AUTO_INCREMENT PRIMARY KEY,
-      pedidoID INT NOT NULL,
-      itemID INT NOT NULL,
-      quantidade INT DEFAULT 1,
-      observacoes VARCHAR\(255\),
-      FOREIGN KEY \(pedidoID\) REFERENCES Pedidos\(pedidoID\),
-      FOREIGN KEY \(itemID\) REFERENCES ItensMenu\(itemID\)
+		`CREATE TABLE IF NOT EXISTS ItemsOrderTable \(
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      orderId INT NOT NULL,
+      itemId INT NOT NULL,
+      amount INT DEFAULT 1,
+      comments VARCHAR\(255\),
+      FOREIGN KEY \(orderId\) REFERENCES OrdersTable\(id\),
+      FOREIGN KEY \(itemId\) REFERENCES MenuItemsTable\(id\)
     \)`,
-		`CREATE INDEX IF NOT EXISTS idx_itensMenu_name ON ItensMenu\(nome\)`,
-		`CREATE INDEX IF NOT EXISTS idx_usuario_id ON Pedidos\(usuarioID\)`,
-		`CREATE INDEX IF NOT EXISTS idx_pedido_id ON ItensPedido\(pedidoID\)`,
+		`CREATE INDEX IF NOT EXISTS idx_menuItems_name ON MenuItemsTable\(name\)`,
+		`CREATE INDEX IF NOT EXISTS idx_users_id ON OrdersTable\(userId\)`,
+		`CREATE INDEX IF NOT EXISTS idx_order_id ON ItemsOrderTable\(orderId\)`,
 	}
 
 	// Prepara o mock para esperar as chamadas que serão feitas pela função CreateDatabase
