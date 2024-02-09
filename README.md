@@ -1,5 +1,3 @@
-Entendo que você deseja reduzir o escopo do projeto para um exercício de desenvolvimento mais gerenciável. Vamos focar na implementação da API em Go e nos aplicativos em Flutter, simplificando o projeto sem perder a essência da ideia original.
-
 ### Estrutura Simplificada do Projeto
 
 #### 1. **API em Go**
