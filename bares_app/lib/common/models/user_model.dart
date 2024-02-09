@@ -45,23 +45,31 @@ class UserModel {
   int? id;
   String name;
   String email;
-  String password;
+  String? password;
   Role role;
 
   UserModel({
     this.id,
     required this.name,
     required this.email,
-    required this.password,
+    this.password,
     required this.role,
   });
+
+  void copyUser(UserModel user) {
+    id = user.id;
+    name = user.name;
+    email = user.email;
+    password = user.password;
+    role = user.role;
+  }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
       'name': name,
       'email': email,
-      'password': password,
+      'password': password ?? "",
       'role': role.name,
     };
   }
@@ -74,7 +82,7 @@ class UserModel {
       id: map['id'] as int,
       name: map['name'] as String,
       email: map['email'] as String,
-      password: map[pwString] as String,
+      password: map[pwString] as String?,
       role: RoleExtension.fromString(map['role'] as String),
     );
   }

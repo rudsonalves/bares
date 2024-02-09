@@ -2,13 +2,12 @@ import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
+import '../common/constants/app_const.dart';
 import '../common/models/user_model.dart';
 
 class UsersApiService {
-  final String baseUrl = 'http://192.168.0.22:8080';
-
   Future<UserModel?> createUser(UserModel user) async {
-    final url = Uri.parse('$baseUrl/users');
+    final url = Uri.parse('${AppConst.apiURL}/users');
 
     try {
       final response = await http.post(

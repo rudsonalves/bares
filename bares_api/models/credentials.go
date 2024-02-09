@@ -1,6 +1,6 @@
 package models
 
-// Credentials representa as credenciais do usuário para login
+// Credentials represent the user's login credentials
 type Credentials struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

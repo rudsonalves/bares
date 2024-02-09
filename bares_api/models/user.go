@@ -4,6 +4,7 @@ import "fmt"
 
 type Role string
 
+// Roles for users
 const (
 	Cliente Role = "cliente"
 	Garcom  Role = "garcom"
@@ -13,7 +14,7 @@ const (
 	Caixa   Role = "caixa"
 )
 
-// User estrutura para os usuários do sistema
+// User struct for system users
 type User struct {
 	Id           int    `json:"id"`
 	Name         string `json:"name"`
