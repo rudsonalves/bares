@@ -1,12 +1,11 @@
 # Projeto Bares
 
-Este projeto é um exercício de criação de um sistema para gestão de atendimento em bares, Bares. A ideia é desenvolver um sistema para gerenciar o atendimento aos clientes por meio de aplicativos:
+Este projeto é um exercício de criação de um sistema para gestão de atendimento em bares, Bares. A ideia é desenvolver um sistema para gerenciar de atendimento para bares, centrado no auto atendimento dos clientes por meio de aplicativos flutter:
 
 - Android/Web - para os clientes
-- Android - para os garçons
-- Android - para os gerentes de operação
+- Android - para os garçons e gerente de operação
 
-O projeto vai contar com uma API Go para fazer o controle do acesso ao banco de dados e, no momento, os aplicativos Android para clientes, gerente e garçons.
+O projeto vai contar com uma API REST em GoLang para fazer o controle do acesso ao banco de dados e, no momento, os aplicativos Android para clientes, gerente e garçons.
 
 ## 1. **API em Go**
 
