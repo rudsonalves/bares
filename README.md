@@ -100,63 +100,63 @@ Ao seguir esses passos, você estará no caminho certo para desenvolver uma API 
 
 Vamos projetar o esquema do banco de dados para o seu aplicativo de bar, considerando as funcionalidades básicas de gerenciamento de pedidos, itens do menu e usuários. O banco de dados será estruturado em tabelas que refletem os principais componentes do sistema.
 
-### 1. **Tabela de Usuários (Usuarios)**
+### 1. **Tabela de Usuários (UsersTable)**
 
 Para gerenciar os usuários que podem logar no app (gerentes, garçons).
 
-| Campo     | Tipo         | Descrição                            |
-| --------- | ------------ | ------------------------------------ |
-| usuarioID | INT          | ID único para o usuário              |
-| nome      | VARCHAR(255) | Nome do usuário                      |
-| email     | VARCHAR(255) | Email do usuário                     |
-| senhaHash | VARCHAR(255) | Hash da senha para autenticação      |
-| papel     | ENUM         | Papel (ex: cliente, garçom, gerente) |
+| Campo      | Tipo                | Descrição                                 |
+| ---------- | ------------------- | ----------------------------------------- |
+| id         | INT                 | ID único para o usuário                   |
+| name       | VARCHAR(255)        | Nome do usuário                           |
+| email      | VARCHAR(255) UNIQUE | Email do usuário                          |
+| pasworHash | VARCHAR(255)        | Hash da senha para autenticação           |
+| role       | ENUM                | Papel (ex: cliente, garçom, gerente, ...) |
 
-### 2. **Tabela de Itens do Menu (ItensMenu)**
+### 2. **Tabela de Itens do Menu (MenuItemsTable)**
 
 Para armazenar detalhes dos itens disponíveis para pedido.
 
-| Campo     | Tipo          | Descrição                    |
-| --------- | ------------- | ---------------------------- |
-| itemID    | INT           | ID único para o item do menu |
-| nome      | VARCHAR(255)  | Nome do item                 |
-| descricao | TEXT          | Descrição do item            |
-| preco     | DECIMAL(10,2) | Preço do item                |
-| imagemURL | VARCHAR(255)  | URL da imagem do item        |
+| Campo       | Tipo                | Descrição                    |
+| ----------- | ------------------- | ---------------------------- |
+| id          | INT                 | ID único para o item do menu |
+| name        | VARCHAR(255) UNIQUE | Nome do item                 |
+| description | TEXT                | Descrição do item            |
+| price       | DECIMAL(10,2)       | Preço do item                |
+| imagemURL   | VARCHAR(255)        | URL da imagem do item        |
 
-### 3. **Tabela de Pedidos (Pedidos)**
+### 3. **Tabela de Pedidos (OrdersTable)**
 
 Para armazenar os pedidos realizados pelos clientes.
 
 | Campo     | Tipo     | Descrição                                                     |
 | --------- | -------- | ------------------------------------------------------------- |
-| pedidoID  | INT      | ID único para o pedido                                        |
-| usuarioID | INT      | ID do usuário que fez o pedido                                |
-| dataHora  | DATETIME | Data e hora do pedido                                         |
+| id        | INT      | ID único para o pedido                                        |
+| userId    | INT      | ID do usuário que fez o pedido                                |
+| dateHour  | DATETIME | Data e hora do pedido                                         |
 | status    | ENUM     | Status do pedido (ex: recebido, preparando, pronto, entregue) |
 
-### 4. **Tabela de Itens do Pedido (ItensPedido)**
+### 4. **Tabela de Itens do Pedido (ItemsOrderTable)**
 
 Para conectar os pedidos aos itens do menu e armazenar informações específicas do pedido, como a quantidade de cada item.
 
-| Campo        | Tipo | Descrição                          |
-| ------------ | ---- | ---------------------------------- |
-| itemPedidoID | INT  | ID único para o item do pedido     |
-| pedidoID     | INT  | ID do pedido                       |
-| itemID       | INT  | ID do item do menu                 |
-| quantidade   | INT  | Quantidade do item pedido          |
-| observacoes  | TEXT | Observações específicas do cliente |
+| Campo     | Tipo | Descrição                          |
+| --------- | ---- | ---------------------------------- |
+| id        | INT  | ID único para o item do pedido     |
+| OrderID   | INT  | ID do pedido                       |
+| itemID    | INT  | ID do item do menu                 |
+| amount    | INT  | Quantidade do item pedido          |
+| comments  | TEXT | Observações específicas do cliente |
 
 ### Relacionamentos:
 
-- **Usuarios** ↔ **Pedidos:** Um usuário pode fazer vários pedidos, mas cada pedido é feito por um único usuário.
-- **Pedidos** ↔ **ItensPedido:** Um pedido pode conter vários itens, e um item pode aparecer em vários pedidos.
-- **ItensMenu** ↔ **ItensPedido:** Um item do menu pode ser parte de vários pedidos, e cada item do pedido se refere a um item do menu.
+- **Users** ↔ **Orders:** Um usuário pode fazer vários pedidos, mas cada pedido é feito por um único usuário.
+- **Orders** ↔ **ItemsOrder:** Um pedido pode conter vários itens, e um item pode aparecer em vários pedidos.
+- **MenuItems** ↔ **ItemsOrder:** Um item do menu pode ser parte de vários pedidos, e cada item do pedido se refere a um item do menu.
 
 ### Considerações Finais:
 
-- **Chaves Primárias:** Cada tabela deve ter uma chave primária (`usuarioID`, `itemID`, `pedidoID`, `itemPedidoID`).
-- **Chaves Estrangeiras:** Usar chaves estrangeiras para manter a integridade referencial (ex: `usuarioID` em `Pedidos` refere-se a `usuarioID` em `Usuarios`; `itemID` em `ItensPedido` refere-se a `itemID` em `ItensMenu`; `pedidoID` em `ItensPedido` refere-se a `pedidoID` em `Pedidos`).
+- **Chaves Primárias:** Cada tabela deve ter uma chave primária (`id`).
+- **Chaves Estrangeiras:** Usar chaves estrangeiras para manter a integridade referencial.
 - **Indexação:** Considere adicionar índices para colunas frequentemente pesquisadas para melhorar a performance.
 
 Com este design, você terá um banco de dados robusto e bem estruturado, pronto para gerenciar os usuários, pedidos e itens do menu do seu aplicativo de bar.
@@ -215,15 +215,15 @@ api/
     └── utils.go
 ```
 
-1. **handlers**: Este diretório contém os manipuladores HTTP para diferentes endpoints da API. Cada arquivo representa um manipulador relacionado a uma entidade específica, como pedidos, itens do menu e usuários. Também inclui middleware para tratamento de autenticação e autorização.
+1. **handlers/**: Este diretório contém os manipuladores HTTP para diferentes endpoints da API. Cada arquivo representa um manipulador relacionado a uma entidade específica, como pedidos, itens do menu e usuários. Também inclui middleware para tratamento de autenticação e autorização.
 
-2. **models**: Aqui, você encontra os modelos de dados que representam as entidades do sistema, como credenciais, itens de menu, itens de pedido, pedidos e usuários. Esses modelos são usados para mapear dados entre a aplicação e o banco de dados.
+2. **models/**: Aqui, você encontra os modelos de dados que representam as entidades do sistema, como credenciais, itens de menu, itens de pedido, pedidos e usuários. Esses modelos são usados para mapear dados entre a aplicação e o banco de dados.
 
-3. **services**: O diretório de serviços contém lógica de negócios relacionada a cada entidade. Cada serviço corresponde a uma entidade específica, como autenticação, itens do menu, itens do pedido, pedidos e usuários. Essa camada é responsável por fornecer funcionalidades de alto nível para manipulação de dados.
+3. **services/**: O diretório de serviços contém lógica de negócios relacionada a cada entidade. Cada serviço corresponde a uma entidade específica, como autenticação, itens do menu, itens do pedido, pedidos e usuários. Essa camada é responsável por fornecer funcionalidades de alto nível para manipulação de dados.
 
-4. **store**: Aqui estão os pacotes relacionados ao armazenamento de dados, incluindo integração com o banco de dados.
+4. **store/**: Aqui estão os pacotes relacionados ao armazenamento de dados, incluindo integração com o banco de dados.
 
-5. **utils**: Este diretório contém utilitários gerais que podem ser compartilhados em todo o projeto, como funções auxiliares, structs e constantes úteis.
+5. **utils/**: Este diretório contém utilitários gerais que podem ser compartilhados em todo o projeto, como funções auxiliares, structs e constantes úteis.
 
 6. **main.go**: Ponto de entrada da aplicação. Ele contém a configuração da API, o roteamento das rotas HTTP e inicia o servidor web.
 
