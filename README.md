@@ -158,6 +158,28 @@ Com este design, você terá um banco de dados robusto e bem estruturado, pronto
 
 ## Changelog
 
+### 2023/02/09 - version 0.2.1:
+
+This commit introduces several adjustments and enhancements to the API and the Flutter app, focusing on authorization mechanisms and user experience improvements. Here’s a condensed overview of the key changes implemented:
+
+- **API Authorization Adjustments**:
+  - **User Information in Authentication Response**: The authentication response now includes user information, enriching the client-side data available post-authentication.
+  - **Authorization Method**: A new method `isAuthorized(userRole models.Role, path, method string) bool` has been introduced to restrict API route access based on user roles. This preliminary implementation adds essential functionality to the authorization process.
+  - **User Creation Restrictions**: Adjustments have been made to limit the ability of 'waiter' role users to only create 'customer' role users, enhancing the permission structure within the application.
+  - **Private User Creation Route**: The route for creating new users (`/users`) has been moved to private routes to ensure only authorized users can access this functionality.
+
+- **Flutter App Enhancements**:
+  - **Theme and Login Page**: Added a button to switch the app theme and enhance the login page functionality, including a pre-logout feature for testing.
+  - **Login Page and Controller**: The login page is now fully functional, with the addition of a controller using `signal` for managing email, email error, and password visibility, including a method for performing the login process and disposing of signals.
+  - **App Constants and User Model Adjustments**: Introduced a set of constants for the app and made adjustments to the user model, including a method for copying user data.
+  - **Message Dialog Standardization**: Added a method for displaying standardized message dialogs across the app.
+  - **App Configuration and Theme Control**: Integrated token control through `SecureStorageManager`, providing storage for the logged-in user and theme mode, and added theme control to the MaterialApp.
+  - **Secure Storage for Token**: Implemented a service for storing the token securely using `flutter_secure_storage`.
+  - **API URL Configuration**: The API URL has been moved to `AppConst.apiURL` for better management.
+  - **Dependency Addition**: Added the `flutter_secure_storage` package to manage login data and app control securely.
+
+This commit not only refines the security and authorization aspects of the API but also significantly improves the user interface and experience within the Flutter app through thoughtful enhancements and the integration of secure storage solutions.
+
 ### 2024/02/01 version 0.3.0:
 
 Nesta versão, fiz várias alterações e acabei não fazendo o commit no momento correto. No final, praticamente todo o código teve alguma modificação e adicionei apenas algumas partes das mudanças abaixo. No entanto, as partes principais foram a adição de um sistema de autenticação com cookies, a padronização das mensagens de erro e logs nas camadas mais internas do aplicativo.
