@@ -7,6 +7,7 @@ import (
 
 type Status string
 
+// Status for orders
 const (
 	Recebido   Status = "recebido"
 	Preparando Status = "preparando"
@@ -14,7 +15,7 @@ const (
 	Entregue   Status = "entregue"
 )
 
-// Order estrutura dos pedidos no sistema
+// Order structure of orders in the system
 type Order struct {
 	Id       int       `json:"id"`
 	UserId   int       `json:"userId"`

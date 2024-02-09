@@ -11,7 +11,7 @@ class UserPageController {
   final passwordError = signal<String?>(null);
   final role = signal<Role>(Role.cliente);
 
-  validateName() {
+  void validateName() {
     if (name().length < 4) {
       nameError.value = 'Name must have at least 3 characters.';
     } else {
@@ -19,7 +19,7 @@ class UserPageController {
     }
   }
 
-  validateEmail() {
+  void validateEmail() {
     if (!email().contains('@')) {
       emailError.value = 'Enter a valid email.';
     } else {
@@ -27,7 +27,7 @@ class UserPageController {
     }
   }
 
-  validatePassword() {
+  void validatePassword() {
     if (password().length < 4) {
       passwordError.value = 'Password must have at least 4 characters.';
     } else {

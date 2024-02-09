@@ -10,37 +10,43 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// UserHandler gerencia as requisições HTTP para usuários.
+// UserHandler manages HTTP requests for users.
 type UserHandler struct {
 	Service *services.UserService
 }
 
-// NewUserHandler cria uma nova instância de UsuarioHandler.
+// NewUserHandler creates a new instance of UserHandler.
 func NewUserHandler(service *services.UserService) *UserHandler {
 	return &UserHandler{
 		Service: service,
 	}
 }
 
-// CreateUser lida com requisições POST para adicionar um novo usuário.
+// CreateUser handles POST requests to add a new user.
 func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var usuario models.User
-	if err := json.NewDecoder(r.Body).Decode(&usuario); err != nil {
+	var user models.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := handler.Service.CreateUser(&usuario); err != nil {
+	userRoleFromToken, _ := r.Context().Value("Role").(models.Role)
+	if userRoleFromToken == models.Garcom && user.Role != models.Cliente {
+		http.Error(w, "Garçons só podem criar usuários do tipo Cliente.", http.StatusInternalServerError)
+		return
+	}
+
+	if err := handler.Service.CreateUser(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(usuario)
+	json.NewEncoder(w).Encode(user)
 }
 
-// GetUser lida com requisições GET para buscar um usuário pelo ID.
+// GetUser handles GET requests to look up a user by ID.
 func (handler *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -55,13 +61,13 @@ func (handler *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.PasswordHash = "" // mantém informações confidenciais no servidor
+	user.PasswordHash = "" // keeps confidential information on the server
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
-// UpdateUser lida com requisições PUT para atualizar um usuário existente.
+// UpdateUser handles PUT requests to update an existing user.
 func (handler *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var usuario models.User
 	if err := json.NewDecoder(r.Body).Decode(&usuario); err != nil {
@@ -79,7 +85,7 @@ func (handler *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(usuario)
 }
 
-// DeleteUser lida com requisições DELETE para remover um usuário.
+// DeleteUser handles DELETE requests to remove a user.
 func (handler *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])

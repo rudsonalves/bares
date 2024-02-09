@@ -61,24 +61,24 @@ func main() {
 
 	// Rotas públicas
 	route.HandleFunc("/login", authHandler.LoginHandlers).Methods("POST")
-	route.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
 
 	// Rotas privadas
 	api := route.PathPrefix("/api").Subrouter()
 	api.Use(handlers.AuthMiddleware) // Aplica o middleware de autenticação
 
 	// As rotas abaixo requerem autenticação
+	api.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
 	api.HandleFunc("/menuitem", menuItemHandler.CreateMenuItem).Methods("POST")
 	api.HandleFunc("/order", orderHandler.CreateOrder).Methods("POST")
 	api.HandleFunc("/itemorder", menuItemHandler.CreateMenuItem).Methods("POST")
 
 	api.HandleFunc("/users/{id}", userHandler.GetUser).Methods("GET")
-	api.HandleFunc("/itemmenu/{id}", menuItemHandler.GetMenuItem).Methods("GET")
 	api.HandleFunc("/itemmenu", menuItemHandler.GetAllMenuItem).Methods("GET")
+	api.HandleFunc("/itemmenu/{id}", menuItemHandler.GetMenuItem).Methods("GET")
 	api.HandleFunc("/itemmenu/name/{name}", menuItemHandler.GetMenuItemByNome).Methods("GET")
+	api.HandleFunc("/order", orderHandler.GetPendingOrder).Methods("GET")
 	api.HandleFunc("/order/{id}", orderHandler.GetOrder).Methods("GET")
 	api.HandleFunc("/order/user/{id}", orderHandler.GetOrderByUser).Methods("GET")
-	api.HandleFunc("/order", orderHandler.GetPendingOrder).Methods("GET")
 	api.HandleFunc("/itemorder/{id}", itemOrderHandler.GetIItemOrder).Methods("GET")
 
 	api.HandleFunc("/users/{id}", userHandler.UpdateUser).Methods("PUT")

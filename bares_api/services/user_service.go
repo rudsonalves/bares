@@ -10,7 +10,7 @@ import (
 	"regexp"
 )
 
-// UserService fornece métodos para operações relacionadas a usuários.
+// UserService provides methods for user-related operations.
 type UserService struct {
 	store store.UsuarioStorer
 }
@@ -23,35 +23,35 @@ type UserServiceInterface interface {
 	CheckIfAdminExists() (bool, error)
 }
 
-// Garanta que UserService implementa UserServiceInterface.
+// Ensure that UserService implements User Service Interface.
 var _ UserServiceInterface = &UserService{}
 
-// NewUsuarioService cria uma nova instância de UsuarioService.
+// NewUsuarioService creates a new instance of UsuarioService.
 func NewUsuarioService(store store.UsuarioStorer) *UserService {
 	return &UserService{
 		store: store,
 	}
 }
 
-// CreateUser trata da lógica de negócios para criar um novo usuário.
+// CreateUser handles the business logic for creating a new user.
 func (service *UserService) CreateUser(u *models.User) error {
-	// Validar e-mail.
+	// Validate e-mail.
 	if err := validarEmail(u.Email); err != nil {
 		log.Print("erro CreateUsuario: ", err)
 		return fmt.Errorf("erro CreateUsuario: %v", err)
 	}
-	// Validar papel
-	if err := validarPapel(u.Email, string(u.Role)); err != nil {
+	// Validate papel
+	if err := validateRope(u.Email, string(u.Role)); err != nil {
 		log.Print("Validar Papel: ", err)
 		return err
 	}
 
-	// Verificar se o e-mail já está em uso:
+	// Check if the email is already in use
 	existingUser, err := service.store.GetUserByEmail(u.Email)
 	if err != nil {
-		// Verifica se o erro é um erro de "nenhum registro encontrado"
+		// Checks if the error is a "no records found" error
 		if err == sql.ErrNoRows {
-			// Não é realmente um erro neste caso, então continue.
+			// It's not really an error in this case, so continue.
 			log.Print("Usuário não encontrado, pronto para criar um novo.")
 		} else {
 			log.Print("service.store.GetUsuarioByEmail: ", err)
@@ -62,25 +62,26 @@ func (service *UserService) CreateUser(u *models.User) error {
 		return fmt.Errorf("email '%s' já está em uso", u.Email)
 	}
 
-	// Continuar com a criação do usuário
+	//Continue with user creation
 	return service.store.CreateUser(u)
 }
 
-// GetUser trata da lógica para recuperar um usuário pelo ID.
+// GetUser handles the logic to retrieve a user by ID.
 func (service *UserService) GetUser(id int) (*models.User, error) {
 	return service.store.GetUser(id)
 }
 
-// UpdateUser trata da lógica para atualizar um usuário existente.
+// UpdateUser handles the logic for update an existing user.
 func (service *UserService) UpdateUser(u *models.User) error {
 	return service.store.UpdateUser(u)
 }
 
-// DeleteUser trata da lógica para deletar um usuário.
+// DeleteUser handles the logic for delete an user.
 func (service *UserService) DeleteUser(id int) error {
 	return service.store.DeleteUser(id)
 }
 
+// CheckIfAdminExists checks if an administration user exists in the database
 func (service *UserService) CheckIfAdminExists() (bool, error) {
 	users, err := service.store.GetUsersByRole(models.Admin)
 	if err != nil {
@@ -92,7 +93,7 @@ func (service *UserService) CheckIfAdminExists() (bool, error) {
 	return false, nil
 }
 
-// validarEmail valida o email
+// validarEmail validate the email
 func validarEmail(email string) error {
 	strRE := `^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 
@@ -102,9 +103,9 @@ func validarEmail(email string) error {
 	return nil
 }
 
-// validarPapel verifica se o email iniciar com mesa[0-9]{2,}, número da mesa.
-// Neste caso o papel só pode ser cliente
-func validarPapel(email string, papel string) error {
+// validateRope checks if the email starts with mesa[0-9]{2,}, 'mesa' + table number.
+// In this case the role can only be 'cliente'.
+func validateRope(email string, papel string) error {
 	strRE := `^mesa[0-9]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 
 	if ok, _ := regexp.MatchString(strRE, email); ok {

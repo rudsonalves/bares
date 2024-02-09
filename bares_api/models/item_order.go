@@ -1,6 +1,6 @@
 package models
 
-// ItemOrder estrutura dos itens pedidos no sistema
+// ItemOrder structure of items ordered in the system
 type ItemOrder struct {
 	Id       int    `json:"id"`
 	OrderId  int    `json:"orderId"`

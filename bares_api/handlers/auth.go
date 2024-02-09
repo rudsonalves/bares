@@ -32,7 +32,7 @@ func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request
 	}
 
 	// Lógica de validação das credenciais
-	papel, err := handler.Service.ValidateCredentials(credentials)
+	user, err := handler.Service.ValidateCredentials(credentials)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
@@ -41,7 +41,7 @@ func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request
 	// Gerar Token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": credentials.Email,
-		"papel": papel,
+		"papel": string(user.Role),
 		"exp":   time.Now().Add(time.Hour * 24).Unix(), // Token expira em 24 horas
 	})
 
@@ -51,7 +51,18 @@ func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Preparar a resposta, incluindo o token e as informações do usuário
+	response := map[string]interface{}{
+		"token": tokenString,
+		"user": map[string]interface{}{
+			"id":    user.Id,
+			"name":  user.Name,
+			"email": user.Email,
+			"role":  user.Role,
+		},
+	}
+
 	// Retornar o token
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+	json.NewEncoder(w).Encode(response)
 }

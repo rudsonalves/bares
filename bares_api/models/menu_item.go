@@ -1,6 +1,6 @@
 package models
 
-// MenuItem estrutura dos itens de menu do sistema
+// MenuItem structure of system menu items
 type MenuItem struct {
 	Id          int     `json:"id"`
 	Name        string  `json:"name"`
