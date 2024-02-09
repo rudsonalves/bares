@@ -166,36 +166,51 @@ Com este design, você terá um banco de dados robusto e bem estruturado, pronto
 Esta é a árvode de módulos da Bares API:
 
 ```
-bares_api$ tree .
-.
+api/
 ├── go.mod
 ├── go.sum
 ├── main.go
+├── bootstrap
+│   └── bootstrap.go
 ├── handlers
 │   ├── auth.go
-│   ├── item_menu_handler.go
-│   ├── item_pedido_handler.go
+│   ├── item_order_handler.go
+│   ├── menu_item_handler.go
 │   ├── middleware.go
-│   ├── pedido_handler.go
-│   └── usuario_handler.go
+│   ├── order_handler.go
+│   ├── user_handler.go
+│   └── integration
+│       ├── common_integration.go
+│       └── user_handler_integration_test.go
 ├── models
 │   ├── credentials.go
-│   ├── item_menu.go
-│   ├── item_pedido.go
-│   ├── pedido.go
-│   └── usuario.go
+│   ├── item_order.go
+│   ├── menu_item.go
+│   ├── order.go
+│   └── user.go
 ├── services
 │   ├── auth_service.go
-│   ├── item_menu_service.go
-│   ├── item_pedido_service.go
-│   ├── pedido_service.go
-│   └── usuario_service.go
+│   ├── item_order_service.go
+│   ├── menu_item_service.go
+│   ├── order_service.go
+│   └── user_service.go
 ├── store
 │   ├── database.go
-│   ├── item_menu_store.go
-│   ├── item_pedido_store.go
-│   ├── pedido_store.go
-│   └── usuario_store.go
+│   ├── item_order_store.go
+│   ├── menu_item_store.go
+│   ├── order_store.go
+│   ├── user_store.go
+│   ├── integration
+│   │   ├── common_integration.go
+│   │   ├── database_integration_test.go
+│   │   ├── menu_item_store_integration_test.go
+│   │   ├── order_integration_test.go
+│   │   └── user_store_integration_test.go
+│   └── store_test
+│       ├── database_test.go
+│       ├── item_order_store_test.go
+│       ├── menu_item_store_test.go
+│       └── user_store_test.go
 └── utils
     └── utils.go
 ```
