@@ -1,8 +1,8 @@
 import 'package:signals/signals.dart';
 
-import '../../common/models/user_model.dart';
+import '../../../common/models/user_model.dart';
 
-class UserPageController {
+class EditController {
   final name = signal<String>('');
   final nameError = signal<String?>(null);
   final email = signal<String>('');
@@ -10,6 +10,13 @@ class UserPageController {
   final password = signal<String>('');
   final passwordError = signal<String?>(null);
   final role = signal<Role>(Role.cliente);
+
+  void init(UserModel user) {
+    name.value = user.name;
+    email.value = user.email;
+    // password.value = user.password ?? '';
+    role.value = user.role;
+  }
 
   void validateName() {
     if (name().length < 4) {
@@ -35,10 +42,15 @@ class UserPageController {
     }
   }
 
-  bool isValid() {
+  bool isValid([bool withPasswordCheck = true]) {
     validateName();
     validateEmail();
-    validatePassword();
+
+    if (withPasswordCheck) {
+      validatePassword();
+    } else {
+      passwordError.value = null;
+    }
 
     return nameError() == null &&
         emailError() == null &&

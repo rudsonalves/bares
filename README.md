@@ -110,7 +110,7 @@ Para gerenciar os usuários que podem logar no app (gerentes, garçons).
 | name       | VARCHAR(255)        | Nome do usuário                           |
 | email      | VARCHAR(255) UNIQUE | Email do usuário                          |
 | pasworHash | VARCHAR(255)        | Hash da senha para autenticação           |
-| role       | ENUM                | Papel (ex: cliente, garçom, gerente, ...) |
+| role       | ENUM                | Role (ex: cliente, garçom, gerente, ...) |
 
 ### 2. **Tabela de Itens do Menu (MenuItemsTable)**
 
@@ -253,7 +253,135 @@ This commit introduces several adjustments and enhancements to the API and the F
 
 This commit not only refines the security and authorization aspects of the API but also significantly improves the user interface and experience within the Flutter app through thoughtful enhancements and the integration of secure storage solutions.
 
-### 2024/02/01 version 0.3.0:
+## Change Log 
+
+### 2024/02/14 - version: 0.2.2
+
+This commit further advances the API and Flutter app by enhancing English translations for comments, logs, and messages, improving user management features, and adding new images for the dashboard. Here's a summary of the significant updates:
+
+- **API Enhancements**:
+  - **Password Validation**: The `CheckAndCreateAdminUser` function now utilizes `EvaluatePasswordStrength` for password validation.
+  - **Logging Improvements**: New log messages have been added across various handlers (`auth.go`, `item_order_handler.go`, `menu_item_handler.go`, `order_handler.go`) to better track API execution and error evaluations.
+  - **User Management**: The `user_handler.go` introduces `GetAllUsers` for listing system users and `UpdateUserPass` for password updates, alongside log message enhancements.
+  - **Database Connection Test**: The database now tests the connection with `db.Ping()` to ensure reliability.
+  - **SQL Constants and Methods**: New constants and methods for user retrieval and password updates enhance user store operations, avoiding password manipulation in user updates.
+  - **Utility Functions**: Separation of `CreateDataBaseConn` into `database_functions.go` and renaming `utils.go` to `generic_functions.go`, including improvements like `GenerateRandomPassword` utilizing `EvaluatePasswordStrength`.
+
+- **Flutter App Updates**:
+  - **Dashboard Images**: New images have been added to `flutter_app/assets/images/` for the dashboard, enhancing the UI.
+  - **Navigation and Error Handling**: Adjustments in `app_page.dart` and `login_controller.dart` improve app navigation and clarify login error messages.
+  - **User Editing**: The `edit_page.dart` and `edit_controller.dart` receive updates for more intuitive user management, including a method for initializing user data and adjusting validation checks.
+  - **User Listing and Management**: The `users_page.dart` now displays a user list for management actions, supported by enhanced user model functions and API service exceptions for clearer error handling.
+
+This commit significantly enhances both the backend API and the Flutter frontend, focusing on user management, error handling, and overall usability improvements, alongside the introduction of new visual elements for a more engaging user interface.
+
+
+### 2024/02/10 - version 0.2.1
+
+This commit introduces several adjustments and enhancements to the API and the Flutter app, focusing on authorization mechanisms and user experience improvements. Here’s a condensed overview of the key changes implemented:
+
+- **API Authorization Adjustments**:
+  - **User Information in Authentication Response**: The authentication response now includes user information, enriching the client-side data available post-authentication.
+  - **Authorization Method**: A new method `isAuthorized(userRole models.Role, path, method string) bool` has been introduced to restrict API route access based on user roles. This preliminary implementation adds essential functionality to the authorization process.
+  - **User Creation Restrictions**: Adjustments have been made to limit the ability of 'waiter' role users to only create 'customer' role users, enhancing the permission structure within the application.
+  - **Private User Creation Route**: The route for creating new users (`/users`) has been moved to private routes to ensure only authorized users can access this functionality.
+
+- **Flutter App Enhancements**:
+  - **Theme and Login Page**: Added a button to switch the app theme and enhance the login page functionality, including a pre-logout feature for testing.
+  - **Login Page and Controller**: The login page is now fully functional, with the addition of a controller using `signal` for managing email, email error, and password visibility, including a method for performing the login process and disposing of signals.
+  - **App Constants and User Model Adjustments**: Introduced a set of constants for the app and made adjustments to the user model, including a method for copying user data.
+  - **Message Dialog Standardization**: Added a method for displaying standardized message dialogs across the app.
+  - **App Configuration and Theme Control**: Integrated token control through `SecureStorageManager`, providing storage for the logged-in user and theme mode, and added theme control to the MaterialApp.
+  - **Secure Storage for Token**: Implemented a service for storing the token securely using `flutter_secure_storage`.
+  - **API URL Configuration**: The API URL has been moved to `AppConst.apiURL` for better management.
+  - **Dependency Addition**: Added the `flutter_secure_storage` package to manage login data and app control securely.
+
+This commit not only refines the security and authorization aspects of the API but also significantly improves the user interface and experience within the Flutter app through thoughtful enhancements and the integration of secure storage solutions.
+
+
+### 2024/02/07 - version: 0.2.0
+
+In this commit, we have conducted extensive renaming to standardize the Go API base (`bares_api/*`) in English, while also initiating the implementation of the Flutter app, adopting new technologies such as `signal` for advanced reactivity in widgets, and `RouteFly` to optimize automatic route generation based on directory structure, marking a significant advancement in the project's usability and development. Below are more details on the changes made in this commit:
+
+* **bares_api/bootstrap/bootstrap.go**:
+  - Adds the function `CheckAndCreateAdminUser(userService *services.UserService) error` to check if an Administrator Role user exists in the system. If not, a new admin user will be created;
+  - Added a local function `func isPasswordStrong(password string) bool` to verify password strength. Currently, the password must be at least 8 characters and include uppercase letters, lowercase letters, and numbers.
+
+* **bares_api/handlers/integration/common_integration.go**:
+  - Added the function `UsersGenerate() []models.User` to return a list of users;
+  - `MenuItemsGenerate` and `OrdersGenerate` are functions that generate `MenuItems` and `Orders`, respectively. They are not being used at the moment.
+
+* **bares_api/handlers/integration/user_handler_integration_test.go**:
+* **bares_api/handlers/user_handler.go**:
+* **bares_api/models/credentials.go**:
+* **bares_api/models/item_order.go**:
+* **bares_api/models/menu_item.go**:
+* **bares_api/models/order.go**:
+* **bares_api/services/auth_service.go**:
+* **bares_api/services/menu_item_service.go**:
+* **bares_api/store/database.go**:
+* **bares_api/store/integration/common_integration.go**:
+* **bares_api/store/integration/menu_item_store_integration_test.go**:
+* **bares_api/store/integration/order_integration_test.go**:
+* **bares_api/store/integration/user_store_integration_test.go**:
+* **bares_api/store/item_order_store.go**:
+* **bares_api/store/menu_item_store.go**:
+* **bares_api/store/order_store.go**:
+* **bares_api/store/store_test/database_test.go**:
+* **bares_api/store/store_test/item_order_store_test.go**:
+* **bares_api/store/store_test/menu_item_store_test.go**:
+* **bares_api/store/store_test/user_store_test.go**:
+  - Adjusted so that names of attributes, functions, structs, etc., are in English.
+
+* **bares_api/main.go**:
+  - In addition to renaming attributes, functions, etc., this package now uses `utils.CreateConnString` to generate the connection string.
+
+* **bares_api/models/user.go**:
+  - In addition to renaming attributes, functions, etc., a `String()` method has been added to the `User` struct.
+
+* **bares_api/services/user_service.go**:
+  - In addition to renaming attributes, functions, etc., the `UserServiceInterface` interface has been added to the `&UserService`;
+  - Added the method `CheckIfAdminExists() (bool, error)` to check for the existence of an admin user.
+
+* **bares_api/store/user_store.go**:
+  - In addition to renaming attributes, functions, etc., the method `GetUsersByRole(role models.Role) ([]*models.User, error)` has been added to load users by role (`Role`).
+
+* **bares_api/utils/utils.go**:
+  - The method `CreateConnString(dbName string) string` has been transferred to the `utils` package.
+
+* **bares_app/lib/app/app_page.dart**:
+* **bares_app/lib/app/dashboard/dashboard_page.dart**:
+* **bares_app/lib/app/login/login_page.dart**:
+* **bares_app/lib/app/splash/splash_page.dart**:
+  - Added a simple page, still without functionalities.
+
+* **bares_app/lib/app/user/user_page.dart**:
+* **bares_app/lib/app/user/user_page_controller.dart**:
+  - Added a page for user registration and editing.
+  - Added a controller to manage the form elements of the user page, using `signal` for both reactivity and field validation.
+
+* **bares_app/lib/common/models/item_order_model.dart**:
+* **bares_app/lib/common/models/menu_item_model.dart**:
+* **bares_app/lib/common/models/order_model.dart**:
+* **bares_app/lib/common/models/user_model.dart**:
+  - Added models for database elements;
+  - The enums for `Role` and `Status` were enhanced with the addition of standard enum extensions to add methods:
+    - `static EnumName fromString(String)` - to convert a string into the corresponding enum;
+    - `static List<String> stringList()` - to return a list of strings with the names of the enums
+
+.
+
+* **bares_app/lib/common/theme/color_schemes.dart**:
+  - Added a green-based theme for the Flutter app.
+
+* **bares_app/lib/material_app.dart**:
+  - Applied `RouteFlay` to create automatic routing of app pages. This routing is done automatically based on the pages placed in the `lib/app` folder.
+
+* **bares_app/lib/services/users_api_service.dart**:
+  - Created the `UsersApiService` class to encapsulate the API part related to user manipulation. Currently, only the method `createUser(UserModel user)` has been implemented.
+
+
+### 2024/02/01 version 0.1.0:
 
 Nesta versão, fiz várias alterações e acabei não fazendo o commit no momento correto. No final, praticamente todo o código teve alguma modificação e adicionei apenas algumas partes das mudanças abaixo. No entanto, as partes principais foram a adição de um sistema de autenticação com cookies, a padronização das mensagens de erro e logs nas camadas mais internas do aplicativo.
 

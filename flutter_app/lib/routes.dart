@@ -1,37 +1,19 @@
 import 'package:routefly/routefly.dart';
 
 import 'app/app_page.dart' as a4;
-import 'app/dashboard/dashboard_page.dart' as a3;
-import 'app/login/login_page.dart' as a2;
-import 'app/splash/splash_page.dart' as a1;
-import 'app/user/user_page.dart' as a0;
+import 'app/dashboard/dashboard_page.dart' as a1;
+import 'app/login/login_page.dart' as a0;
+import 'app/users/edit/edit_page.dart' as a3;
+import 'app/users/users_page.dart' as a2;
 
 List<RouteEntity> get routes => [
-  RouteEntity(
-    key: '/user',
-    uri: Uri.parse('/user'),
-    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
-      ctx,
-      settings,
-      const a0.UserPage(),
-    ),
-  ),
-  RouteEntity(
-    key: '/splash',
-    uri: Uri.parse('/splash'),
-    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
-      ctx,
-      settings,
-      const a1.SplashPage(),
-    ),
-  ),
   RouteEntity(
     key: '/login',
     uri: Uri.parse('/login'),
     routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
       ctx,
       settings,
-      const a2.LoginPage(),
+      const a0.LoginPage(),
     ),
   ),
   RouteEntity(
@@ -40,7 +22,25 @@ List<RouteEntity> get routes => [
     routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
       ctx,
       settings,
-      const a3.DashboardPage(),
+      const a1.DashboardPage(),
+    ),
+  ),
+  RouteEntity(
+    key: '/users',
+    uri: Uri.parse('/users'),
+    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+      ctx,
+      settings,
+      const a2.UsersPage(),
+    ),
+  ),
+  RouteEntity(
+    key: '/users/edit',
+    uri: Uri.parse('/users/edit'),
+    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+      ctx,
+      settings,
+      const a3.EditPage(),
     ),
   ),
   RouteEntity(
@@ -56,8 +56,10 @@ List<RouteEntity> get routes => [
 
 const routePaths = (
   path: '/',
-  user: '/user',
-  splash: '/splash',
   login: '/login',
   dashboard: '/dashboard',
+  users: (
+    path: '/users',
+    edit: '/users/edit',
+  ),
 );

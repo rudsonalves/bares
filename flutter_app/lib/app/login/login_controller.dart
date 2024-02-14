@@ -27,7 +27,7 @@ class ServerException implements Exception {
   String toString() => "Erro de servidor: $message";
 }
 
-class LoginPageController {
+class LoginController {
   final email = signal<String>('');
   final emailError = signal<String?>(null);
   final password = signal<String>('');
@@ -57,7 +57,7 @@ class LoginPageController {
   Future<void> login() async {
     try {
       var response = await http.post(
-        Uri.parse('${AppConst.apiURL}/login'),
+        Uri.parse('${AppConst.apiUrl}/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email.value,
@@ -85,9 +85,14 @@ class LoginPageController {
         log(message);
         throw ServerException(message);
       }
+    } on LoginException {
+      rethrow;
+    } on ServerException {
+      rethrow;
     } catch (err) {
-      log(err.toString());
-      throw ServerException('Erro ao tentar login: $err');
+      final message = 'Erro ao tentar login: $err';
+      log(message);
+      throw ServerException(message);
     }
   }
 }

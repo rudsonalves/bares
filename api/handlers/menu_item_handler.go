@@ -37,7 +37,9 @@ func (handler *MenuItemHandler) CreateMenuItem(w http.ResponseWriter, r *http.Re
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(menuItem)
+	if err := json.NewEncoder(w).Encode(menuItem); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // GetMenuItem lida com requisições GET para buscar um ItemMenu pelo ID.
@@ -56,7 +58,9 @@ func (handler *MenuItemHandler) GetMenuItem(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(itemMenu)
+	if err := json.NewEncoder(w).Encode(itemMenu); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // UpdateMenuItem lida com requisições PUT para atualizar um ItemMenu existente.
@@ -74,7 +78,9 @@ func (handler *MenuItemHandler) UpdateMenuItem(w http.ResponseWriter, r *http.Re
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(menuItem)
+	if err := json.NewEncoder(w).Encode(menuItem); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // DeleteMenuItem lida com requisições DELETE para remover um ItemMenu.
@@ -104,7 +110,9 @@ func (handler *MenuItemHandler) GetAllMenuItem(w http.ResponseWriter, r *http.Re
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(itensMenu)
+	if err := json.NewEncoder(w).Encode(itensMenu); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // GetMenuItemByNome lida com requisições GET para retorna um item pelo nome
@@ -123,5 +131,7 @@ func (handler *MenuItemHandler) GetMenuItemByNome(w http.ResponseWriter, r *http
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(itemMenu)
+	if err := json.NewEncoder(w).Encode(itemMenu); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

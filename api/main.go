@@ -6,6 +6,7 @@ import (
 	"bares_api/services"
 	"bares_api/store"
 	"bares_api/utils"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -14,89 +15,94 @@ import (
 )
 
 func main() {
-	const dbName = "BarDB" // Nome do Banco de dados
+	const dbName = "BarDB" // Database name
 
-	// Pega usuário e senha do banco de dados
-	connString := utils.CreateConnString(dbName)
-
-	// Start database
-	dbStore, err := store.DatabaseOpen(dbName, connString)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Get username and password and connect to the database
+	dbStore := utils.CreateDataBaseConn(dbName)
 	defer dbStore.DatabaseClose()
 
-	err = dbStore.CreateDatabase()
+	err := dbStore.CreateDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Inicializar stores
+	// Starting stores
 	userStore := store.NewUser(dbStore.DB)
 	menuItemStore := store.NewMenuItem(dbStore.DB)
 	orderStore := store.NewOrder(dbStore.DB)
 	itemOrderStore := store.NewItemOrder(dbStore.DB)
 
-	// Inicializar services
+	// Starting services
 	userService := services.NewUsuarioService(userStore)
 	authService := services.NewAuthservice(userStore)
 	menuItemService := services.NewItemMenuService(menuItemStore)
 	orderService := services.NewPedidoService(orderStore)
 	itemOrderService := services.NewItemPedidoService(itemOrderStore)
 
-	// Inicializar handlers
+	// Starting handlers
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService)
-	menuItemHandler := handlers.NewMenuItemHandler(menuItemService)
+	itemMenuHandler := handlers.NewMenuItemHandler(menuItemService)
 	orderHandler := handlers.NewOrderHandler(orderService)
 	itemOrderHandler := handlers.NewItemOrderHandler(itemOrderService)
 
-	// Verifica se existe um usuário 'admin' e um 'gerente'.
+	// Check if there is an 'admin' user or 'gerente' user.
 	if err := bootstrap.CheckAndCreateAdminUser(userService); err != nil {
 		log.Fatalf("Failed to create admin user: %v", err)
 	}
 
-	// Configurar rotas
+	// Configure routes
 	route := mux.NewRouter()
 
-	// Rotas públicas
+	// Public Routes
 	route.HandleFunc("/login", authHandler.LoginHandlers).Methods("POST")
 
-	// Rotas privadas
+	// Private Routes
 	api := route.PathPrefix("/api").Subrouter()
-	api.Use(handlers.AuthMiddleware) // Aplica o middleware de autenticação
+	api.Use(handlers.AuthMiddleware) // Apply authentication middleware
 
-	// As rotas abaixo requerem autenticação
+	// The routes below require authentication
 	api.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
-	api.HandleFunc("/menuitem", menuItemHandler.CreateMenuItem).Methods("POST")
+	api.HandleFunc("/menuitem", itemMenuHandler.CreateMenuItem).Methods("POST")
 	api.HandleFunc("/order", orderHandler.CreateOrder).Methods("POST")
-	api.HandleFunc("/itemorder", menuItemHandler.CreateMenuItem).Methods("POST")
+	api.HandleFunc("/itemorder", itemOrderHandler.CreateItemOrder).Methods("POST")
 
 	api.HandleFunc("/users/{id}", userHandler.GetUser).Methods("GET")
-	api.HandleFunc("/itemmenu", menuItemHandler.GetAllMenuItem).Methods("GET")
-	api.HandleFunc("/itemmenu/{id}", menuItemHandler.GetMenuItem).Methods("GET")
-	api.HandleFunc("/itemmenu/name/{name}", menuItemHandler.GetMenuItemByNome).Methods("GET")
+	api.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
+	api.HandleFunc("/itemmenu", itemMenuHandler.GetAllMenuItem).Methods("GET")
+	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.GetMenuItem).Methods("GET")
+	api.HandleFunc("/itemmenu/name/{name}", itemMenuHandler.GetMenuItemByNome).Methods("GET")
 	api.HandleFunc("/order", orderHandler.GetPendingOrder).Methods("GET")
 	api.HandleFunc("/order/{id}", orderHandler.GetOrder).Methods("GET")
 	api.HandleFunc("/order/user/{id}", orderHandler.GetOrderByUser).Methods("GET")
 	api.HandleFunc("/itemorder/{id}", itemOrderHandler.GetIItemOrder).Methods("GET")
 
 	api.HandleFunc("/users/{id}", userHandler.UpdateUser).Methods("PUT")
-	api.HandleFunc("/itemmenu/{id}", menuItemHandler.UpdateMenuItem).Methods("PUT")
+	api.HandleFunc("/users/password/{id}", userHandler.UpdateUserPass).Methods("PUT")
+	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.UpdateMenuItem).Methods("PUT")
 	api.HandleFunc("/order/{id}", orderHandler.UpdateOrder).Methods("PUT")
 	api.HandleFunc("/itemorder/{id}", itemOrderHandler.UpdateItemOrder).Methods("PUT")
 
 	api.HandleFunc("/users/{id}", userHandler.DeleteUser).Methods("DELETE")
-	api.HandleFunc("/itemmenu/{id}", menuItemHandler.DeleteMenuItem).Methods("DELETE")
+	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.DeleteMenuItem).Methods("DELETE")
 	api.HandleFunc("/order/{id}", orderHandler.DeleteOrder).Methods("DELETE")
 	api.HandleFunc("/itemorder/{id}", itemOrderHandler.DeleteItemOrder).Methods("DELETE")
 
-	// Iniciar servidor
-	log.Println("Server is running on port 8080")
-	if err := http.ListenAndServe(":8080", route); err != nil {
+	// Starting Server
+	const serverDoor int = 8080
+	ip, err := utils.IPCheck()
+	if err != nil {
+		log.Println("Ip detection error!")
+	}
+	apiDoor := fmt.Sprintf(":%d", serverDoor)
+
+	fmt.Println()
+	// log.SetOutput(os.Stdout)
+	log.Printf("Server is running on port http://%s%s:\n", ip, apiDoor)
+	if err := http.ListenAndServe(apiDoor, route); err != nil {
 		log.Fatal("Error starting server: ", err)
 	}
 
-	// A linha abaixo só será alcançada se `http.ListenAndServe` retornar um erro.
+	// The line below will only be reached if `http.ListenAndServe` returns an error.
 	log.Println("Server stopped")
 }

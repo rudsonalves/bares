@@ -37,7 +37,9 @@ func (handler *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(pedido)
+	if err := json.NewEncoder(w).Encode(pedido); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // GetOrder lida com requisições GET para buscar um Pedido pelo ID.
@@ -56,7 +58,9 @@ func (handler *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(pedido)
+	if err := json.NewEncoder(w).Encode(pedido); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // UpdateOrder lida com requisições PUT para atualizar um Pedido existente.
@@ -74,7 +78,9 @@ func (handler *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(order)
+	if err := json.NewEncoder(w).Encode(order); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // DeleteOrder lida com requisições DELETE para remover um Pedido.
@@ -110,7 +116,9 @@ func (handler *OrderHandler) GetOrderByUser(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(pedidos)
+	if err := json.NewEncoder(w).Encode(pedidos); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // GetPendingOrder busca todos os pedidos de um usuário específico pelo usuarioID.
@@ -122,5 +130,7 @@ func (handler *OrderHandler) GetPendingOrder(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(pedidos)
+	if err := json.NewEncoder(w).Encode(pedidos); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

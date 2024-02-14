@@ -64,6 +64,14 @@ class UserModel {
     role = user.role;
   }
 
+  void clearUser() {
+    id = null;
+    name = '';
+    email = '';
+    password = null;
+    role = Role.cliente;
+  }
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,

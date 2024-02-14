@@ -3,6 +3,7 @@ package handlers
 import (
 	"bares_api/models"
 	"bares_api/services"
+	"log"
 
 	"encoding/json"
 	"net/http"
@@ -26,7 +27,9 @@ func NewAuthHandler(service *services.AuthService) *AuthHandler {
 // LoginHandlers
 func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request) {
 	var credentials models.Credentials
+	log.Println("AuthHandler.LoginHandlers: starting...")
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
+		log.Printf("AuthHandler.LoginHandlers 0: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -34,6 +37,7 @@ func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request
 	// Lógica de validação das credenciais
 	user, err := handler.Service.ValidateCredentials(credentials)
 	if err != nil {
+		log.Printf("AuthHandler.LoginHandlers 1: %v", err)
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
@@ -41,12 +45,13 @@ func (handler *AuthHandler) LoginHandlers(w http.ResponseWriter, r *http.Request
 	// Gerar Token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": credentials.Email,
-		"papel": string(user.Role),
+		"role":  string(user.Role),
 		"exp":   time.Now().Add(time.Hour * 24).Unix(), // Token expira em 24 horas
 	})
 
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
+		log.Printf("AuthHandler.LoginHandlers 2: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

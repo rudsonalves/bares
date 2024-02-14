@@ -46,7 +46,7 @@ func TestUserStoreIntegration(t *testing.T) {
 			t.Errorf("Usuário recuperado não corresponde ao usuário criado")
 		}
 
-		// Testar UpdateUsuario
+		// Testar UpdateUser
 		retrievedUser.Name = "Novo Nome"
 		err = storeUsers.UpdateUser(retrievedUser)
 		if err != nil {

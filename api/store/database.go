@@ -62,6 +62,12 @@ func DatabaseOpen(dbName string, connString string) (*DatabaseStore, error) {
 		return nil, err
 	}
 
+	// Testa a conexão com o banco de dados
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
 	store := NewDatabaseStore(dbName, db)
 	return store, nil
 }
