@@ -111,7 +111,7 @@ Para gerenciar os usuários que podem logar no app (gerentes, garçons).
 | nome      | VARCHAR(255) | Nome do usuário                      |
 | email     | VARCHAR(255) | Email do usuário                     |
 | senhaHash | VARCHAR(255) | Hash da senha para autenticação      |
-| papel     | ENUM         | Papel (ex: cliente, garçom, gerente) |
+| role      | ENUM         | Role (ex: cliente, garçom, gerente) |
 
 ### 2. **Tabela de Itens do Menu (ItensMenu)**
 

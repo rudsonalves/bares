@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<void> showMessage(
+Future<void> showMessageDialog(
   BuildContext context, {
   required String title,
   required String message,

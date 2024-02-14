@@ -1,9 +1,10 @@
+import 'package:bares_app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../common/widgets/dialogs.dart';
-import 'login_page_controller.dart';
+import 'login_controller.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,7 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final controller = LoginPageController();
+  final controller = LoginController();
   final visibility = signal<bool>(false);
 
   @override
@@ -28,17 +29,17 @@ class _LoginPageState extends State<LoginPage> {
       try {
         await controller.login();
         if (!context.mounted) return;
-        Routefly.navigate('/');
+        Routefly.navigate(routePaths.dashboard);
       } on LoginException catch (_) {
         if (!context.mounted) return;
-        showMessage(
+        showMessageDialog(
           context,
           title: 'Erro nas Credenciais',
           message: 'Email ou senha inválida. Tente novamente',
         );
       } on ServerException catch (_) {
         if (!context.mounted) return;
-        showMessage(
+        showMessageDialog(
           context,
           title: 'Erro no Servidor',
           message: 'Aparentemente estamos com um erro no servidor. '

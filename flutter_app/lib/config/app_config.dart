@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../common/models/user_model.dart';
@@ -28,6 +29,9 @@ class AppConfig {
   );
 
   final themeMode = signal<ThemeMode>(ThemeMode.dark);
+
+  bool _isLogged = false;
+  bool get isLogged => _isLogged;
 
   void dispose() {
     themeMode.dispose();
@@ -105,10 +109,34 @@ class AppConfig {
       if (userJson != null) {
         _currentUser.copyUser(UserModel.fromJson(userJson));
       }
+
+      if (_currentUser.id != null) {
+        _isLogged = true;
+        if (await isTokenExpired()) {
+          _currentUser.clearUser();
+          _isLogged = false;
+          await _storage.deleteToken();
+        }
+      }
     } catch (err) {
       final message = 'Falha ao ler a configuração: $err';
       log(message);
       throw StorageException(message);
     }
+  }
+
+  Future<bool> isTokenExpired() async {
+    try {
+      String? token = await _storage.getToken();
+      if (token == null) return true;
+      return Jwt.isExpired(token);
+    } catch (err) {
+      return false;
+    }
+  }
+
+  Future<void> logout() async {
+    await _storage.deleteToken();
+    _currentUser.clearUser();
   }
 }

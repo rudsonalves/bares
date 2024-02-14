@@ -61,7 +61,7 @@ func TestGetUsuarioByEmail(t *testing.T) {
 	defer db.Close()
 
 	// Define as colunas que serão retornadas pelo mock do banco de dados
-	columns := []string{"usuarioID", "nome", "email", "senhaHash", "papel"}
+	columns := []string{"id", "name", "email", "passwordHash", "role"}
 
 	// Define o resultado esperado do mock
 	expectedResult := sqlmock.NewRows(columns).
@@ -143,7 +143,7 @@ func TestGetUsuario(t *testing.T) {
 	}
 }
 
-func TestUpdateUsuario(t *testing.T) {
+func TestUpdateUser(t *testing.T) {
 	// Cria um mock do banco de dados e do sqlmock
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -154,13 +154,13 @@ func TestUpdateUsuario(t *testing.T) {
 	// Cria um mock do resultado da operação de atualização
 	mockResult := sqlmock.NewResult(0, 1) // 0 LastInsertId, 1 RowsAffected
 
-	// Prepara o mock para esperar a chamada que será feita pela função UpdateUsuario
+	// Prepara o mock para esperar a chamada que será feita pela função UpdateUser
 	mock.ExpectPrepare("UPDATE UsersTable SET").
 		ExpectExec().
 		WithArgs(
 			"John Doe Updated",
 			"johndoeupdated@example.com",
-			sqlmock.AnyArg(),
+			// sqlmock.AnyArg(),
 			"cliente",
 			1,
 		).
@@ -178,7 +178,7 @@ func TestUpdateUsuario(t *testing.T) {
 		Role:         "cliente",
 	}
 
-	// Chama a função UpdateUsuario
+	// Chama a função UpdateUser
 	err = store.UpdateUser(testUser)
 	assert.NoError(t, err)
 

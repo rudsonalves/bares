@@ -3,11 +3,10 @@ package services
 import (
 	"bares_api/models"
 	"bares_api/store"
+	"bares_api/utils"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
-	"regexp"
 )
 
 // UserService provides methods for user-related operations.
@@ -18,7 +17,9 @@ type UserService struct {
 type UserServiceInterface interface {
 	CreateUser(u *models.User) error
 	GetUser(id int) (*models.User, error)
+	GetAllUsers() ([]*models.User, error)
 	UpdateUser(u *models.User) error
+	UpdateUserPass(userId int, password string) error
 	DeleteUser(id int) error
 	CheckIfAdminExists() (bool, error)
 }
@@ -36,13 +37,13 @@ func NewUsuarioService(store store.UsuarioStorer) *UserService {
 // CreateUser handles the business logic for creating a new user.
 func (service *UserService) CreateUser(u *models.User) error {
 	// Validate e-mail.
-	if err := validarEmail(u.Email); err != nil {
+	if err := utils.ValidateEmail(u.Email); err != nil {
 		log.Print("erro CreateUsuario: ", err)
 		return fmt.Errorf("erro CreateUsuario: %v", err)
 	}
-	// Validate papel
-	if err := validateRope(u.Email, string(u.Role)); err != nil {
-		log.Print("Validar Papel: ", err)
+	// Validate role
+	if err := utils.ValidateRope(u.Email, string(u.Role)); err != nil {
+		log.Print("Validar Role: ", err)
 		return err
 	}
 
@@ -71,9 +72,18 @@ func (service *UserService) GetUser(id int) (*models.User, error) {
 	return service.store.GetUser(id)
 }
 
+func (service *UserService) GetAllUsers() ([]*models.User, error) {
+	return service.store.GetAllUsers()
+}
+
 // UpdateUser handles the logic for update an existing user.
 func (service *UserService) UpdateUser(u *models.User) error {
 	return service.store.UpdateUser(u)
+}
+
+func (service *UserService) UpdateUserPass(userId int, password string) error {
+
+	return service.store.UpdateUserPass(userId, password)
 }
 
 // DeleteUser handles the logic for delete an user.
@@ -91,28 +101,4 @@ func (service *UserService) CheckIfAdminExists() (bool, error) {
 		return true, nil
 	}
 	return false, nil
-}
-
-// validarEmail validate the email
-func validarEmail(email string) error {
-	strRE := `^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-
-	if ok, _ := regexp.MatchString(strRE, email); !ok {
-		return errors.New("endereço de e-mail inválido")
-	}
-	return nil
-}
-
-// validateRope checks if the email starts with mesa[0-9]{2,}, 'mesa' + table number.
-// In this case the role can only be 'cliente'.
-func validateRope(email string, papel string) error {
-	strRE := `^mesa[0-9]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-
-	if ok, _ := regexp.MatchString(strRE, email); ok {
-		if papel != string(models.Cliente) {
-			return errors.New("e-mail mesaXX@... devem ter papel == cliente")
-		}
-	}
-
-	return nil
 }

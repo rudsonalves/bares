@@ -37,7 +37,9 @@ func (handler *ItemOrderHandler) CreateItemOrder(w http.ResponseWriter, r *http.
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(itemOrder)
+	if err := json.NewEncoder(w).Encode(itemOrder); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // GetIItemOrder lida com requisições GET para buscar um ItemPedido pelo ID.
@@ -56,7 +58,9 @@ func (handler *ItemOrderHandler) GetIItemOrder(w http.ResponseWriter, r *http.Re
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(itemPedido)
+	if err := json.NewEncoder(w).Encode(itemPedido); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // UpdateItemOrder lida com requisições PUT para atualizar um ItemPedido existente.
@@ -74,7 +78,9 @@ func (handler *ItemOrderHandler) UpdateItemOrder(w http.ResponseWriter, r *http.
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(itemOrder)
+	if err := json.NewEncoder(w).Encode(itemOrder); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // DeleteItemOrder lida com requisições DELETE para remover um ItemPedido.

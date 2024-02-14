@@ -3,6 +3,7 @@ package handlers
 import (
 	"bares_api/models"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -19,11 +20,13 @@ const secretKey = "CPh@s?NU?<qHlb_T@dNK#tHE1r#6D1_iVBYgsRQ8h@mx3U!pfx7-uOE$I#l#!
 
 // AuthMiddleware checks the presence and validity of a JWT token.
 func AuthMiddleware(next http.Handler) http.Handler {
+	log.Println("AuthMiddleware: starting...")
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			// Extract the token from the Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
+				log.Printf("AuthMiddleware 0: Authorization header is required")
 				http.Error(w, "Authorization header is required", http.StatusUnauthorized)
 				return
 			}
@@ -31,6 +34,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			// Header format must be "Bearer <token>"
 			headerParts := strings.Split(authHeader, " ")
 			if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+				log.Printf("AuthMiddleware 1: Invalid Authorization header format")
 				http.Error(w, "Invalid Authorization header format", http.StatusUnauthorized)
 				return
 			}
@@ -41,6 +45,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			token, err := jwt.Parse(tokenString,
 				func(token *jwt.Token) (interface{}, error) {
 					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+						log.Printf("AuthMiddleware 2: unexpected signing method")
 						return nil, fmt.Errorf("unexpected signing method")
 					}
 					return []byte(secretKey), nil
@@ -48,64 +53,73 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			)
 
 			if err != nil {
+				log.Printf("AuthMiddleware 3: Invalid token")
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-				// Extrai o tipo de usuário (role) das claims do token
+				// Extracts the user type (role) from the token claims
 				roleStr, ok := claims["role"].(string)
 				if !ok {
+					log.Printf("AuthMiddleware 4: Role claim must be a string")
 					http.Error(w, "Role claim must be a string", http.StatusBadRequest)
 					return
 				}
 				userRole := models.Role(roleStr)
 				fmt.Println("Claims: ", claims)
 
-				// Implemente aqui a lógica de autorização baseada no tipo de usuário
+				// Implement authorization logic based on user type here
 				if !isAuthorized(userRole, r.URL.Path, r.Method) {
+					log.Printf("AuthMiddleware 4: Access denied")
 					http.Error(w, "Access denied", http.StatusForbidden)
 					return
 				}
 
 				next.ServeHTTP(w, r)
 			} else {
+				log.Printf("AuthMiddleware 5: Invalid token")
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 			}
 		},
 	)
 }
 
-// isAuthorized verifica se o usuário tem permissão para acessar o recurso com base no seu papel
+// isAuthorized checks if the user is allowed to access the resource based on their role
 func isAuthorized(userRole models.Role, path, method string) bool {
-	// Define padrões de caminho para identificar ações específicas
-	// Nota: estas são strings simplificadas, você pode precisar ajustar ou usar regex para caminhos mais complexos
+	// Defines path patterns to identify specific actions
+	// Note: these are simplified strings, you may need to adjust or use regex for more complex paths
 	isUserCreation := path == "/users" && method == "POST"
+	isUserUpdate := strings.Contains(path, "/users") && method == "PUT"
+	// isUserDelete := strings.Contains(path, "/users") && method == "DELETE"
 	isOrderCreation := path == "/orders" && method == "POST"
 	isOrderUpdate := strings.HasPrefix(path, "/orders/") && method == "PUT"
 	isItemOrderUpdate := strings.HasPrefix(path, "/itemOrder/") && method == "PUT"
 
 	switch userRole {
 	case models.Garcom:
-		// Garçom pode criar clientes e pedidos, e atualizar pedidos e itemOrder
-		if isUserCreation || isOrderCreation || isOrderUpdate || isItemOrderUpdate {
+		// Waiter can create customers and orders, and update orders and itemOrder
+		if isUserCreation || isOrderCreation || isOrderUpdate || isItemOrderUpdate || isUserUpdate {
 			return true
 		}
 	case models.Cliente:
-		// Cliente pode criar pedidos
+		// Customer can create orders
 		if isOrderCreation {
 			return true
 		}
 	case models.Cozinha:
-		// Cozinha pode atualizar pedidos
+		// Kitchen can update orders
 		if isOrderUpdate {
 			return true
 		}
-	case models.Admin, models.Gerente:
-		// Admin e Gerente presumivelmente têm acesso total para simplificação, ajuste conforme necessário
+	case models.Gerente:
+		// Admin and Manager presumably have full access for simplification, adjust as needed
+		return true
+	case models.Admin:
+		// Admin and Manager presumably have full access for simplification, adjust as needed
 		return true
 	}
 
-	// Por padrão, nega acesso se nenhuma das condições acima for atendida
+	// By default deny access if none of the above conditions are met
 	return false
 }
