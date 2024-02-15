@@ -11,7 +11,7 @@ import (
 
 // UserService provides methods for user-related operations.
 type UserService struct {
-	store store.UsuarioStorer
+	store store.UserStorer
 }
 
 type UserServiceInterface interface {
@@ -28,7 +28,7 @@ type UserServiceInterface interface {
 var _ UserServiceInterface = &UserService{}
 
 // NewUsuarioService creates a new instance of UsuarioService.
-func NewUsuarioService(store store.UsuarioStorer) *UserService {
+func NewUsuarioService(store store.UserStorer) *UserService {
 	return &UserService{
 		store: store,
 	}
@@ -82,7 +82,11 @@ func (service *UserService) UpdateUser(u *models.User) error {
 }
 
 func (service *UserService) UpdateUserPass(userId int, password string) error {
-
+	passwordStrength := utils.EvaluatePasswordStrength(password)
+	// FIXME: Verificar esta parte do código.
+	if passwordStrength.Score < 6 {
+		log.Printf("error UpdateUserPass: %s", passwordStrength.Feedback)
+	}
 	return service.store.UpdateUserPass(userId, password)
 }
 

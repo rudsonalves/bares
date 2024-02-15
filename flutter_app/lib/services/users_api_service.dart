@@ -58,6 +58,7 @@ class UsersApiService {
     }
   }
 
+  // getAllUsers return all users in sistem
   Future<List<UserModel>> getAllUsers(String token) async {
     final url = Uri.parse('${AppConst.apiUrlApi}/users');
 
@@ -83,12 +84,13 @@ class UsersApiService {
     }
   }
 
+  // updateUser update user informations, less password
   Future<UserModel?> updateUser(UserModel user, String token) async {
     if (user.id == null) {
       log('Error: User.id is null');
       throw UserApiUpdateException('Failed: User.id is null');
     }
-    final url = Uri.parse('${AppConst.apiUrlApi}/users/${user.id!}');
+    final url = Uri.parse('${AppConst.apiUrlApi}/users/${user.id}');
 
     try {
       final response = await http.put(
@@ -116,6 +118,38 @@ class UsersApiService {
       // Handle connection errors, timeouts, etc.
       log('Error: Handle connection errors, timeouts, ...: ${err.toString()}');
       return null;
+    }
+  }
+
+  Future<void> updateUserPass(UserModel user, String token) async {
+    if (user.id == null) {
+      log('Error: User.id is null');
+      throw UserApiUpdateException('Failed: User.id is null');
+    }
+    final url = Uri.parse('${AppConst.apiUrlApi}/users/password/${user.id}');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: user.toJson(),
+      );
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        log('Error: Failed to update user: ${response.statusCode}');
+        throw UserApiUpdateException(
+            'Failed to update user: ${response.statusCode}');
+      }
+    } on UserApiUpdateException {
+      return;
+    } catch (err) {
+      // Handle connection errors, timeouts, etc.
+      log('Error: Handle connection errors, timeouts, ...: ${err.toString()}');
+      return;
     }
   }
 }

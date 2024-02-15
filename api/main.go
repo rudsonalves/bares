@@ -42,7 +42,7 @@ func main() {
 	// Starting handlers
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService)
-	itemMenuHandler := handlers.NewMenuItemHandler(menuItemService)
+	menuItemHandler := handlers.NewMenuItemHandler(menuItemService)
 	orderHandler := handlers.NewOrderHandler(orderService)
 	itemOrderHandler := handlers.NewItemOrderHandler(itemOrderService)
 
@@ -63,15 +63,15 @@ func main() {
 
 	// The routes below require authentication
 	api.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
-	api.HandleFunc("/menuitem", itemMenuHandler.CreateMenuItem).Methods("POST")
+	api.HandleFunc("/menuitem", menuItemHandler.CreateMenuItem).Methods("POST")
 	api.HandleFunc("/order", orderHandler.CreateOrder).Methods("POST")
 	api.HandleFunc("/itemorder", itemOrderHandler.CreateItemOrder).Methods("POST")
 
 	api.HandleFunc("/users/{id}", userHandler.GetUser).Methods("GET")
 	api.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
-	api.HandleFunc("/itemmenu", itemMenuHandler.GetAllMenuItem).Methods("GET")
-	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.GetMenuItem).Methods("GET")
-	api.HandleFunc("/itemmenu/name/{name}", itemMenuHandler.GetMenuItemByNome).Methods("GET")
+	api.HandleFunc("/manuitem", menuItemHandler.GetAllMenuItem).Methods("GET")
+	api.HandleFunc("/manuitem/{id}", menuItemHandler.GetMenuItem).Methods("GET")
+	api.HandleFunc("/manuitem/name/{name}", menuItemHandler.GetMenuItemByName).Methods("GET")
 	api.HandleFunc("/order", orderHandler.GetPendingOrder).Methods("GET")
 	api.HandleFunc("/order/{id}", orderHandler.GetOrder).Methods("GET")
 	api.HandleFunc("/order/user/{id}", orderHandler.GetOrderByUser).Methods("GET")
@@ -79,12 +79,12 @@ func main() {
 
 	api.HandleFunc("/users/{id}", userHandler.UpdateUser).Methods("PUT")
 	api.HandleFunc("/users/password/{id}", userHandler.UpdateUserPass).Methods("PUT")
-	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.UpdateMenuItem).Methods("PUT")
+	api.HandleFunc("/manuitem/{id}", menuItemHandler.UpdateMenuItem).Methods("PUT")
 	api.HandleFunc("/order/{id}", orderHandler.UpdateOrder).Methods("PUT")
 	api.HandleFunc("/itemorder/{id}", itemOrderHandler.UpdateItemOrder).Methods("PUT")
 
 	api.HandleFunc("/users/{id}", userHandler.DeleteUser).Methods("DELETE")
-	api.HandleFunc("/itemmenu/{id}", itemMenuHandler.DeleteMenuItem).Methods("DELETE")
+	api.HandleFunc("/manuitem/{id}", menuItemHandler.DeleteMenuItem).Methods("DELETE")
 	api.HandleFunc("/order/{id}", orderHandler.DeleteOrder).Methods("DELETE")
 	api.HandleFunc("/itemorder/{id}", itemOrderHandler.DeleteItemOrder).Methods("DELETE")
 

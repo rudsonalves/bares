@@ -1,11 +1,11 @@
 import 'dart:developer';
 
-import 'package:bares_app/common/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../common/models/user_model.dart';
+import '../../../common/widgets/dialogs.dart';
 import '../../../services/secure_storage_manager.dart';
 import '../../../services/users_api_service.dart';
 import 'edit_controller.dart';
@@ -110,6 +110,85 @@ class _EditPageState extends State<EditPage> {
     return token;
   }
 
+  Future<void> _changePassword() async {
+    final password = signal<String>('');
+    final passwordError = signal<String?>(null);
+    final obscureText = signal<bool>(true);
+
+    bool? cancel = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Trocar Senha'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Form(
+              child: TextField(
+                onChanged: password.set,
+                obscureText: obscureText.watch(context),
+                decoration: InputDecoration(
+                  labelText: 'Entre uma nova Senha',
+                  errorText: passwordError.watch(context),
+                  suffix: IconButton(
+                    onPressed: () => obscureText.value = !obscureText(),
+                    icon: Icon(
+                      !obscureText() ? Icons.visibility : Icons.visibility_off,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cancela'),
+          ),
+          FilledButton(
+            onPressed: () {
+              passwordError.value = validatePassword(password());
+              if (passwordError() == null) {
+                Navigator.pop(context, false);
+              }
+            },
+            child: const Text('Alterar'),
+          ),
+        ],
+      ),
+    );
+
+    if (cancel != null && !cancel) {
+      String token = await _getToken();
+
+      user!.password = password();
+      await _userApiService.updateUserPass(user!, token);
+
+      if (!mounted) return;
+      password.dispose();
+      passwordError.dispose();
+      obscureText.dispose();
+      Navigator.pop(context);
+    }
+
+    password.dispose();
+    passwordError.dispose();
+    obscureText.dispose();
+  }
+
+  String? validatePassword(String? value) {
+    if (value == null) {
+      return "Password não pode ser nulo";
+    }
+
+    final regExp = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{6,16}$');
+    if (!regExp.hasMatch(value)) {
+      return "A senha deve possuir 6 a 16 caracteres entre números, letras maiúsculas e minúsculas";
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,7 +240,7 @@ class _EditPageState extends State<EditPage> {
                   : Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: OutlinedButton(
-                        onPressed: () {},
+                        onPressed: _changePassword,
                         child: const Text('Mudar senha?'),
                       ),
                     ),
