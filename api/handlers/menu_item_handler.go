@@ -10,19 +10,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// MenuItemHandler gerencia as requisições HTTP para itemMenu.
+// MenuItemHandler manages HTTP requests for itemMenu.
 type MenuItemHandler struct {
 	Service *services.MenuItemService
 }
 
-// NewMenuItemHandler cria uma nova instância de MenuItemHandler.
+// NewMenuItemHandler creates a new instance of MenuItemHandler.
 func NewMenuItemHandler(service *services.MenuItemService) *MenuItemHandler {
 	return &MenuItemHandler{
 		Service: service,
 	}
 }
 
-// CreateMenuItem lida com requisições POST para adicionar um novo ItemMenu.
+// CreateMenuItem handles POST requests to add a new ItemMenu.
 func (handler *MenuItemHandler) CreateMenuItem(w http.ResponseWriter, r *http.Request) {
 	var menuItem models.MenuItem
 	if err := json.NewDecoder(r.Body).Decode(&menuItem); err != nil {
@@ -42,7 +42,7 @@ func (handler *MenuItemHandler) CreateMenuItem(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// GetMenuItem lida com requisições GET para buscar um ItemMenu pelo ID.
+// Get MenuItem handle GET requests to search for a Menu Item by ID.
 func (handler *MenuItemHandler) GetMenuItem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -63,7 +63,7 @@ func (handler *MenuItemHandler) GetMenuItem(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// UpdateMenuItem lida com requisições PUT para atualizar um ItemMenu existente.
+// Update MenuItem handle PUT requests to update an existing Menu Item.
 func (handler *MenuItemHandler) UpdateMenuItem(w http.ResponseWriter, r *http.Request) {
 	var menuItem models.MenuItem
 	if err := json.NewDecoder(r.Body).Decode(&menuItem); err != nil {
@@ -83,7 +83,7 @@ func (handler *MenuItemHandler) UpdateMenuItem(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// DeleteMenuItem lida com requisições DELETE para remover um ItemMenu.
+// Delete MenuItem handle DELETE requests to remove a Menu Item.
 func (handler *MenuItemHandler) DeleteMenuItem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -101,7 +101,7 @@ func (handler *MenuItemHandler) DeleteMenuItem(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusOK)
 }
 
-// GetAllMenuItem lida com requisições GET para busca todos os itens do menu.
+// GetAllMenuItem handles GET requests to fetch all menu items.
 func (handler *MenuItemHandler) GetAllMenuItem(w http.ResponseWriter, r *http.Request) {
 	itensMenu, err := handler.Service.GetAllMenuItem()
 	if err != nil {
@@ -115,12 +115,12 @@ func (handler *MenuItemHandler) GetAllMenuItem(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// GetMenuItemByNome lida com requisições GET para retorna um item pelo nome
-func (handler *MenuItemHandler) GetMenuItemByNome(w http.ResponseWriter, r *http.Request) {
+// GetMenuItemByName handles GET requests to return an item by name
+func (handler *MenuItemHandler) GetMenuItemByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	nome, ok := vars["name"]
 	if !ok {
-		http.Error(w, "GetItemMenuByNome error", http.StatusBadRequest)
+		http.Error(w, "GetItemMenuByName error", http.StatusBadRequest)
 		return
 	}
 

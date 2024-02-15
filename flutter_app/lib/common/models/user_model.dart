@@ -77,7 +77,7 @@ class UserModel {
       'id': id,
       'name': name,
       'email': email,
-      'password': password ?? "",
+      'passwordHash': password ?? "",
       'role': role.name,
     };
   }

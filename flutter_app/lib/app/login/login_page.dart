@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                       visibility.value = !visibility.value;
                     },
                     icon: Icon(
-                      !visibility() ? Icons.visibility : Icons.visibility_off,
+                      !visibility() ? Icons.visibility_off : Icons.visibility,
                     ),
                   ),
                 ),

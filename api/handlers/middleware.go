@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -85,41 +86,122 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	)
 }
 
+type Permission struct {
+	Methods map[string]bool
+	Roles   map[models.Role]bool
+}
+
+var staticsPermissions = map[string]map[string][]models.Role{
+	"/api/users": {
+		"POST": {models.Garcom, models.Gerente, models.Admin},
+		"GET":  {models.Gerente, models.Admin, models.Caixa},
+	},
+	"/api/menuitem": {
+		"POST": {models.Gerente, models.Admin},
+		"GET":  {models.Gerente, models.Admin, models.Cozinha},
+	},
+	"/api/order": {
+		"POST": {models.Cliente, models.Garcom, models.Gerente, models.Admin},
+		"GET":  {models.Caixa, models.Gerente, models.Gerente, models.Admin, models.Cozinha, models.Caixa},
+	},
+	"/api/itemorder": {
+		"POST": {models.Cliente, models.Garcom, models.Gerente, models.Admin},
+	},
+}
+
+func CheckPermission(path, method string, userRole models.Role) bool {
+	if methodRoles, exists := staticsPermissions[path][method]; exists {
+		for _, role := range methodRoles {
+			if role == userRole {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+type DynamicRoutePermission struct {
+	Pattern *regexp.Regexp
+	Methods map[string][]models.Role
+}
+
+var dynamicPermissions = []DynamicRoutePermission{
+	{
+		Pattern: regexp.MustCompile(`^/api/users/\d+$`),
+		Methods: map[string][]models.Role{
+			"GET":    {models.Gerente, models.Admin, models.Caixa},
+			"PUT":    {models.Gerente, models.Admin},
+			"DELETE": {models.Gerente, models.Admin},
+		},
+	},
+	{
+		Pattern: regexp.MustCompile(`^/api/menuitem/\d+$`),
+		Methods: map[string][]models.Role{
+			"GET":    {models.Gerente, models.Admin, models.Cozinha},
+			"PUT":    {models.Gerente, models.Admin, models.Cozinha},
+			"DELETE": {models.Gerente, models.Admin},
+		},
+	},
+	{
+		Pattern: regexp.MustCompile(`^/api/menuitem/name/.*$`),
+		Methods: map[string][]models.Role{
+			"GET": {models.Cliente, models.Garcom, models.Gerente, models.Admin, models.Cozinha},
+		},
+	},
+	{
+		Pattern: regexp.MustCompile(`^/api/order/\d+$`),
+		Methods: map[string][]models.Role{
+			"GET":    {models.Cliente, models.Garcom, models.Gerente, models.Admin, models.Cozinha},
+			"PUT":    {models.Garcom, models.Gerente, models.Admin, models.Cozinha},
+			"DELETE": {models.Garcom, models.Gerente, models.Admin},
+		},
+	},
+	{
+		Pattern: regexp.MustCompile(`/api/order/user/\d+$`),
+		Methods: map[string][]models.Role{
+			"GET": {models.Cliente, models.Garcom, models.Gerente, models.Admin, models.Cozinha},
+		},
+	},
+	{
+		Pattern: regexp.MustCompile(`^/api/itemorder/\d+$`),
+		Methods: map[string][]models.Role{
+			"GET":    {models.Cliente, models.Garcom, models.Gerente, models.Admin, models.Cozinha},
+			"PUT":    {models.Garcom, models.Gerente, models.Admin, models.Cozinha},
+			"DELETE": {models.Garcom, models.Gerente, models.Admin},
+		},
+	},
+	{
+		Pattern: regexp.MustCompile(`^/api/users/password/\d+$`),
+		Methods: map[string][]models.Role{
+			"PUT": {models.Gerente, models.Admin},
+		},
+	},
+}
+
 // isAuthorized checks if the user is allowed to access the resource based on their role
 func isAuthorized(userRole models.Role, path, method string) bool {
-	// Defines path patterns to identify specific actions
-	// Note: these are simplified strings, you may need to adjust or use regex for more complex paths
-	isUserCreation := path == "/users" && method == "POST"
-	isUserUpdate := strings.Contains(path, "/users") && method == "PUT"
-	// isUserDelete := strings.Contains(path, "/users") && method == "DELETE"
-	isOrderCreation := path == "/orders" && method == "POST"
-	isOrderUpdate := strings.HasPrefix(path, "/orders/") && method == "PUT"
-	isItemOrderUpdate := strings.HasPrefix(path, "/itemOrder/") && method == "PUT"
-
-	switch userRole {
-	case models.Garcom:
-		// Waiter can create customers and orders, and update orders and itemOrder
-		if isUserCreation || isOrderCreation || isOrderUpdate || isItemOrderUpdate || isUserUpdate {
-			return true
+	// Check statics permissions
+	if roles, ok := staticsPermissions[path][method]; ok {
+		for _, role := range roles {
+			if role == userRole {
+				return true
+			}
 		}
-	case models.Cliente:
-		// Customer can create orders
-		if isOrderCreation {
-			return true
-		}
-	case models.Cozinha:
-		// Kitchen can update orders
-		if isOrderUpdate {
-			return true
-		}
-	case models.Gerente:
-		// Admin and Manager presumably have full access for simplification, adjust as needed
-		return true
-	case models.Admin:
-		// Admin and Manager presumably have full access for simplification, adjust as needed
-		return true
 	}
 
-	// By default deny access if none of the above conditions are met
+	// Check dynamics permissions
+	for _, perm := range dynamicPermissions {
+		if perm.Pattern.MatchString(path) {
+			if roles, ok := perm.Methods[method]; ok {
+				for _, role := range roles {
+					if role == userRole {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	log.Printf("Unauthorized userRole: %v  path: %s  method: %s", userRole, path, method)
 	return false
 }
