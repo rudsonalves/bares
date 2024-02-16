@@ -11,6 +11,16 @@ class EditController {
   final passwordError = signal<String?>(null);
   final role = signal<Role>(Role.cliente);
 
+  void dispose() {
+    name.dispose();
+    nameError.dispose();
+    email.dispose();
+    emailError.dispose();
+    password.dispose();
+    passwordError.dispose();
+    role.dispose();
+  }
+
   void init(UserModel user) {
     name.value = user.name;
     email.value = user.email;

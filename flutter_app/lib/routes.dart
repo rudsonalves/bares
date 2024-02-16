@@ -1,8 +1,9 @@
 import 'package:routefly/routefly.dart';
 
-import 'app/app_page.dart' as a4;
+import 'app/app_page.dart' as a5;
 import 'app/dashboard/dashboard_page.dart' as a1;
 import 'app/login/login_page.dart' as a0;
+import 'app/menu/menu_page.dart' as a4;
 import 'app/users/edit/edit_page.dart' as a3;
 import 'app/users/users_page.dart' as a2;
 
@@ -44,12 +45,21 @@ List<RouteEntity> get routes => [
     ),
   ),
   RouteEntity(
+    key: '/menu',
+    uri: Uri.parse('/menu'),
+    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+      ctx,
+      settings,
+      const a4.MenuPage(),
+    ),
+  ),
+  RouteEntity(
     key: '/',
     uri: Uri.parse('/'),
     routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
       ctx,
       settings,
-      const a4.AppPage(),
+      const a5.AppPage(),
     ),
   ),
 ];
@@ -62,4 +72,5 @@ const routePaths = (
     path: '/users',
     edit: '/users/edit',
   ),
+  menu: '/menu',
 );

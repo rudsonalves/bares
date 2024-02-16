@@ -6,7 +6,6 @@ import 'package:signals/signals_flutter.dart';
 
 import '../../../common/models/user_model.dart';
 import '../../../common/widgets/dialogs.dart';
-import '../../../services/secure_storage_manager.dart';
 import '../../../services/users_api_service.dart';
 import 'edit_controller.dart';
 
@@ -20,14 +19,19 @@ class EditPage extends StatefulWidget {
 class _EditPageState extends State<EditPage> {
   final _controller = EditController();
   final _visibility = signal<bool>(false);
-  final _userApiService = UsersApiService();
-  final _secureStorage = SecureStorageManager.instance;
 
   late final String title;
   late final String buttonLabel;
   late final bool newUserMode;
   late final UserModel? user;
   late final void Function() callbackFunc;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _visibility.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -57,9 +61,7 @@ class _EditPageState extends State<EditPage> {
         role: _controller.role(),
       );
 
-      String token = await _getToken();
-
-      final createUser = await _userApiService.createUser(user, token);
+      final createUser = await UsersApiService.createUser(user);
       if (createUser == null) {
         log('Error: Create user return null.');
         if (!mounted) return;
@@ -82,9 +84,7 @@ class _EditPageState extends State<EditPage> {
       user!.password = _controller.password();
       user!.role = _controller.role();
 
-      String token = await _getToken();
-
-      final updateUser = await _userApiService.updateUser(user!, token);
+      final updateUser = await UsersApiService.updateUser(user!);
       if (updateUser == null) {
         log('Error: Update user return null.');
         if (!mounted) return;
@@ -98,16 +98,6 @@ class _EditPageState extends State<EditPage> {
       callbackFunc();
       Navigator.pop(context);
     }
-  }
-
-  Future<String> _getToken() async {
-    String? token = await _secureStorage.getToken();
-    if (token == null) {
-      const message = 'Error: You don\'t have an authentication token';
-      log(message);
-      throw Exception(message);
-    }
-    return token;
   }
 
   Future<void> _changePassword() async {
@@ -159,10 +149,8 @@ class _EditPageState extends State<EditPage> {
     );
 
     if (cancel != null && !cancel) {
-      String token = await _getToken();
-
       user!.password = password();
-      await _userApiService.updateUserPass(user!, token);
+      await UsersApiService.updateUserPass(user!);
 
       if (!mounted) return;
       password.dispose();

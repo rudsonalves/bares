@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:signals/signals_flutter.dart';
 
-import '../../common/models/user_model.dart';
-import '../../services/users_api_service.dart';
+import '../../common/models/menu_item_model.dart';
+import '../../services/menu_item_api_service.dart';
 
 enum PageStatus {
   pageStateInitial,
@@ -12,27 +12,27 @@ enum PageStatus {
   pageStateError,
 }
 
-class UserController {
-  final _usersList = <UserModel>[];
+class MenuController {
+  final _menuItemList = <MenuItemModel>[];
   final state = signal<PageStatus>(PageStatus.pageStateInitial);
 
-  List<UserModel> get userList => _usersList;
+  List<MenuItemModel> get menuItemList => _menuItemList;
 
   void init() {
-    _getUsersList();
+    _getMenuItemsList();
   }
 
   void dispose() {
     state.dispose();
   }
 
-  Future<void> _getUsersList() async {
+  Future<void> _getMenuItemsList() async {
     try {
       state.value = PageStatus.pageStateLoading;
-      _usersList.clear();
+      _menuItemList.clear();
       await Future.delayed(const Duration(milliseconds: 1000));
-      final users = await UsersApiService.getAllUsers();
-      _usersList.addAll(users);
+      final menuItems = await MenuItemApiService.getAllMenuItems();
+      _menuItemList.addAll(menuItems);
       state.value = PageStatus.pageStateSuccess;
     } catch (err) {
       log('Erro: $err');
@@ -41,10 +41,10 @@ class UserController {
   }
 
   Future<void> addUser() async {
-    _getUsersList();
+    _getMenuItemsList();
   }
 
   Future<void> updateUser() async {
-    _getUsersList();
+    _getMenuItemsList();
   }
 }

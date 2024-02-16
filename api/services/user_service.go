@@ -81,6 +81,7 @@ func (service *UserService) UpdateUser(u *models.User) error {
 	return service.store.UpdateUser(u)
 }
 
+// UpdateUserPass takes care of updating the user's password.
 func (service *UserService) UpdateUserPass(userId int, password string) error {
 	passwordStrength := utils.EvaluatePasswordStrength(password)
 	// FIXME: Verificar esta parte do código.
