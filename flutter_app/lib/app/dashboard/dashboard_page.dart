@@ -41,7 +41,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 crossAxisCount: 2,
                 children: [
                   InkWell(
-                    onTap: () => Routefly.push('/users'),
+                    onTap: () => Routefly.push(routePaths.users.path),
                     child: Card(
                       child: Center(
                         child: Column(
@@ -57,17 +57,20 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                   ),
-                  Card(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/images/menu_manager.png',
-                            scale: 2,
-                          ),
-                          const Text("Gerenciar Pratos"),
-                        ],
+                  InkWell(
+                    onTap: () => Routefly.push(routePaths.menu),
+                    child: Card(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/menu_manager.png',
+                              scale: 2,
+                            ),
+                            const Text("Gerenciar Pratos"),
+                          ],
+                        ),
                       ),
                     ),
                   ),

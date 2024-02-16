@@ -177,7 +177,6 @@ func (store *UserStore) GetAllUsers() ([]*models.User, error) {
 
 // UpdateUser updates a user's password.
 func (store *UserStore) UpdateUserPass(userId int, password string) error {
-	log.Printf("UpdateUserPass: id(%d) password(%q)", userId, password)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("error UpdateUserPass: %v", err)

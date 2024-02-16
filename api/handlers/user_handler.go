@@ -125,6 +125,7 @@ func (handler *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateUserPass handlers PUT request to update user password.
 func (handler *UserHandler) UpdateUserPass(w http.ResponseWriter, r *http.Request) {
 	log.Println("UserHandler.UpdateUserPass 0: starting...")
 	var user models.User
