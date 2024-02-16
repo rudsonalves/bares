@@ -231,6 +231,47 @@ api/
 
 ## Changelog
 
+### 2023/02/16 - version: 0.2.4
+
+This commit makes significant enhancements and fixes across both the API and the Flutter application, focusing on route naming corrections, documentation adjustments, and the removal of debug messages in the API, alongside introducing new features and improvements in the Flutter app for a better user management experience. Here’s a comprehensive review:
+
+- **API Adjustments**:
+  - **Main Go**: Further corrections have been made to route names, ensuring clarity and consistency.
+  - **User Service**: Documentation has been refined to better describe the service functionalities.
+  - **User Store**: Removed a stray debug message, cleaning up the code.
+
+- **Flutter App Enhancements**:
+  - **User Roles Images**: New images for user roles have been added to `flutter_app/assets/images/*`, enhancing visual representation.
+  - **Dashboard Navigation**: Implemented an `onTab` function for menu page navigation, improving user interaction.
+  - **Menu Management**: Introduced `MenuController` with state management for a menu item list and began constructing the `menu_page.dart` for menu item display and interactions.
+  - **User Edit and Management**: Added `dispose()` methods in `edit_controller.dart` and `edit_page.dart` for proper signal disposal, enhancing performance and resource management. Token management has been shifted to the services directory for better structure.
+  - **User Actions**: Implemented `editUser`, `deleteUser` methods, and introduced `DismissibleListTile` widget in `users_page.dart` for swipe-to-edit/delete actions, significantly improving user management UX.
+  - **Role-Image Mapping**: Added a `roleImage` map in `app_const.dart` to associate user roles with corresponding images, further improving the UI.
+  - **Services Enhancements**: Added `functions.dart` for generic functions, `menuItem_api_service.dart` for menu item API interactions, and refined `users_api_service.dart` with standardized exceptions, error messages, and static methods for REST API access, including a method for deleting users.
+
+This commit not only refines the API and Flutter app through minor fixes and documentation improvements but also significantly advances the app's functionality with the introduction of new features for user and menu item management, enhancing both the backend and frontend aspects of the application.
+
+### 2024/02/14 - version: 0.2.2
+
+This commit further advances the API and Flutter app by enhancing English translations for comments, logs, and messages, improving user management features, and adding new images for the dashboard. Here's a summary of the significant updates:
+
+- **API Enhancements**:
+  - **Password Validation**: The `CheckAndCreateAdminUser` function now utilizes `EvaluatePasswordStrength` for password validation.
+  - **Logging Improvements**: New log messages have been added across various handlers (`auth.go`, `item_order_handler.go`, `menu_item_handler.go`, `order_handler.go`) to better track API execution and error evaluations.
+  - **User Management**: The `user_handler.go` introduces `GetAllUsers` for listing system users and `UpdateUserPass` for password updates, alongside log message enhancements.
+  - **Database Connection Test**: The database now tests the connection with `db.Ping()` to ensure reliability.
+  - **SQL Constants and Methods**: New constants and methods for user retrieval and password updates enhance user store operations, avoiding password manipulation in user updates.
+  - **Utility Functions**: Separation of `CreateDataBaseConn` into `database_functions.go` and renaming `utils.go` to `generic_functions.go`, including improvements like `GenerateRandomPassword` utilizing `EvaluatePasswordStrength`.
+
+- **Flutter App Updates**:
+  - **Dashboard Images**: New images have been added to `flutter_app/assets/images/` for the dashboard, enhancing the UI.
+  - **Navigation and Error Handling**: Adjustments in `app_page.dart` and `login_controller.dart` improve app navigation and clarify login error messages.
+  - **User Editing**: The `edit_page.dart` and `edit_controller.dart` receive updates for more intuitive user management, including a method for initializing user data and adjusting validation checks.
+  - **User Listing and Management**: The `users_page.dart` now displays a user list for management actions, supported by enhanced user model functions and API service exceptions for clearer error handling.
+
+This commit significantly enhances both the backend API and the Flutter frontend, focusing on user management, error handling, and overall usability improvements, alongside the introduction of new visual elements for a more engaging user interface.
+
+
 ### 2023/02/09 - version 0.2.1:
 
 This commit introduces several adjustments and enhancements to the API and the Flutter app, focusing on authorization mechanisms and user experience improvements. Here’s a condensed overview of the key changes implemented:
