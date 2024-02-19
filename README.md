@@ -231,6 +231,24 @@ api/
 
 ## Changelog
 
+### 2023/02/16 - version: 0.2.5
+
+This commit introduces some structural and functional improvements to the API, with a focus on improving routing configuration, refining error handling, and fixing method naming conventions. Below is a detailed breakdown of the changes:
+
+- **API Routing Refinement**:
+  - **Bootstrap**: Introduced the `SetupRouter(dbStore *store.DatabaseStore) *mux.Router` method in `bootstrap.go`, centralizing the API routing setup to improve the organization and scalability of the codebase.
+  - **Main Go**: Removed API routing setup from `main.go` and relocated it to `bootstrap.go`, streamlining the application's entry point and separating concerns more clearly.
+
+- **Service and Utility Adjustments**:
+  - **User Service**: Corrected the method name from `utils.ValidateRole`, ensuring it accurately reflects its functionality and adheres to naming conventions.
+  - **Generic Functions**: Fixed the method name in `generic_functions.go` to `func ValidateRole(email string, role string) error`, aligning with standard naming practices and enhancing code readability.
+
+- **Error Handling and Logging**:
+  - **Database Store**: Changed a `log.Fatal` to a `log.Printf` in `database.go`. This adjustment is aimed not to halt the application but to generate a notification, improving the error handling strategy by preventing the application from stopping unexpectedly during a recoverable error scenario.
+
+These changes collectively enhance the API's architecture by improving routing setup procedures, refining the clarity and accuracy of method names, and adopting a more nuanced approach to error handling and logging. This contributes to a more maintainable, scalable, and robust application.
+
+
 ### 2023/02/16 - version: 0.2.4
 
 This commit makes significant enhancements and fixes across both the API and the Flutter application, focusing on route naming corrections, documentation adjustments, and the removal of debug messages in the API, alongside introducing new features and improvements in the Flutter app for a better user management experience. Here’s a comprehensive review:
@@ -250,6 +268,7 @@ This commit makes significant enhancements and fixes across both the API and the
   - **Services Enhancements**: Added `functions.dart` for generic functions, `menuItem_api_service.dart` for menu item API interactions, and refined `users_api_service.dart` with standardized exceptions, error messages, and static methods for REST API access, including a method for deleting users.
 
 This commit not only refines the API and Flutter app through minor fixes and documentation improvements but also significantly advances the app's functionality with the introduction of new features for user and menu item management, enhancing both the backend and frontend aspects of the application.
+
 
 ### 2024/02/14 - version: 0.2.2
 

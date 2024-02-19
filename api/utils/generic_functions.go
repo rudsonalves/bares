@@ -94,7 +94,7 @@ func ValidateEmail(email string) error {
 
 // validateRope checks if the email starts with mesa[0-9]{2,}, 'mesa' + table number.
 // In this case the role can only be 'cliente'.
-func ValidateRope(email string, role string) error {
+func ValidateRole(email string, role string) error {
 
 	if ok := ropeRegex.MatchString(email); ok {
 		if role != string(models.Cliente) {

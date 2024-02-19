@@ -208,6 +208,6 @@ func (store *DatabaseStore) createIndexes() error {
 func (store *DatabaseStore) DatabaseClose() {
 	err := store.DB.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("DatabaseClose :%v", err)
 	}
 }

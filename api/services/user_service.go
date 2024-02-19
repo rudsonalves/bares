@@ -42,7 +42,7 @@ func (service *UserService) CreateUser(u *models.User) error {
 		return fmt.Errorf("erro CreateUsuario: %v", err)
 	}
 	// Validate role
-	if err := utils.ValidateRope(u.Email, string(u.Role)); err != nil {
+	if err := utils.ValidateRole(u.Email, string(u.Role)); err != nil {
 		log.Print("Validar Role: ", err)
 		return err
 	}
